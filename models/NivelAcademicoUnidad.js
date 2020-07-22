@@ -1,20 +1,19 @@
-module.exports = (sequelize, type, Materia)=>{
+module.exports = (sequelize, type, NivelAcademico, Unidad) =>{
 
-    return sequelize.define('unidad', {
-        codigo:{
-            type: type.STRING(12),
-            primaryKey: true,
-            allownull: false
-        },
-        descripcion:{
-            type: type.STRING(),
-            allownull: false
-        },
-        codigo_materia:{
+    return sequelize.define('nivel_academico_unidad',{
+        codigo_nivel_academico:{
             type: type.STRING(12),
             allownull: false,
             references:{
-                model: Materia,
+                model: NivelAcademico,
+                key: 'codigo'
+            }   
+        },
+        codigo_unidad:{
+            type: type.STRING(12),
+            allownull: false,
+            references:{
+                model: Unidad,
                 key: 'codigo'
             }
         },
@@ -29,6 +28,6 @@ module.exports = (sequelize, type, Materia)=>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'unidades'
+        tableName: 'niveles_academicos_unidades'
     })
 }

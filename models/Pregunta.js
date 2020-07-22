@@ -1,4 +1,4 @@
-module.exports = (sequelize, type) =>{
+module.exports = (sequelize, type, Unidad) =>{
 
     return sequelize.define('pregunta',{
         codigo:{
@@ -7,20 +7,29 @@ module.exports = (sequelize, type) =>{
             allownull: false
         },
         pregunta:{
-            type: type.STRING(),
+            type: type.STRING,
             allownull: false
         },
         imagen:{
-            type: type.STRING(),
+            type: type.STRING,
             allownull: false
         },
         puntaje:{
             type: type.INTEGER,
             allownull: false
         },
+        codigo_unidad:{
+            type: type.STRING(12),
+            allownull: false,
+            references:{
+                model: Unidad,
+                key: 'codigo'
+            }
+        },
         inactivo:{
             type: type.BOOLEAN,
-            allownull: false
+            allownull: false,
+            defaultValue: false
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).

@@ -7,12 +7,13 @@ module.exports = (sequelize, type) =>{
             allownull: false
         },
         descripcion:{
-            type: type.STRING(),
+            type: type.STRING,
             allownull: false
         },
         inactivo:{
             type: type.BOOLEAN,
-            allownull: false
+            allownull: false,
+            defaultValue: false
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).

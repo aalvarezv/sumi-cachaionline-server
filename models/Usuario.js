@@ -1,4 +1,4 @@
-module.exports = (sequelize, type) =>{
+module.exports = (sequelize, type, Rol) =>{
 
     return sequelize.define('usuario', {
         rut:{
@@ -26,9 +26,13 @@ module.exports = (sequelize, type) =>{
             type: type.INTEGER,
             allowNull: false
         },
-        codigo_nivel_academico:{
+        codigo_rol:{
             type: type.STRING(12),
-            allowNull: false
+            allowNull: false,
+            references:{
+                model: Rol,
+                key: 'codigo'
+            }
         },
         inactivo:{
             type: type.BOOLEAN,

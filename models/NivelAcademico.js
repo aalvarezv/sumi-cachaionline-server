@@ -1,9 +1,9 @@
 module.exports = (sequelize, type) => {
 
-    return sequelize.define('nivel_academico',{
+    return sequelize.define('nivel_academico', {
         codigo:{
             type: type.STRING(12),
-            primarykey: true,
+            primaryKey: true,
             allownull: false
         },
         descripcion:{
@@ -12,7 +12,8 @@ module.exports = (sequelize, type) => {
         },
         inactivo:{
             type: type.BOOLEAN,
-            allownull: false
+            allownull: false,
+            defaultValue: false
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).
@@ -22,4 +23,6 @@ module.exports = (sequelize, type) => {
         //agrega el nombre de la tabla.
         tableName: 'niveles_academicos'
     })
+
+
 }
