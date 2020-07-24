@@ -76,10 +76,10 @@ sequelize.sync({ force: true })
             descripcion: 'PROFESOR'
         }])
         console.log('ROLES INSERTADOS')
+
         const usuarios = await Usuario.bulkCreate([
         {
             rut: '123456789',
-            codigo: '1',
             clave: 'prueba1',
             nombre: 'eduardo',
             email: 'ed.alvarezv@gmail.',
@@ -87,7 +87,6 @@ sequelize.sync({ force: true })
             codigo_rol: '2'
         },{
             rut: '987654321',
-            codigo: '2',
             clave: 'prueba2',
             nombre: 'nicolas',
             email: 'ed.alvarezv@gmail.',
@@ -95,7 +94,6 @@ sequelize.sync({ force: true })
             codigo_rol: '1'
         },{
             rut: '643256781',
-            codigo: '3',
             clave: 'prueba3',
             nombre: 'alan',
             email: 'alvarez.vargas@gmail.',

@@ -6,10 +6,6 @@ module.exports = (sequelize, type, Rol) =>{
             primaryKey: true,
             allowNull: false 
         },
-        codigo:{
-            type: type.STRING(12),
-            allowNull: false
-        },
         clave:{
             type: type.STRING,
             allowNull: false
@@ -36,7 +32,8 @@ module.exports = (sequelize, type, Rol) =>{
         },
         inactivo:{
             type: type.BOOLEAN,
-            allowNull: false
+            allowNull: false,
+            defaultValue: false
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).

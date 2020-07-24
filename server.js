@@ -16,7 +16,6 @@ app.use(express.json({ extended: true , limit: '30mb'}))
 //Import de rutas.
 app.use(require('./routes/index'))
 
-
 //Inicia el servidor.
 app.listen(PORT, () => {
     console.log(`El servidor está funcionando en el puerto ${PORT} ${new Date().toLocaleTimeString()}`)
