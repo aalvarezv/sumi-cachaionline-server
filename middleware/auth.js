@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 const auth = (req, res, next) => {
 
     //leer token del header
@@ -20,6 +22,7 @@ const auth = (req, res, next) => {
         next() //permite que avance al siguiente middleware
         
     } catch (error) {
+        console.log(error);
         res.status(401).json({msg: 'Token no válido'})
     }
 

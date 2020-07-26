@@ -1,6 +1,6 @@
 module.exports = (sequelize, type, Pregunta) =>{
 
-    return sequelize.define('Alternativa',{
+    return sequelize.define('alternativa',{
         codigo:{
             type: type.STRING(12),
             primaryKey: true,
@@ -33,6 +33,6 @@ module.exports = (sequelize, type, Pregunta) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'Alternativas'
+        tableName: 'alternativas'
     })
 }
