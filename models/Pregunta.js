@@ -6,7 +6,7 @@ module.exports = (sequelize, type, Unidad) =>{
             primaryKey: true,
             allownull: false
         },
-        pregunta:{
+        descripcion:{
             type: type.STRING,
             allownull: false
         },

@@ -17,6 +17,7 @@ exports.crearUsuario = async (req, res) => {
             });
         }
 
+
         //verifica que el rol sea válido.
         let rol = await Rol.findByPk(codigo_rol);
         if(!rol){
@@ -48,7 +49,7 @@ exports.crearUsuario = async (req, res) => {
     }catch(error){
         console.log(error);
         res.status(500).send({
-            msg: 'Hubo un error'
+            msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
 
@@ -95,18 +96,19 @@ exports.actualizarUsuario = async (req, res) => {
 
         //actualiza los datos.
         usuario = await Usuario.update({
-                rut,
                 nombre,
                 email,
                 telefono,
                 codigo_rol
-        })
+        },{ where: {
+                rut
+        }})
 
         res.json({
-            usuario
+            msg: "Usuario actualizado exitosamente"
         });
 
-     } catch (error) {
+     } catch(error){
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -154,9 +156,9 @@ exports.datosUsuario = async (req, res) => {
         //obtiene el parametro desde la url
         const {rut} = req.params
         //consulta por el usuario
-        const usuario = await Usuario.findByPk(rut, {
-            attributes: { exclude: ['clave'] }
-        });
+        const usuario = await Usuario.findByPk(rut, 
+            { attributes: { exclude: ['clave'] }}
+            );
         //si el usuario no existe
         if(!usuario){
             return res.status(404).send({

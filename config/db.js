@@ -80,21 +80,21 @@ sequelize.sync({ force: true })
         const usuarios = await Usuario.bulkCreate([
         {
             rut: '123456789',
-            clave: 'prueba1',
+            clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
             nombre: 'eduardo',
             email: 'ed.alvarezv@gmail.',
             telefono: 12345678,
             codigo_rol: '2'
         },{
             rut: '987654321',
-            clave: 'prueba2',
+            clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
             nombre: 'nicolas',
             email: 'ed.alvarezv@gmail.',
             telefono: 12345698,
             codigo_rol: '1'
         },{
             rut: '643256781',
-            clave: 'prueba3',
+            clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
             nombre: 'alan',
             email: 'alvarez.vargas@gmail.',
             telefono: 12345633,
@@ -143,25 +143,25 @@ sequelize.sync({ force: true })
         const preguntas = await Pregunta.bulkCreate([
             {
             codigo: '1',
-            pregunta: '¿CUANTO ES 2+2?',
+            descripcion: '¿CUANTO ES 2+2?',
             imagen: 'jpn',
             puntaje: 2,
             codigo_unidad: '1'
         },{
             codigo: '3',
-            pregunta: '¿CUANTO ES 5+12?',
+            descripcion: '¿CUANTO ES 5+12?',
             imagen: 'jpn',
             puntaje: 1,
             codigo_unidad: '1'
         },{
             codigo: '2',
-            pregunta: '¿CUANTO ES 12X5?',
+            descripcion: '¿CUANTO ES 12X5?',
             imagen: 'png',
             puntaje: 3,
             codigo_unidad: '3'
         },{
             codigo: '4',
-            pregunta: '¿CUANTO ES 1x0?',
+            descripcion: '¿CUANTO ES 1x0?',
             imagen: 'png',
             puntaje: 2,
             codigo_unidad: '3'

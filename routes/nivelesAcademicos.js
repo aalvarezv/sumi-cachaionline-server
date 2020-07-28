@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {nivelAcademico} = require('../controllers/nivelAcademicoController');
+const auth = require('../middleware/auth');
 
-router.get('/', nivelAcademico);
+const { crearNivelAcademico, listarNivelesAcademicos, actualizarNivelAcademico, eliminarNivelAcademico, datosNivelAcademico} = require('../controllers/nivelAcademicoController');
+
+router.post('/crear', auth, crearNivelAcademico);
+router.get('/listar', auth, listarNivelesAcademicos);
+router.put('/actualizar', auth, actualizarNivelAcademico);
+router.delete('/eliminar/:codigo', auth, eliminarNivelAcademico);
+router.get('/datos/:codigo', auth, datosNivelAcademico);
+
 
 module.exports = router;

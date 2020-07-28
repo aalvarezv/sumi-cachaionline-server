@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const {listarUnidades} = require('../controllers/unidadController');
+const auth = require('../middleware/auth');
 
-router.get('/', listarUnidades)
+
+const {listarUnidades, crearUnidad, actualizarUnidades, eliminarUnidades, datosUnidad} = require('../controllers/unidadController');
+
+
+router.post('/crear', auth, crearUnidad)
+router.get('/listar', auth, listarUnidades);
+router.put('/actualizar', auth, actualizarUnidades)
+router.delete('/eliminar/:codigo', auth, eliminarUnidades);
+router.get('/datos/:codigo', auth, datosUnidad);
 
 module.exports = router;
