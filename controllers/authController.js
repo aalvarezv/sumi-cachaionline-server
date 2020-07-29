@@ -64,7 +64,36 @@ const autenticarUsuario = async (req, res) => {
     }
 }
 
+const datosUsuarioAutenticado = async (req, res) => {
+
+    try {
+        //obtiene el parametro desde la url
+        const {rut} = req.usuario
+        //consulta por el usuario
+        const usuario = await Usuario.findByPk(rut, 
+            { attributes: { exclude: ['clave'] }}
+            );
+        //si el usuario no existe
+        if(!usuario){
+            return res.status(404).send({
+                msg: `El usuario ${rut} no existe`
+            })
+        }
+        //envia la información del usuario
+        res.json({
+            usuario
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+    
+}
 
 module.exports = {
     autenticarUsuario,
+    datosUsuarioAutenticado
 }

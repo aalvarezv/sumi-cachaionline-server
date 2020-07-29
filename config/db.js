@@ -79,24 +79,31 @@ sequelize.sync({ force: true })
 
         const usuarios = await Usuario.bulkCreate([
         {
-            rut: '123456789',
+            rut: '93733991',
             clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-            nombre: 'eduardo',
-            email: 'ed.alvarezv@gmail.',
+            nombre: 'Eduardo Patricio Alvarez Opazo',
+            email: 'ed.alvarezv@gmail.com',
             telefono: 12345678,
             codigo_rol: '2'
         },{
-            rut: '987654321',
+            rut: '92622908',
             clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-            nombre: 'nicolas',
-            email: 'ed.alvarezv@gmail.',
+            nombre: 'Maria Gloria Vargas Hernandez',
+            email: 'mar.vargash@gmail.com',
+            telefono: 12345678,
+            codigo_rol: '2'
+        },{
+            rut: '18999799K',
+            clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
+            nombre: 'Eduardo Nicolas Alvarez Vargas',
+            email: 'ed.alvarezv@gmail.com',
             telefono: 12345698,
             codigo_rol: '1'
         },{
-            rut: '643256781',
+            rut: '162323695',
             clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-            nombre: 'alan',
-            email: 'alvarez.vargas@gmail.',
+            nombre: 'Alan Patricio Alvarez Vargas',
+            email: 'alvarez.vargas@gmail.com',
             telefono: 12345633,
             codigo_rol: '3'
         }])
