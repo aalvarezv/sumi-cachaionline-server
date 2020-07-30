@@ -12,7 +12,7 @@ exports.crearAlternativa = async (req, res) => {
 
         
         let alternativa = await Alternativa.findByPk(codigo);
-        if (usuario) {
+        if (alternativa) {
             console.log('La alternativa ya existe');
             return res.status(400).json({
                 msg: 'La alternativa ya existe'
@@ -152,8 +152,7 @@ exports.datosAlternativa = async (req, res) => {
         
         const {codigo} = req.params
         
-        const alternativa = await Alternativa.findByPk(alternativa);
-        
+        const alternativa = await Alternativa.findByPk(codigo);
         if(!alternativa){
             return res.status(404).send({
                 msg: `La alternativa ${codigo} no existe`

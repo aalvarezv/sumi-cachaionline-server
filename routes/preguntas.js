@@ -8,6 +8,6 @@ router.post('/crear', auth, crearPregunta);
 router.get('/listar', auth, listarPreguntas);
 router.put('/actualizar', auth, actualizarPregunta);
 router.delete('/eliminar/:codigo', auth, eliminarPregunta);
-router.get('/datos/:rut', auth, datosPreguntas);
+router.get('/datos/:codigo', auth, datosPreguntas);
 
 module.exports = router;

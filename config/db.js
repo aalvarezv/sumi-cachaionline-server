@@ -10,6 +10,10 @@ const PreguntaModel = require('../models/Pregunta');
 const RolModel = require('../models/Rol');
 const UnidadModel = require('../models/Unidad');
 const NivelAcademicoUnidadModel = require('../models/NivelAcademicoUnidad');
+const RespuestaDetalleModel = require('../models/RespuestaDetalle');
+const RespuestaResumenModel = require('../models/RespuestaResumen');
+const RespuestaUnidadModel = require('../models/RespuestaUnidad');
+
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI,{
@@ -40,6 +44,9 @@ const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const NivelAcademicoUnidad = NivelAcademicoUnidadModel(sequelize,Sequelize,NivelAcademico,Unidad);
 const Pregunta = PreguntaModel(sequelize,Sequelize,Unidad);
 const Alternativa = AlternativaModel(sequelize,Sequelize,Pregunta);
+const RespuestaResumen = RespuestaResumenModel(sequelize,Sequelize,Usuario,Materia);
+const RespuestaUnidad = RespuestaUnidadModel(sequelize,Sequelize,RespuestaResumen,Unidad);
+const RespuestaDetalle = RespuestaDetalleModel(sequelize,Sequelize,Pregunta, Alternativa)
 
 //Relaciones
 Rol.hasMany(Usuario, {foreignKey: 'codigo_rol'});
@@ -58,6 +65,16 @@ NivelAcademico.hasMany(NivelAcademicoUnidad, {foreignKey: 'codigo_nivel_academic
 NivelAcademicoUnidad.belongsTo(NivelAcademico, {foreignKey: 'codigo_nivel_academico'});
 Unidad.hasMany(NivelAcademicoUnidad, {foreignKey: 'codigo_unidad'});
 NivelAcademicoUnidad.belongsTo(Unidad, {foreignKey: 'codigo_unidad'}); 
+
+
+Usuario.hasMany(RespuestaResumen, {foreignKey: 'rut_usuario'});
+Materia.hasMany(RespuestaResumen, {foreignKey: 'codigo_materia'});
+
+RespuestaResumen.hasMany(RespuestaUnidad, {foreignKey: 'codigo_respuesta_resumen'});
+Unidad.hasMany(RespuestaUnidad, {foreignKey: 'codigo_unidad'});
+
+Pregunta.hasMany(RespuestaDetalle, {foreignKey: 'codigo_pregunta'});
+Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
 
 
 sequelize.sync({ force: true })

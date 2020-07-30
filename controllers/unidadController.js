@@ -96,7 +96,7 @@ exports.eliminarUnidades = async (req, res) => {
 
     try{
 
-        const{rut} = req.params;
+        const{codigo} = req.params;
 
         let unidad = await Unidad.findByPk(codigo);
         if(!unidad){
@@ -127,14 +127,13 @@ exports.datosUnidad = async (req, res) => {
     try {
         
         const {codigo} = req.params
-        o
         const unidad = await Unidad.findByPk(codigo);
         if(!unidad){
             return res.status(404).send({
-                msg: `El usuario ${codigo} no existe`
+                msg: `La unidad ${codigo} no existe`
             })
         }
-        //envia la información del usuario
+        
         res.json({
             unidad
         })
