@@ -6,7 +6,15 @@ module.exports = (sequelize, type) =>{
             primaryKey: true,
             allownull: false
         },
+        nombre:{
+            type: type.STRING(64),
+            allownull: false
+        },
         descripcion:{
+            type: type.STRING(2048),
+            allownull: false
+        },
+        imagen:{
             type: type.STRING,
             allownull: false
         },

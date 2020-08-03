@@ -1,8 +1,16 @@
 const {Usuario, Rol} = require('../config/db');
 const bcrypt = require('bcryptjs');
+//llama el resultado de la validación
+const { validationResult } = require('express-validator');
 
 
 exports.crearUsuario = async (req, res) => {
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
     
     try{
     

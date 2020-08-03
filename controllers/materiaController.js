@@ -35,15 +35,24 @@ exports.crearMateria = async (req, res) =>{
 exports.listarMaterias = async (req, res) =>{
    
     try{
-        const materia = await Materia.findAll();
-        res.json({
-            materia
+        const materias = await Materia.findAll({
+            where:{
+                inactivo: false
+            },
+            order: [
+                ['nombre', 'ASC'],
+            ]
         });
+
+        res.json({
+            materias
+        });
+
     }catch(error){
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
     }
 }
 
@@ -57,38 +66,39 @@ exports.actualizarMaterias = async (req, res) =>{
         if(!materia){
             return res.status(404).send({
                 msg: `La materia ${codigo} no existe`
-            })
+            });
         }
 
         materia = await Materia.update({
             descripcion
         },{ where: {
             codigo
-        }})
+        }});
 
         res.json({
             msg: "Materia actualizada existosamente"
-        })
+        });
 
     }catch(error){
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
     }
 }
 
 exports.eliminarMaterias = async (req, res) =>{
 
     try{
+
         const {codigo} = req.params;
         let materia = await Materia.findByPk(codigo);
+        
         if(!materia){
             return res.status(404).send({
                 msg: `La materia ${codigo} no existe`
-            })
+            });
         }
-
 
         materia = await Materia.destroy({
             where: {
@@ -104,29 +114,30 @@ exports.eliminarMaterias = async (req, res) =>{
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
     }
 }
 
 exports.datosMaterias = async (req, res) =>{
 
     try{
-        const {codigo} = req.params
+        const {codigo} = req.params;
 
         const materia = await Materia.findByPk(codigo);
 
         if(!materia){
             return res.satus(404).send({
                 msg: `La materia ${codigo} no existe`
-            })
+            });
         }
         res.json({
             materia
-        })
+        });
+
     }catch(error){
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
     }
 }

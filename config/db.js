@@ -128,13 +128,21 @@ sequelize.sync({ force: true })
         const materias = await Materia.bulkCreate([
             {
             codigo: '1',
-            descripcion: 'MATEMATICAS'
-        },{
-            codigo: '3',
-            descripcion: 'LENGUAJE'
+            nombre: 'MATEMÁTICAS',
+            descripcion: 'Las matemáticas son la ciencia de los números y los cálculos. Desde la antigüedad, el hombre utiliza las matemáticas para hacer la vida más fácil y organizar la sociedad. La matemática fue utilizada por los egipcios en la construcción de las pirámides, presas, canales de riego y estudios de astronomía. Los antiguos griegos también desarrollaron varios conceptos matemáticos.',
+            imagen: 'http://localhost/materias/matematicas.jpg'
         },{
             codigo: '2',
-            descripcion: 'HISTORIA'
+            nombre: 'CIENCIAS',
+            descripcion: 'La ciencia en un sentido amplio, existía antes de la era moderna y en muchas civilizaciones.1​ La ciencia moderna es distinta en su enfoque y exitosa en sus resultados, por lo que ahora define lo que es la ciencia en el sentido más estricto del término.2​3​ "Ciencia" era una palabra para categorizar un tipo de conocimiento específico, más que una palabra que define la búsqueda de dicho conocimiento. En particular, era el tipo de conocimiento que las personas pueden comunicarse entre sí y compartir. Por ejemplo, el conocimiento sobre el funcionamiento de las cosas naturales se acumuló mucho antes de que se registrara la historia y condujo al desarrollo de un pensamiento abstracto complejo.',
+            imagen: 'http://localhost/materias/ciencias.jpg'
+
+        },{
+            codigo: '3',
+            nombre: 'LENGUAJE Y COMUNICACIÓN',
+            descripcion: 'El lenguaje oral constituye el grado más alto de evolución lingüística, alcanzando únicamente por el ser humano. Es utilizado como instrumento de comunicación, representación y de relación social y es de vital importancia para el desarrollo cognitivo, social y afectivo del individuo, de aquí, el papel primordial que el lenguaje oral tiene dentro de la nueva legislación del sistema educativo y más concretamente en la definición de competencia de comunicación lingüística.',
+            imagen: 'http://localhost/materias/lenguaje_comunicacion.jpg'
+
         }])
         console.log('MATERIAS INSERTADAS')
         const unidades = await Unidad.bulkCreate([

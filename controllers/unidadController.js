@@ -63,14 +63,14 @@ exports.actualizarUnidades = async (req, res) =>{
         if(!unidad){
             return res.status(400).send({
                 msg: `La unidad ${codigo} no existe`
-            })
+            });
         }
 
         let materia = await Materia.findByPk(codigo_materia);
         if(!materia){
             return res.status(400).send({
                 msg: `La materia ${codigo_materia} no existe`
-            })
+            });
         }
 
         unidad = await Unidad.update({
@@ -78,7 +78,7 @@ exports.actualizarUnidades = async (req, res) =>{
             codigo_materia
         },{ where: {
             codigo
-        }})
+        }});
 
         res.json({
             msg: "Unidad actualizada exitosamente"
@@ -88,7 +88,7 @@ exports.actualizarUnidades = async (req, res) =>{
         console.log(error);
         res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
-        })
+        });
     }
 }
 
@@ -118,7 +118,7 @@ exports.eliminarUnidades = async (req, res) => {
         console.log(error);
         res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
-        })
+        });
     }
 }
 
@@ -126,22 +126,56 @@ exports.datosUnidad = async (req, res) => {
 
     try {
         
-        const {codigo} = req.params
+        const {codigo} = req.params;
         const unidad = await Unidad.findByPk(codigo);
         if(!unidad){
             return res.status(404).send({
                 msg: `La unidad ${codigo} no existe`
-            })
+            });
         }
         
         res.json({
             unidad
-        })
+        });
 
     } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
+    }
+}
+
+exports.unidadesMateria = async (req, res) => {
+
+    try {
+        
+        const {codigo_materia} = req.params;
+
+        const unidades = await Unidad.findAll({
+            where:{
+                codigo_materia,
+                inactivo: false
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        });
+
+        if(!unidades){
+            return res.status(404).send({
+                msg: `La materia ${codigo_materia} no tiene unidades asociadas`
+            });
+        }
+        
+        res.json({
+            unidades
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
     }
 }
