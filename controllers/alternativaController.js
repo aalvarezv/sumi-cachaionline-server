@@ -1,11 +1,13 @@
 const {Alternativa, Pregunta} = require('../config/db');
-
-
-
-
+const { validationResult } = require('express-validator');
 
 exports.crearAlternativa = async (req, res) => {
     
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     try{
     
         const {codigo, descripcion, correcta, codigo_pregunta} = req.body;

@@ -46,7 +46,7 @@ const Pregunta = PreguntaModel(sequelize,Sequelize,Unidad);
 const Alternativa = AlternativaModel(sequelize,Sequelize,Pregunta);
 const RespuestaResumen = RespuestaResumenModel(sequelize,Sequelize,Usuario,Materia);
 const RespuestaUnidad = RespuestaUnidadModel(sequelize,Sequelize,RespuestaResumen,Unidad);
-const RespuestaDetalle = RespuestaDetalleModel(sequelize,Sequelize,Pregunta, Alternativa)
+const RespuestaDetalle = RespuestaDetalleModel(sequelize,Sequelize,Pregunta, Alternativa); 
 
 //Relaciones
 Rol.hasMany(Usuario, {foreignKey: 'codigo_rol'});
@@ -75,6 +75,7 @@ Unidad.hasMany(RespuestaUnidad, {foreignKey: 'codigo_unidad'});
 
 Pregunta.hasMany(RespuestaDetalle, {foreignKey: 'codigo_pregunta'});
 Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
+RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resumen'});
 
 
 sequelize.sync({ force: true })
