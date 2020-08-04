@@ -11,6 +11,6 @@ router.get('/listar', auth, listarUnidades);
 router.put('/actualizar', auth, actualizarUnidades)
 router.delete('/eliminar/:codigo', auth, eliminarUnidades);
 router.get('/datos/:codigo', auth, datosUnidad);
-router.get('/materia/:codigo_materia', auth, unidadesMateria);
+router.get('/materia/:codigo_materia', unidadesMateria);
 
 module.exports = router;

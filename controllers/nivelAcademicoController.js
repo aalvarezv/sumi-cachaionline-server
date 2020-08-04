@@ -36,15 +36,17 @@ exports.crearNivelAcademico = async (req, res) =>{
 exports.listarNivelesAcademicos = async (req, res) =>{
    
     try{
-        const nivelAcademico = await NivelAcademico.findAll();
+        
+        const niveles_academicos = await NivelAcademico.findAll();
         res.json({
-            nivelAcademico
+            niveles_academicos
         });
+
     }catch(error){
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
-        })
+        });
     }
 }
 

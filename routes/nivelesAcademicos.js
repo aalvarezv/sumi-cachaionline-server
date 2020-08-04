@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const { crearNivelAcademico, listarNivelesAcademicos, actualizarNivelAcademico, eliminarNivelAcademico, datosNivelAcademico} = require('../controllers/nivelAcademicoController');
 
 router.post('/crear', auth, crearNivelAcademico);
-router.get('/listar', auth, listarNivelesAcademicos);
+router.get('/listar', listarNivelesAcademicos);
 router.put('/actualizar', auth, actualizarNivelAcademico);
 router.delete('/eliminar/:codigo', auth, eliminarNivelAcademico);
 router.get('/datos/:codigo', auth, datosNivelAcademico);
