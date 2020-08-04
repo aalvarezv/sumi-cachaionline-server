@@ -1,7 +1,13 @@
 const {Unidad, Materia} = require('../config/db');
+const { validationResult } = require('express-validator');
 
 exports.crearUnidad = async (req, res) =>{
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+   
     try{
         const{codigo, descripcion, codigo_materia} = req.body;
 
@@ -35,7 +41,7 @@ exports.crearUnidad = async (req, res) =>{
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error'
-        })
+        });
     }
 }
 
@@ -50,7 +56,7 @@ exports.listarUnidades = async (req, res) =>{
         console.log(error);
         res.satus(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
-        })
+        });
     }
 }
 
@@ -102,7 +108,7 @@ exports.eliminarUnidades = async (req, res) => {
         if(!unidad){
             return res.status(404).send({
                 msg: `La unidad ${codigo} no existe`
-            })
+            });
         }
         unidad = await Unidad.destroy({
             where: {
