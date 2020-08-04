@@ -75,6 +75,7 @@ Unidad.hasMany(RespuestaUnidad, {foreignKey: 'codigo_unidad'});
 
 Pregunta.hasMany(RespuestaDetalle, {foreignKey: 'codigo_pregunta'});
 Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
+RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resumen'});
 
 
 sequelize.sync({ force: true })

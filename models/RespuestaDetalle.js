@@ -1,10 +1,19 @@
-module.exports = (sequelize, type, Pregunta, Alternativa) =>{
+module.exports = (sequelize, type, RespuestaResumen, Pregunta, Alternativa) =>{
 
     return sequelize.define('respuesta_nodedetalle',{
+
         codigo:{
             type: type.STRING(12),
             primaryKey: true,
             allownull: false
+        },
+        codigo_respuesta_resumen:{
+            type: type.STRING(12),
+            allownull: false,
+            references:{
+                model: RespuestaResumen,
+                key: 'codigo'
+            }
         },
         codigo_pregunta:{
             type: type.STRING(12),
