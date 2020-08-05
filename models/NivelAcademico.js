@@ -10,6 +10,11 @@ module.exports = (sequelize, type) => {
             type: type.STRING,
             allownull: false
         },
+        nivel:{
+            type: type.INTEGER,
+            allownull: false,
+            defaultValue: 0
+        },
         inactivo:{
             type: type.BOOLEAN,
             allownull: false,

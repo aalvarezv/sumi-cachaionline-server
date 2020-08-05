@@ -9,7 +9,8 @@ const NivelAcademicoModel = require('../models/NivelAcademico');
 const PreguntaModel = require('../models/Pregunta');
 const RolModel = require('../models/Rol');
 const UnidadModel = require('../models/Unidad');
-const NivelAcademicoUnidadModel = require('../models/NivelAcademicoUnidad');
+const ModuloModel = require('../models/Modulo');
+
 const RespuestaDetalleModel = require('../models/RespuestaDetalle');
 const RespuestaResumenModel = require('../models/RespuestaResumen');
 const RespuestaUnidadModel = require('../models/RespuestaUnidad');
@@ -37,16 +38,19 @@ const sequelize = new Sequelize(process.env.DB_URI,{
 });
 //crea el modelo
 const Rol = RolModel(sequelize,Sequelize);
-const Usuario = UsuarioModel(sequelize, Sequelize,Rol);
-const Materia = MateriaModel(sequelize,Sequelize);
-const Unidad = UnidadModel(sequelize,Sequelize,Materia);
+const Usuario = UsuarioModel(sequelize, Sequelize, Rol);
+const Materia = MateriaModel(sequelize, Sequelize);
+const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
-const NivelAcademicoUnidad = NivelAcademicoUnidadModel(sequelize,Sequelize,NivelAcademico,Unidad);
-const Pregunta = PreguntaModel(sequelize,Sequelize,Unidad);
-const Alternativa = AlternativaModel(sequelize,Sequelize,Pregunta);
-const RespuestaResumen = RespuestaResumenModel(sequelize,Sequelize,Usuario,Materia);
-const RespuestaUnidad = RespuestaUnidadModel(sequelize,Sequelize,RespuestaResumen,Unidad);
-const RespuestaDetalle = RespuestaDetalleModel(sequelize,Sequelize,Pregunta, Alternativa); 
+const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
+const Pregunta = PreguntaModel(sequelize, Sequelize, Unidad);
+const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
+
+/*
+const RespuestaResumen = RespuestaResumenModel(sequelize, Sequelize, Usuario, Materia);
+const RespuestaUnidad = RespuestaUnidadModel(sequelize, Sequelize, RespuestaResumen, Unidad);
+const RespuestaDetalle = RespuestaDetalleModel(sequelize, Sequelize, Pregunta, Alternativa); 
+*/
 
 //Relaciones
 Rol.hasMany(Usuario, {foreignKey: 'codigo_rol'});
@@ -55,18 +59,20 @@ Usuario.belongsTo(Rol, {foreignKey: 'codigo_rol'});
 Materia.hasMany(Unidad, {foreignKey: 'codigo_materia'});
 Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia'});
 
-Unidad.hasMany(Pregunta, {foreignKey: 'codigo_unidad'});
-Pregunta.belongsTo(Unidad, {foreignKey: 'codigo_unidad'});
+Unidad.hasMany(Modulo, {foreignKey: 'codigo_unidad'});
+Modulo.belongsTo(Unidad, {foreignKey: 'codigo_unidad'});
+
+NivelAcademico.hasMany(Modulo, {foreignKey: 'codigo_nivel_academico'});
+Modulo.belongsTo(NivelAcademico, {foreignKey: 'codigo_nivel_academico'});
+
+Modulo.hasMany(Pregunta, {foreignKey: 'codigo_modulo'});
+Pregunta.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 
 Pregunta.hasMany(Alternativa, {foreignKey: 'codigo_pregunta'});
 Alternativa.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'});
 
-NivelAcademico.hasMany(NivelAcademicoUnidad, {foreignKey: 'codigo_nivel_academico'});
-NivelAcademicoUnidad.belongsTo(NivelAcademico, {foreignKey: 'codigo_nivel_academico'});
-Unidad.hasMany(NivelAcademicoUnidad, {foreignKey: 'codigo_unidad'});
-NivelAcademicoUnidad.belongsTo(Unidad, {foreignKey: 'codigo_unidad'}); 
 
-
+/*
 Usuario.hasMany(RespuestaResumen, {foreignKey: 'rut_usuario'});
 Materia.hasMany(RespuestaResumen, {foreignKey: 'codigo_materia'});
 
@@ -76,7 +82,7 @@ Unidad.hasMany(RespuestaUnidad, {foreignKey: 'codigo_unidad'});
 Pregunta.hasMany(RespuestaDetalle, {foreignKey: 'codigo_pregunta'});
 Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
 RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resumen'});
-
+*/
 
 sequelize.sync({ force: true })
   .then( async () => {
@@ -92,8 +98,8 @@ sequelize.sync({ force: true })
         },{
             codigo: '3',
             descripcion: 'PROFESOR'
-        }])
-        console.log('ROLES INSERTADOS')
+        }]);
+        console.log('ROLES INSERTADOS');
 
         const usuarios = await Usuario.bulkCreate([
         {
@@ -124,178 +130,107 @@ sequelize.sync({ force: true })
             email: 'alvarez.vargas@gmail.com',
             telefono: 12345633,
             codigo_rol: '3'
+        }]);
+        console.log('USUARIOS INSERTADOS');
+
+        const niveles = await NivelAcademico.bulkCreate([{
+            codigo: '1',
+            descripcion: 'PRIMERO MEDIO',
+            nivel: 1
+        },{
+            codigo: '2',
+            descripcion: 'SEGUNDO MEDIO',
+            nivel: 2
+        },{
+            codigo: '3',
+            descripcion: 'TERCERO MEDIO',
+            nivel: 3
+        },{
+            codigo: '4',
+            descripcion: 'CUARTO MEDIO',
+            nivel: 4
         }])
-        console.log('USUARIOS INSERTADOS')
+        console.log('NIVELES ACADEMICOS INSERTADOS');
+
         const materias = await Materia.bulkCreate([
             {
-            codigo: '1',
+            codigo: 'MAT',
             nombre: 'MATEMÁTICAS',
             descripcion: 'Las matemáticas son la ciencia de los números y los cálculos. Desde la antigüedad, el hombre utiliza las matemáticas para hacer la vida más fácil y organizar la sociedad. La matemática fue utilizada por los egipcios en la construcción de las pirámides, presas, canales de riego y estudios de astronomía. Los antiguos griegos también desarrollaron varios conceptos matemáticos.',
             imagen: 'http://localhost/materias/matematicas.jpg'
         },{
-            codigo: '2',
+            codigo: 'CIE',
             nombre: 'CIENCIAS',
             descripcion: 'La ciencia en un sentido amplio, existía antes de la era moderna y en muchas civilizaciones.1​ La ciencia moderna es distinta en su enfoque y exitosa en sus resultados, por lo que ahora define lo que es la ciencia en el sentido más estricto del término.2​3​ "Ciencia" era una palabra para categorizar un tipo de conocimiento específico, más que una palabra que define la búsqueda de dicho conocimiento. En particular, era el tipo de conocimiento que las personas pueden comunicarse entre sí y compartir. Por ejemplo, el conocimiento sobre el funcionamiento de las cosas naturales se acumuló mucho antes de que se registrara la historia y condujo al desarrollo de un pensamiento abstracto complejo.',
             imagen: 'http://localhost/materias/ciencias.jpg'
 
         },{
-            codigo: '3',
+            codigo: 'LEN',
             nombre: 'LENGUAJE Y COMUNICACIÓN',
             descripcion: 'El lenguaje oral constituye el grado más alto de evolución lingüística, alcanzando únicamente por el ser humano. Es utilizado como instrumento de comunicación, representación y de relación social y es de vital importancia para el desarrollo cognitivo, social y afectivo del individuo, de aquí, el papel primordial que el lenguaje oral tiene dentro de la nueva legislación del sistema educativo y más concretamente en la definición de competencia de comunicación lingüística.',
             imagen: 'http://localhost/materias/lenguaje_comunicacion.jpg'
+        }]);
+        console.log('MATERIAS INSERTADAS');
 
-        }])
-        console.log('MATERIAS INSERTADAS')
         const unidades = await Unidad.bulkCreate([
             {
             codigo: '1',
-            descripcion: 'SUMAS',
-            codigo_materia: '1'
-        },{
-            codigo: '3',
-            descripcion: 'MULTIPLICACIONES',
-            codigo_materia: '1'
+            descripcion: 'NUMEROS',
+            codigo_materia: 'MAT'
         },{
             codigo: '2',
-            descripcion: 'CONECTORES',
-            codigo_materia: '3'
+            descripcion: 'ALGEBRA',
+            codigo_materia: 'MAT'
+        },{
+            codigo: '3',
+            descripcion: 'GEOMETRÍA',
+            codigo_materia: 'MAT'
         },{
             codigo: '4',
-            descripcion: 'LITERATURA',
-            codigo_materia: '3'
+            descripcion: 'DATOS Y AZAR',
+            codigo_materia: 'MAT'
+        }]);
+        console.log ('UNIDADES INSERTADAS');
+
+        const modulos = await Modulo.bulkCreate([
+        {
+            codigo: '1',
+            descripcion: 'NUMEROS NATURALES',
+            codigo_unidad: '1',
+            codigo_nivel_academico: '1'
+        },{
+            codigo: '2',
+            descripcion: 'NUMEROS CARDINALES',
+            codigo_unidad: '1',
+            codigo_nivel_academico: '1'
+        },{
+            codigo: '3',
+            descripcion: 'NUMEROS ENTEROS',
+            codigo_unidad: '1',
+            codigo_nivel_academico: '2'
+        },{
+            codigo: '4',
+            descripcion: 'CUADRADO DE TRINOMIO',
+            codigo_unidad: '2',
+            codigo_nivel_academico: '3'
         },{
             codigo: '5',
-            descripcion: 'HISTORIA DE CHILE',
-            codigo_materia: '2'
+            descripcion: 'IDENTIDAD DE GAUSS',
+            codigo_unidad: '2',
+            codigo_nivel_academico: '4'
         },{
             codigo: '6',
-            descripcion: 'PRIMERA GUERRA MUNDIAL',
-            codigo_materia: '2'
-        }])
-        console.log ('UNIDADES INSERTADAS')
-        const preguntas = await Pregunta.bulkCreate([
-            {
-            codigo: '1',
-            descripcion: '¿CUANTO ES 2+2?',
-            imagen: 'jpn',
-            puntaje: 2,
-            codigo_unidad: '1'
-        },{
-            codigo: '3',
-            descripcion: '¿CUANTO ES 5+12?',
-            imagen: 'jpn',
-            puntaje: 1,
-            codigo_unidad: '1'
-        },{
-            codigo: '2',
-            descripcion: '¿CUANTO ES 12X5?',
-            imagen: 'png',
-            puntaje: 3,
-            codigo_unidad: '3'
-        },{
-            codigo: '4',
-            descripcion: '¿CUANTO ES 1x0?',
-            imagen: 'png',
-            puntaje: 2,
-            codigo_unidad: '3'
-        }])
-        console.log('PREGUNTAS INSERTADAS');
-        const alternativas = Alternativa.bulkCreate([{
-            codigo: '1',
-            descripcion: '4',
-            correcta: true,
-            codigo_pregunta: '1'
-        },{
-            codigo: '2',
-            descripcion: '20',
-            correcta: false,
-            codigo_pregunta: '1'
-        },{
-            codigo: '3',
-            descripcion: '2',
-            correcta: false,
-            codigo_pregunta: '1'
-        },{
-            codigo: '4',
-            descripcion: '15',
-            correcta: false,
-            codigo_pregunta: '3'
-        },{
-            codigo: '5',
-            descripcion: '17',
-            correcta: true,
-            codigo_pregunta: '3'
-        },{
-            codigo: '6',
-            descripcion: '10',
-            correcta: false,
-            codigo_pregunta: '3'
+            descripcion: 'TEOREMA DE LAGRANGE 1',
+            codigo_unidad: '2',
+            codigo_nivel_academico: '4'
         },{
             codigo: '7',
-            descripcion: '12',
-            correcta: false,
-            codigo_pregunta: '2'
-        },{
-            codigo: '8',
-            descripcion: '55',
-            correcta: false,
-            codigo_pregunta: '2'
-        },{
-            codigo: '9',
-            descripcion: '60',
-            correcta: true,
-            codigo_pregunta: '2'
-        },{
-            codigo: '10',
-            descripcion: '1',
-            correcta: false,
-            codigo_pregunta: '4'
-        },{
-            codigo: '11',
-            descripcion: '0',
-            correcta: true,
-            codigo_pregunta: '4'
-        },{
-            codigo: '12',
-            descripcion: '10',
-            correcta: false,
-            codigo_pregunta: '4'
-        }])
-        console.log('ALTERNATIVAS INSERTADAS')
-        const niveles = await NivelAcademico.bulkCreate([{
-            codigo: '1',
-            descripcion: 'PRIMERO MEDIO'
-        },{
-            codigo: '2',
-            descripcion: 'SEGUNDO MEDIO'
-        },{
-            codigo: '3',
-            descripcion: 'TERCERO MEDIO'
-        },{
-            codigo: '4',
-            descripcion: 'CUARTO MEDIO'
-        }])
-        console.log('NIVELES ACADEMICOS INSERTADOS')
-        const nivelacademico_unidad = NivelAcademicoUnidad.bulkCreate([{
-            codigo_nivel_academico: '1',
-            codigo_unidad: '1'
-        },{
-            codigo_nivel_academico: '2',
-            codigo_unidad: '3'
-        },{
-            codigo_nivel_academico: '3',
-            codigo_unidad: '1'
-        },{
-            codigo_nivel_academico: '3',
-            codigo_unidad: '3'
-        },{
-            codigo_nivel_academico: '4',
-            codigo_unidad: '2'
-        },{
-            codigo_nivel_academico: '4',
-            codigo_unidad: '4'
-        }])
-        console.log('NIVELES ACADEMICOS POR UNIDADES INSERTADOS')
+            descripcion: 'TEOREMA DE LAGRANGE 2',
+            codigo_unidad: '2',
+            codigo_nivel_academico: '4'
+        }]);
+        console.log ('MODULOS INSERTADOS');
+        
     } catch (error) {
         console.log(error);
     }
@@ -310,5 +245,5 @@ module.exports = {
     Pregunta,
     Rol,
     Unidad,
-    NivelAcademicoUnidad
+    Modulo,
 }

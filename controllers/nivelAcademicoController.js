@@ -43,7 +43,15 @@ exports.listarNivelesAcademicos = async (req, res) =>{
    
     try{
         
-        const niveles_academicos = await NivelAcademico.findAll();
+        const niveles_academicos = await NivelAcademico.findAll({
+            where:{
+                inactivo: false
+            },
+            order: [
+                ['nivel', 'ASC'],
+            ]
+        });
+        
         res.json({
             niveles_academicos
         });

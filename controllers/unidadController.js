@@ -1,4 +1,4 @@
-const {Unidad, Materia} = require('../config/db');
+const { Unidad, Materia, Modulo } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 exports.crearUnidad = async (req, res) =>{
@@ -159,6 +159,9 @@ exports.unidadesMateria = async (req, res) => {
         const {codigo_materia} = req.params;
 
         const unidades = await Unidad.findAll({
+            include:[{
+                model: Modulo
+            }],
             where:{
                 codigo_materia,
                 inactivo: false
@@ -185,3 +188,4 @@ exports.unidadesMateria = async (req, res) => {
         });
     }
 }
+

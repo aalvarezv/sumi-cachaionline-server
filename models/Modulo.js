@@ -1,13 +1,14 @@
-module.exports = (sequelize, type, NivelAcademico, Unidad) =>{
+module.exports = (sequelize, type, Unidad, NivelAcademico) =>{
 
-    return sequelize.define('nivel_academico_unidad',{
-        codigo_nivel_academico:{
+    return sequelize.define('modulo',{
+        codigo:{
             type: type.STRING(12),
-            allownull: false,
-            references:{
-                model: NivelAcademico,
-                key: 'codigo'
-            }   
+            primaryKey: true,
+            allownull: false
+        },
+        descripcion:{
+            type: type.STRING(),
+            allownull: false
         },
         codigo_unidad:{
             type: type.STRING(12),
@@ -17,10 +18,18 @@ module.exports = (sequelize, type, NivelAcademico, Unidad) =>{
                 key: 'codigo'
             }
         },
+        codigo_nivel_academico:{
+            type: type.STRING(12),
+            allownull: false,
+            references:{
+                model: NivelAcademico,
+                key: 'codigo'
+            }
+        },
         inactivo:{
             type: type.BOOLEAN,
             allownull: false,
-            defaultValue: false
+            defaultValue: false,
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).
@@ -28,6 +37,6 @@ module.exports = (sequelize, type, NivelAcademico, Unidad) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'niveles_academicos_unidades'
+        tableName: 'modulos'
     })
 }

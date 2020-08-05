@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Unidad) =>{
+module.exports = (sequelize, type, Modulo) =>{
 
     return sequelize.define('pregunta',{
         codigo:{
@@ -6,23 +6,43 @@ module.exports = (sequelize, type, Unidad) =>{
             primaryKey: true,
             allownull: false
         },
-        descripcion:{
+        pregunta_texto:{
             type: type.STRING,
             allownull: false
         },
-        imagen:{
+        pregunta_imagen:{
             type: type.STRING,
             allownull: false
         },
-        puntaje:{
-            type: type.INTEGER,
+        pregunta_audio:{
+            type: type.STRING,
             allownull: false
         },
-        codigo_unidad:{
+        pregunta_video:{
+            type: type.STRING,
+            allownull: false
+        },
+        respuesta_texto:{
+            type: type.STRING,
+            allownull: false
+        },
+        respuesta_imagen:{
+            type: type.STRING,
+            allownull: false
+        },
+        respuesta_audio:{
+            type: type.STRING,
+            allownull: false
+        },
+        respuesta_video:{
+            type: type.STRING,
+            allownull: false
+        },
+        codigo_modulo:{
             type: type.STRING(12),
             allownull: false,
             references:{
-                model: Unidad,
+                model: Modulo,
                 key: 'codigo'
             }
         },

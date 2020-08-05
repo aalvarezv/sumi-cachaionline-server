@@ -1,6 +1,7 @@
 module.exports = (sequelize, type, Materia)=>{
 
     return sequelize.define('unidad', {
+        
         codigo:{
             type: type.STRING(12),
             primaryKey: true,

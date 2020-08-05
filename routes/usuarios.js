@@ -6,7 +6,8 @@ const { body, check } = require('express-validator');
 
 const {crearUsuario, listarUsuarios, actualizarUsuario, eliminarUsuario, datosUsuario} = require('../controllers/usuarioController');
 
-router.post('/crear', [
+router.post('/crear', 
+[
     check('rut').not().isEmpty().withMessage('El rut es obligatorio, verifique'),
     body('rut').if(body('rut').exists()).isLength({ min: 8, max: 9 }).withMessage('El rut no es válido, verifique'),
     check('clave').not().isEmpty().withMessage('La clave es obligatoria, verifique'),
@@ -17,6 +18,7 @@ router.post('/crear', [
     body('telefono').if(body('telefono').exists()).isMobilePhone().withMessage('No es un número de teléfono válido'),
     check('codigo_rol').not().isEmpty().withMessage('El código de rol es obligatorio')
 ], crearUsuario);
+
 router.get('/listar', auth, listarUsuarios);
 router.put('/actualizar', auth, actualizarUsuario);
 router.delete('/eliminar/:rut', auth, eliminarUsuario);
