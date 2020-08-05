@@ -1,7 +1,5 @@
-const {Pregunta, Unidad} = require('../config/db');
+const {Pregunta, Modulo} = require('../config/db');
 const { validationResult } = require('express-validator');
-
-
 
 
 exports.crearPregunta = async (req, res) => {
@@ -13,7 +11,9 @@ exports.crearPregunta = async (req, res) => {
     
     try{
     
-        const {codigo, descripcion, imagen, puntaje, codigo_unidad} = req.body;
+        const {codigo, pregunta_texto, pregunta_imagen, pregunta_audio, pregunta_video,
+             respuesta_texto, respuesta_imagen, respuesta_audio, respuesta_video, 
+            codigo_modulo} = req.body;
 
         
         let pregunta = await Pregunta.findByPk(codigo);
@@ -26,20 +26,25 @@ exports.crearPregunta = async (req, res) => {
 
 
         
-        let unidad = await Unidad.findByPk(codigo_unidad);
-        if(!unidad){
-            console.log('La unidadingresado no es válido');
+        let modulo = await Modulo.findByPk(codigo_modulo);
+        if(!modulo){
+            console.log('El codigo modulo ingresado no es válido');
             return res.status(400).json({
-                msg: 'La unidad ingresado no es válido'
+                msg: 'El codigo modulo ingresado no es válido'
             });
         }
 
         pregunta = await Pregunta.create({
             codigo, 
-            descripcion, 
-            imagen, 
-            puntaje, 
-            codigo_unidad
+            pregunta_texto,
+            pregunta_imagen,
+            pregunta_audio,
+            pregunta_video,
+            respuesta_texto,
+            respuesta_imagen,
+            respuesta_audio,
+            respuesta_video,
+            codigo_modulo
         });
 
         
@@ -76,9 +81,15 @@ exports.listarPreguntas = async (req, res) =>{
 
 exports.actualizarPregunta = async (req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
     try{
 
-        const {codigo, descripcion, imagen, puntaje, codigo_unidad} = req.body;
+        const {codigo, pregunta_texto, pregunta_imagen, pregunta_audio, pregunta_video,
+        respuesta_texto, respuesta_imagen, respuesta_audio, respuesta_video, codigo_modulo} = req.body;
 
         
         let pregunta = await Pregunta.findByPk(codigo);
@@ -88,19 +99,24 @@ exports.actualizarPregunta = async (req, res) => {
             })
         }
         
-        let unidad = await Unidad.findByPk(codigo_unidad);
-        if(!unidad){
+        let modulo = await Modulo.findByPk(codigo_modulo);
+        if(!modulo){
             return res.status(404).send({
-                msg: `La unidad rol ${codigo_unidad} no existe`
+                msg: `El modulo ${codigo_modulo} no existe`
             })
         }
 
         
-        pregunta = await pregunta.update({
-                descripcion,
-                imagen,
-                puntaje,
-                codigo_unidad
+        pregunta = await Pregunta.update({
+                pregunta_texto,
+                pregunta_imagen,
+                pregunta_audio,
+                pregunta_video,
+                respuesta_texto,
+                respuesta_imagen,
+                respuesta_audio,
+                respuesta_video,
+                codigo_modulo
         },{ where: {
                 codigo
         }})
