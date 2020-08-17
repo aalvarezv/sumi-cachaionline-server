@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 
 const { body, check } = require('express-validator');
 
-const {crearUsuario, listarUsuarios, actualizarUsuario, eliminarUsuario, datosUsuario} = require('../controllers/usuarioController');
+const {crearUsuario, listarUsuarios, actualizarUsuario, eliminarUsuario, datosUsuario, busquedaUsuarios} = require('../controllers/usuarioController');
 
 router.post('/crear', 
 [
@@ -34,5 +34,6 @@ router.put('/actualizar', auth,
 actualizarUsuario);
 router.delete('/eliminar/:rut', auth, eliminarUsuario);
 router.get('/datos/:rut', auth, datosUsuario);
+router.get('/busqueda/:filtro', auth, busquedaUsuarios);
 
 module.exports = router;

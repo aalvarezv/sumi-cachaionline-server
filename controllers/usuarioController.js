@@ -1,4 +1,5 @@
 const {Usuario, Rol} = require('../config/db');
+const { Sequelize, Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
@@ -24,7 +25,6 @@ exports.crearUsuario = async (req, res) => {
                 msg: 'El usuario ya existe'
             });
         }
-
 
         //verifica que el rol sea válido.
         let rol = await Rol.findByPk(codigo_rol);
@@ -181,6 +181,35 @@ exports.datosUsuario = async (req, res) => {
         //envia la información del usuario
         res.json({
             usuario
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+}
+
+exports.busquedaUsuarios = async (req, res) => {
+
+    try {
+        //obtiene el parametro desde la url
+        const {filtro} = req.params
+        //consulta por el usuario
+        const usuarios = await Usuario.findAll( 
+            { 
+                attributes: { exclude: ['clave'] },
+                where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
+                    [Op.like]: `%${filtro}%`
+                })
+            }
+        );
+       
+        //envia la información del usuario
+        res.json({
+            usuarios
         })
 
     } catch (error) {

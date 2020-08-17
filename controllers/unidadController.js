@@ -164,15 +164,12 @@ exports.unidadesMateria = async (req, res) => {
         const {codigo_materia} = req.params;
 
         const unidades = await Unidad.findAll({
-            include:[{
-                model: Modulo
-            }],
             where:{
                 codigo_materia,
                 inactivo: false
             },
             order: [
-                ['descripcion', 'ASC'],
+                ['descripcion', 'ASC']
             ]
         });
 
@@ -194,3 +191,45 @@ exports.unidadesMateria = async (req, res) => {
     }
 }
 
+exports.unidadesMateriaNivelAcademico = async (req, res) => {
+
+    try {
+        
+        const {codigo_materia, niveles_academicos} = req.query;
+        console.log(niveles_academicos);
+
+        if(!niveles_academicos || niveles_academicos.length === 0){
+            return  res.json({
+                unidades: []
+            });
+        }
+
+        const unidades = await Unidad.findAll({
+            include:[{
+                model: Modulo,
+                where: {
+                    codigo_nivel_academico: niveles_academicos
+                },
+                //required:false
+            }],
+            where:{
+                codigo_materia,
+                inactivo: false
+            },
+            order: [
+                ['descripcion', 'ASC'],
+                [ { model: Modulo }, 'descripcion', 'ASC']
+            ]
+        });
+        
+        res.json({
+            unidades
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+}

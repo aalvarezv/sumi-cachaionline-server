@@ -166,7 +166,7 @@ exports.eliminarModulo = async (req, res) => {
     }
 }
 
-exports.datosModulos = async (req, res) => {
+exports.datosModulo = async (req, res) => {
 
     try {
         const {codigo} = req.params

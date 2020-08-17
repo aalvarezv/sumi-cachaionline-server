@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
-const {listarUnidades, crearUnidad, actualizarUnidades, eliminarUnidades, datosUnidad, unidadesMateria} = require('../controllers/unidadController');
+const {listarUnidades, crearUnidad, actualizarUnidades, eliminarUnidades, datosUnidad, unidadesMateria, unidadesMateriaNivelAcademico} = require('../controllers/unidadController');
 
 
 router.post('/crear', auth,
@@ -24,5 +24,6 @@ actualizarUnidades)
 router.delete('/eliminar/:codigo', auth, eliminarUnidades);
 router.get('/datos/:codigo', auth, datosUnidad);
 router.get('/materia/:codigo_materia', unidadesMateria);
+router.get('/materia-nivel-academico/', unidadesMateriaNivelAcademico);
 
 module.exports = router;  

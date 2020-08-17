@@ -4,8 +4,7 @@ const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
 
-const {listarModulos, crearModulo, actualizarModulo, eliminarModulo, datosModulos} = require('../controllers/moduloController');
-const { crearPregunta } = require('../controllers/preguntaController');
+const {listarModulos, crearModulo, actualizarModulo, eliminarModulo, datosModulo} = require('../controllers/moduloController');
 
 
 router.post('/crear', auth, 
@@ -19,6 +18,6 @@ router.post('/crear', auth,
 router.get('/listar', auth, listarModulos);
 router.put('/actualizar', auth, actualizarModulo);
 router.delete('/eliminar/:codigo', auth, eliminarModulo);
-router.get('/datos/:codigo', auth, datosModulos);
+router.get('/datos/:codigo', auth, datosModulo);
 
 module.exports = router;
