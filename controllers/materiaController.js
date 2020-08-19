@@ -1,23 +1,24 @@
-const {Materia} = require('../config/db');
+const { Materia } = require('../config/db');
+const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
-exports.crearMateria = async (req, res) =>{
+exports.crearMateria = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
+    try {
 
-        const {codigo, descripcion} = req.body;
+        const { codigo, descripcion } = req.body;
 
         let materia = await Materia.findByPk(codigo);
-        if(materia) {
+        if (materia) {
             console.log('La materia ya existe');
             return res.status(400).json({
                 msg: 'La materia ya existe'
-            });        
+            });
         }
 
         materia = await Materia.create({
@@ -29,7 +30,7 @@ exports.crearMateria = async (req, res) =>{
             materia
         })
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.satus(500).send({
             msg: 'Hubo un error'
@@ -37,11 +38,11 @@ exports.crearMateria = async (req, res) =>{
     }
 }
 
-exports.listarMaterias = async (req, res) =>{
-   
-    try{
+exports.listarMaterias = async(req, res) => {
+
+    try {
         const materias = await Materia.findAll({
-            where:{
+            where: {
                 inactivo: false
             },
             order: [
@@ -53,7 +54,7 @@ exports.listarMaterias = async (req, res) =>{
             materias
         });
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -61,19 +62,19 @@ exports.listarMaterias = async (req, res) =>{
     }
 }
 
-exports.actualizarMaterias = async (req, res) =>{
+exports.actualizarMaterias = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
+    try {
 
-        const {codigo, descripcion} = req.body;
+        const { codigo, descripcion } = req.body;
 
         let materia = await Materia.findByPk(codigo);
-        if(!materia){
+        if (!materia) {
             return res.status(404).send({
                 msg: `La materia ${codigo} no existe`
             });
@@ -81,15 +82,17 @@ exports.actualizarMaterias = async (req, res) =>{
 
         materia = await Materia.update({
             descripcion
-        },{ where: {
-            codigo
-        }});
+        }, {
+            where: {
+                codigo
+            }
+        });
 
         res.json({
             msg: "Materia actualizada existosamente"
         });
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -97,14 +100,14 @@ exports.actualizarMaterias = async (req, res) =>{
     }
 }
 
-exports.eliminarMaterias = async (req, res) =>{
+exports.eliminarMaterias = async(req, res) => {
 
-    try{
+    try {
 
-        const {codigo} = req.params;
+        const { codigo } = req.params;
         let materia = await Materia.findByPk(codigo);
-        
-        if(!materia){
+
+        if (!materia) {
             return res.status(404).send({
                 msg: `La materia ${codigo} no existe`
             });
@@ -120,7 +123,7 @@ exports.eliminarMaterias = async (req, res) =>{
             msg: 'Materia eliminada exitosamente'
         });
 
-    } catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -128,14 +131,14 @@ exports.eliminarMaterias = async (req, res) =>{
     }
 }
 
-exports.datosMaterias = async (req, res) =>{
+exports.datosMaterias = async(req, res) => {
 
-    try{
-        const {codigo} = req.params;
+    try {
+        const { codigo } = req.params;
 
         const materia = await Materia.findByPk(codigo);
 
-        if(!materia){
+        if (!materia) {
             return res.satus(404).send({
                 msg: `La materia ${codigo} no existe`
             });
@@ -144,10 +147,37 @@ exports.datosMaterias = async (req, res) =>{
             materia
         });
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
         });
     }
+}
+
+exports.busquedaMaterias = async(req, res) => {
+
+    try {
+        //obtiene el parametro desde la url
+        const { filtro } = req.params
+            //consulta por el usuario
+        const materias = await Materia.findAll({
+            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("nombre")), {
+                [Op.like]: `%${filtro}%`
+            })
+        });
+
+        //envia la información del usuario
+        res.json({
+            materias
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+
 }

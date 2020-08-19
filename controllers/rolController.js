@@ -1,18 +1,19 @@
-const {Rol} = require('../config/db');
+const { Rol } = require('../config/db');
+const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
-exports.crearRol = async (req, res) =>{
+exports.crearRol = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
-        const{codigo, descripcion} = req.body;
+    try {
+        const { codigo, descripcion } = req.body;
 
         let rol = await Rol.findByPk(codigo);
-        if(rol){
+        if (rol) {
             console.log('El rol ya existe');
             return res.status(400).json({
                 msg: 'El rol ya existe'
@@ -28,7 +29,7 @@ exports.crearRol = async (req, res) =>{
             rol
         });
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error'
@@ -36,14 +37,14 @@ exports.crearRol = async (req, res) =>{
     }
 }
 
-exports.listarRoles = async (req, res) =>{
+exports.listarRoles = async(req, res) => {
 
-    try{
+    try {
         const rol = await Rol.findAll();
         res.json({
             rol
         });
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.satus(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
@@ -51,18 +52,18 @@ exports.listarRoles = async (req, res) =>{
     }
 }
 
-exports.actualizarRoles = async (req, res) =>{
+exports.actualizarRoles = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
-        const {codigo, descripcion} = req.body;
+    try {
+        const { codigo, descripcion } = req.body;
 
         let rol = await Rol.findByPk(codigo);
-        if(!rol){
+        if (!rol) {
             return res.status(400).send({
                 msg: `El rol ${codigo} no existe`
             });
@@ -70,15 +71,17 @@ exports.actualizarRoles = async (req, res) =>{
 
         rol = await Rol.update({
             descripcion,
-        },{ where: {
-            codigo
-        }});
+        }, {
+            where: {
+                codigo
+            }
+        });
 
         res.json({
             msg: "Rol actualizado exitosamente"
         });
 
-    }catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
@@ -86,14 +89,14 @@ exports.actualizarRoles = async (req, res) =>{
     }
 }
 
-exports.eliminarRoles = async (req, res) => {
+exports.eliminarRoles = async(req, res) => {
 
-    try{
+    try {
 
-        const{codigo} = req.params;
+        const { codigo } = req.params;
 
         let rol = await Rol.findByPk(codigo);
-        if(!rol){
+        if (!rol) {
             return res.status(404).send({
                 msg: `El rol ${codigo} no existe`
             });
@@ -108,7 +111,7 @@ exports.eliminarRoles = async (req, res) => {
             msg: "Rol eliminado correctamente"
         });
 
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
@@ -116,18 +119,18 @@ exports.eliminarRoles = async (req, res) => {
     }
 }
 
-exports.datosRol = async (req, res) => {
+exports.datosRol = async(req, res) => {
 
     try {
-        
-        const {codigo} = req.params;
+
+        const { codigo } = req.params;
         const rol = await Rol.findByPk(codigo);
-        if(!rol){
+        if (!rol) {
             return res.status(404).send({
                 msg: `El rol ${codigo} no existe`
             });
         }
-        
+
         res.json({
             rol
         });
@@ -140,4 +143,30 @@ exports.datosRol = async (req, res) => {
     }
 }
 
+exports.busquedaRoles = async(req, res) => {
 
+    try {
+        //obtiene el parametro desde la url
+        const { filtro } = req.params
+            //consulta por el usuario
+        const roles = await Rol.findAll({
+
+            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
+                [Op.like]: `%${filtro}%`
+            })
+        });
+
+        //envia la información del usuario
+        res.json({
+            roles
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+
+}

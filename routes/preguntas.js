@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
-const {listarPreguntas, crearPregunta, actualizarPregunta, eliminarPregunta, datosPreguntas} = require('../controllers/preguntaController');
+const {listarPreguntas, crearPregunta, actualizarPregunta, eliminarPregunta, datosPreguntas, busquedaPreguntas} = require('../controllers/preguntaController');
 
 router.post('/crear', auth, 
 [
@@ -37,5 +37,6 @@ router.put('/actualizar', auth,
 actualizarPregunta);
 router.delete('/eliminar/:codigo', auth, eliminarPregunta);
 router.get('/datos/:codigo', auth, datosPreguntas);
+router.get('/busqueda/:filtro', auth, busquedaPreguntas);
 
 module.exports = router;

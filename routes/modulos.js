@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
 
-const {listarModulos, crearModulo, actualizarModulo, eliminarModulo, datosModulo} = require('../controllers/moduloController');
+const {listarModulos, crearModulo, actualizarModulo, eliminarModulo, datosModulo, busquedaModulos} = require('../controllers/moduloController');
 
 
 router.post('/crear', auth, 
@@ -19,5 +19,6 @@ router.get('/listar', auth, listarModulos);
 router.put('/actualizar', auth, actualizarModulo);
 router.delete('/eliminar/:codigo', auth, eliminarModulo);
 router.get('/datos/:codigo', auth, datosModulo);
+router.get('/busqueda/:filtro', auth, busquedaModulos);
 
 module.exports = router;
