@@ -49,9 +49,9 @@ exports.crearUnidad = async(req, res) => {
 exports.listarUnidades = async(req, res) => {
 
     try {
-        const unidad = await Unidad.findAll();
+        const unidades = await Unidad.findAll();
         res.json({
-            unidad
+            unidades
         });
     } catch (error) {
         console.log(error);
