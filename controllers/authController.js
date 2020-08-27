@@ -1,5 +1,5 @@
 const {Usuario} = require('../config/db');
-const bcryptjs = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const autenticarUsuario = async (req, res) => {
@@ -29,7 +29,7 @@ const autenticarUsuario = async (req, res) => {
         }
         
         //revisar el password ingresado vs el password de la bd
-        const passCorrecto = await bcryptjs.compare(clave, usuario.clave)
+        const passCorrecto = await bcrypt.compare(clave, usuario.clave)
         if(!passCorrecto){
             return res.status(401).json({
                 msg: 'El password es incorrecto'

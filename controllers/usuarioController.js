@@ -50,9 +50,7 @@ exports.crearUsuario = async (req, res) => {
         });
 
         //envía la respuesta
-        res.json({
-            usuario
-        });
+        res.json(usuario);
     
     }catch(error){
         console.log(error);
@@ -90,7 +88,7 @@ exports.actualizarUsuario = async (req, res) => {
 
     try{
 
-        const {rut, nombre, email, telefono, codigo_rol} = req.body;
+        let {rut, clave, nombre, email, telefono, codigo_rol} = req.body;
 
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
@@ -99,6 +97,16 @@ exports.actualizarUsuario = async (req, res) => {
                 msg: `El usuario ${rut} no existe`
             })
         }
+
+        //compara la clave recibida con la almacenada en la base de datos
+        //si son distintas entonces el usuario la actualizó y aplica el salt a la nueva clave
+        if(clave !== usuario.clave){
+            console.log('Actualiza la clave')
+           //genero un hash para el password
+            let salt = bcrypt.genSaltSync(10);
+            clave = bcrypt.hashSync(clave, salt);
+        }
+
         //verifica que el rol del usuario a actualizar existe.
         let rol = await Rol.findByPk(codigo_rol);
         if(!rol){
@@ -110,6 +118,7 @@ exports.actualizarUsuario = async (req, res) => {
         //actualiza los datos.
         usuario = await Usuario.update({
                 nombre,
+                clave,
                 email,
                 telefono,
                 codigo_rol
@@ -117,9 +126,7 @@ exports.actualizarUsuario = async (req, res) => {
                 rut
         }})
 
-        res.json({
-            msg: "Usuario actualizado exitosamente"
-        });
+        res.json(usuario);
 
      } catch(error){
         console.log(error);
@@ -200,7 +207,6 @@ exports.busquedaUsuarios = async (req, res) => {
         //consulta por el usuario
         const usuarios = await Usuario.findAll( 
             { 
-                attributes: { exclude: ['clave'] },
                 where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
                     [Op.like]: `%${filtro}%`
                 })
