@@ -13,7 +13,7 @@ exports.crearNivelAcademico = async(req, res) => {
 
     try {
 
-        const { codigo, descripcion } = req.body;
+        const { codigo, descripcion, nivel } = req.body;
 
         let nivelAcademico = await NivelAcademico.findByPk(codigo);
         if (nivelAcademico) {
@@ -25,12 +25,11 @@ exports.crearNivelAcademico = async(req, res) => {
 
         nivelAcademico = await NivelAcademico.create({
             codigo,
-            descripcion
+            descripcion,
+            nivel
         });
 
-        res.json({
-            nivelAcademico
-        })
+        res.json(nivelAcademico)
 
     } catch (error) {
         console.log(error);
@@ -74,7 +73,7 @@ exports.actualizarNivelAcademico = async(req, res) => {
 
     try {
 
-        const { codigo, descripcion } = req.body;
+        const { codigo, descripcion, nivel } = req.body;
 
         let nivelAcademico = await NivelAcademico.findByPk(codigo);
         if (!nivelAcademico) {
@@ -84,7 +83,8 @@ exports.actualizarNivelAcademico = async(req, res) => {
         }
 
         nivelAcademico = await NivelAcademico.update({
-            descripcion
+            descripcion,
+            nivel
         }, {
             where: {
                 codigo

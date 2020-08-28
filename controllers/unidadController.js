@@ -34,9 +34,7 @@ exports.crearUnidad = async(req, res) => {
             codigo_materia
         });
 
-        res.json({
-            unidad
-        });
+        res.json(unidad);
 
     } catch (error) {
         console.log(error);

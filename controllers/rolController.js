@@ -25,9 +25,7 @@ exports.crearRol = async(req, res) => {
             descripcion
         });
 
-        res.json({
-            rol
-        });
+        res.json(rol);
 
     } catch (error) {
         console.log(error);

@@ -49,9 +49,7 @@ exports.crearModulo = async(req, res) => {
         });
 
 
-        res.json({
-            modulo
-        });
+        res.json(modulo);
 
     } catch (error) {
         console.log(error);
