@@ -15,7 +15,7 @@ exports.crearUsuario = async (req, res) => {
     
     try{
     
-        const {rut, clave, nombre, email, telefono, codigo_rol} = req.body;
+        const {rut, clave, nombre, email, telefono, codigo_rol, inactivo} = req.body;
 
         //verifica que el usuario no existe.
         let usuario = await Usuario.findByPk(rut);
@@ -46,7 +46,8 @@ exports.crearUsuario = async (req, res) => {
             nombre, 
             email, 
             telefono, 
-            codigo_rol
+            codigo_rol,
+            inactivo
         });
 
         //envía la respuesta
@@ -88,7 +89,7 @@ exports.actualizarUsuario = async (req, res) => {
 
     try{
 
-        let {rut, clave, nombre, email, telefono, codigo_rol} = req.body;
+        let {rut, clave, nombre, email, telefono, codigo_rol, inactivo} = req.body;
 
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
@@ -121,7 +122,8 @@ exports.actualizarUsuario = async (req, res) => {
                 clave,
                 email,
                 telefono,
-                codigo_rol
+                codigo_rol,
+                inactivo
         },{ where: {
                 rut
         }})

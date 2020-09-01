@@ -10,7 +10,7 @@ exports.crearUnidad = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion, codigo_materia } = req.body;
+        const { codigo, descripcion, codigo_materia, inactivo } = req.body;
 
         let unidad = await Unidad.findByPk(codigo);
         if (unidad) {
@@ -31,7 +31,8 @@ exports.crearUnidad = async(req, res) => {
         unidad = await Unidad.create({
             codigo,
             descripcion,
-            codigo_materia
+            codigo_materia,
+            inactivo
         });
 
         res.json(unidad);
@@ -67,7 +68,7 @@ exports.actualizarUnidades = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion, codigo_materia } = req.body;
+        const { codigo, descripcion, codigo_materia, inactivo } = req.body;
 
         let unidad = await Unidad.findByPk(codigo);
         if (!unidad) {
@@ -85,7 +86,8 @@ exports.actualizarUnidades = async(req, res) => {
 
         unidad = await Unidad.update({
             descripcion,
-            codigo_materia
+            codigo_materia,
+            inactivo
         }, {
             where: {
                 codigo

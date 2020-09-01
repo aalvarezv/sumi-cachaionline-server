@@ -11,7 +11,7 @@ exports.crearMateria = async(req, res) => {
 
     try {
 
-        const { codigo, nombre, descripcion } = req.body;
+        const { codigo, nombre, descripcion, inactivo } = req.body;
 
         let materia = await Materia.findByPk(codigo);
         if (materia) {
@@ -24,7 +24,8 @@ exports.crearMateria = async(req, res) => {
         materia = await Materia.create({
             codigo,
             nombre,
-            descripcion
+            descripcion,
+            inactivo
         });
 
         res.json(materia)
@@ -70,7 +71,7 @@ exports.actualizarMaterias = async(req, res) => {
 
     try {
 
-        const { codigo, nombre, descripcion } = req.body;
+        const { codigo, nombre, descripcion, inactivo } = req.body;
 
         let materia = await Materia.findByPk(codigo);
         if (!materia) {
@@ -81,7 +82,8 @@ exports.actualizarMaterias = async(req, res) => {
 
         materia = await Materia.update({
             nombre,
-            descripcion
+            descripcion,
+            inactivo
         }, {
             where: {
                 codigo

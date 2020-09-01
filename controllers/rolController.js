@@ -10,7 +10,7 @@ exports.crearRol = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion } = req.body;
+        const { codigo, descripcion, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
         if (rol) {
@@ -22,7 +22,8 @@ exports.crearRol = async(req, res) => {
 
         rol = await Rol.create({
             codigo,
-            descripcion
+            descripcion,
+            inactivo
         });
 
         res.json(rol);
@@ -58,7 +59,7 @@ exports.actualizarRoles = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion } = req.body;
+        const { codigo, descripcion, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
         if (!rol) {
@@ -69,6 +70,7 @@ exports.actualizarRoles = async(req, res) => {
 
         rol = await Rol.update({
             descripcion,
+            inactivo
         }, {
             where: {
                 codigo
