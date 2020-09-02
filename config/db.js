@@ -10,6 +10,8 @@ const PreguntaModel = require('../models/Pregunta');
 const RolModel = require('../models/Rol');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
+const CursoModel = require('../models/Curso');
+const InstitucionModel = require('../models/Institucion');
 
 const RespuestaDetalleModel = require('../models/RespuestaDetalle');
 const RespuestaResumenModel = require('../models/RespuestaResumen');
@@ -45,6 +47,8 @@ const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Unidad);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
+const Curso = CursoModel(sequelize, Sequelize, NivelAcademico);
+const Institucion = InstitucionModel(sequelize, Sequelize);
 
 /*
 const RespuestaResumen = RespuestaResumenModel(sequelize, Sequelize, Usuario, Materia);
@@ -70,6 +74,10 @@ Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
 
 Pregunta.hasMany(Alternativa, { foreignKey: 'codigo_pregunta' });
 Alternativa.belongsTo(Pregunta, { foreignKey: 'codigo_pregunta' });
+
+NivelAcademico.hasMany(Curso, { foreingKey: 'codigo_nivel_academico' });
+Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
+
 
 
 /*
@@ -226,6 +234,40 @@ sequelize.sync({ force: true })
             }]);
             console.log('MODULOS INSERTADOS');
 
+            const cursos = await Curso.bulkCreate([{
+                codigo: '1',
+                letra: 'A',
+                codigo_nivel_academico: '1'
+            }, {
+                codigo: '2',
+                letra: 'B',
+                codigo_nivel_academico: '2'
+            }, {
+                codigo: '3',
+                letra: 'C',
+                codigo_nivel_academico: '3'
+            }, {
+                codigo: '4',
+                letra: 'D',
+                codigo_nivel_academico: '4'
+            }]);
+            console.log('CURSOS INSERTADOS')
+
+            const instituciones = await Institucion.bulkCreate([{
+                codigo: '1',
+                descripcion: 'CLAUDIO MATTE',
+                logo: 'CM'
+            }, {
+                codigo: '2',
+                descripcion: 'COLEGIO MANANTIAL',
+                logo: 'CM'
+            }, {
+                codigo: '3',
+                descripcion: 'HISPANO AMERICANO',
+                logo: 'HA'
+            }])
+            console.log('INSTITUCIONES INSERTADAS')
+
         } catch (error) {
             console.log(error);
         }
@@ -241,4 +283,6 @@ module.exports = {
     Rol,
     Unidad,
     Modulo,
+    Curso,
+    Institucion
 }

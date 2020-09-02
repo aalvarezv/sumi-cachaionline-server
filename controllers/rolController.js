@@ -148,7 +148,7 @@ exports.busquedaRoles = async(req, res) => {
     try {
         //obtiene el parametro desde la url
         const { filtro } = req.params
-            //consulta por el usuario
+            //consulta por el rol
         const roles = await Rol.findAll({
 
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
@@ -156,7 +156,7 @@ exports.busquedaRoles = async(req, res) => {
             })
         });
 
-        //envia la información del usuario
+        //envia la información del rol
         res.json({
             roles
         })

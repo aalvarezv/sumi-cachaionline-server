@@ -162,14 +162,14 @@ exports.busquedaMaterias = async(req, res) => {
     try {
         //obtiene el parametro desde la url
         const { filtro } = req.params
-            //consulta por el usuario
+            //consulta por la materia
         const materias = await Materia.findAll({
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("nombre")), {
                 [Op.like]: `%${filtro}%`
             })
         });
 
-        //envia la información del usuario
+        //envia la información de la materia
         res.json({
             materias
         })

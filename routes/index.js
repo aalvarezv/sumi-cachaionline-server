@@ -11,6 +11,8 @@ app.use('/api/alternativas/', require('./alternativas'));
 app.use('/api/nivel-academico/', require('./nivelesAcademicos'));
 app.use('/api/preguntas/', require('./preguntas'))
 app.use('/api/roles/', require('./roles'));
+app.use('/api/cursos/', require('./cursos'));
+app.use('/api/instituciones/', require('./instituciones'));
 
 
-module.exports = app; 
+module.exports = app;
