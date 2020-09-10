@@ -1,22 +1,21 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config({ path: './variables.env' });
 
-
-const UsuarioModel = require('../models/Usuario');
-const MateriaModel = require('../models/Materia');
-const AlternativaModel = require('../models/Alternativa');
-const NivelAcademicoModel = require('../models/NivelAcademico');
-const PreguntaModel = require('../models/Pregunta');
 const RolModel = require('../models/Rol');
+const UsuarioModel = require('../models/Usuario');
+const InstitucionModel = require('../models/Institucion');
+const NivelAcademicoModel = require('../models/NivelAcademico');
+const CursoModel = require('../models/Curso');
+const MateriaModel = require('../models/Materia');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
-const CursoModel = require('../models/Curso');
-const InstitucionModel = require('../models/Institucion');
+const CursoModuloModel = require('../models/CursoModulo');
+const PreguntaModel = require('../models/Pregunta');
+const AlternativaModel = require('../models/Alternativa');
 
 const RespuestaDetalleModel = require('../models/RespuestaDetalle');
 const RespuestaResumenModel = require('../models/RespuestaResumen');
 const RespuestaUnidadModel = require('../models/RespuestaUnidad');
-
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
@@ -24,7 +23,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: false, //console.log,
+    logging: console.log,
     pool: {
         max: 5,
         min: 0,
@@ -36,19 +35,20 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         dateStrings: true,
         typeCast: true
     },
-    timezone: '-04:00'
+    timezone: '-03:00'
 });
 //crea el modelo
 const Rol = RolModel(sequelize, Sequelize);
 const Usuario = UsuarioModel(sequelize, Sequelize, Rol);
+const Institucion = InstitucionModel(sequelize, Sequelize);
+const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
+const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
 const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
-const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
-const Pregunta = PreguntaModel(sequelize, Sequelize, Unidad);
+const CursoModulo =CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
+const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
-const Curso = CursoModel(sequelize, Sequelize, NivelAcademico);
-const Institucion = InstitucionModel(sequelize, Sequelize);
 
 /*
 const RespuestaResumen = RespuestaResumenModel(sequelize, Sequelize, Usuario, Materia);
@@ -60,25 +60,28 @@ const RespuestaDetalle = RespuestaDetalleModel(sequelize, Sequelize, Pregunta, A
 Rol.hasMany(Usuario, { foreignKey: 'codigo_rol' });
 Usuario.belongsTo(Rol, { foreignKey: 'codigo_rol' });
 
+Curso.belongsTo(Institucion, { foreignKey: 'codigo_institucion' });
+Institucion.hasMany(Curso, { foreignKey: 'codigo_institucion' });
+
+Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
+NivelAcademico.hasMany(Curso, { foreignKey: 'codigo_nivel_academico' });
+
 Materia.hasMany(Unidad, { foreignKey: 'codigo_materia' });
 Unidad.belongsTo(Materia, { foreignKey: 'codigo_materia' });
 
 Unidad.hasMany(Modulo, { foreignKey: 'codigo_unidad' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
 
-NivelAcademico.hasMany(Modulo, { foreignKey: 'codigo_nivel_academico' });
-Modulo.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
+CursoModulo.belongsTo(Curso, {foreignKey: 'codigo_curso'});
+Curso.hasMany(CursoModulo, {foreignKey: 'codigo_curso'});
+CursoModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
+Modulo.hasMany(CursoModulo, {foreignKey: 'codigo_modulo'});
 
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
 
 Pregunta.hasMany(Alternativa, { foreignKey: 'codigo_pregunta' });
 Alternativa.belongsTo(Pregunta, { foreignKey: 'codigo_pregunta' });
-
-NivelAcademico.hasMany(Curso, { foreingKey: 'codigo_nivel_academico' });
-Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
-
-
 
 /*
 Usuario.hasMany(RespuestaResumen, {foreignKey: 'rut_usuario'});
@@ -200,73 +203,70 @@ sequelize.sync({ force: true })
                 codigo: '1',
                 descripcion: 'NUMEROS NATURALES',
                 codigo_unidad: '1',
-                codigo_nivel_academico: '1'
             }, {
                 codigo: '2',
                 descripcion: 'NUMEROS CARDINALES',
                 codigo_unidad: '1',
-                codigo_nivel_academico: '1'
             }, {
                 codigo: '3',
                 descripcion: 'NUMEROS ENTEROS',
                 codigo_unidad: '1',
-                codigo_nivel_academico: '2'
             }, {
                 codigo: '4',
                 descripcion: 'CUADRADO DE TRINOMIO',
                 codigo_unidad: '2',
-                codigo_nivel_academico: '3'
             }, {
                 codigo: '5',
                 descripcion: 'IDENTIDAD DE GAUSS',
                 codigo_unidad: '2',
-                codigo_nivel_academico: '4'
             }, {
                 codigo: '6',
                 descripcion: 'TEOREMA DE LAGRANGE 1',
                 codigo_unidad: '2',
-                codigo_nivel_academico: '4'
             }, {
                 codigo: '7',
                 descripcion: 'TEOREMA DE LAGRANGE 2',
                 codigo_unidad: '2',
-                codigo_nivel_academico: '4'
             }]);
             console.log('MODULOS INSERTADOS');
-
-            const cursos = await Curso.bulkCreate([{
-                codigo: '1',
-                letra: 'A',
-                codigo_nivel_academico: '1'
-            }, {
-                codigo: '2',
-                letra: 'B',
-                codigo_nivel_academico: '2'
-            }, {
-                codigo: '3',
-                letra: 'C',
-                codigo_nivel_academico: '3'
-            }, {
-                codigo: '4',
-                letra: 'D',
-                codigo_nivel_academico: '4'
-            }]);
-            console.log('CURSOS INSERTADOS')
 
             const instituciones = await Institucion.bulkCreate([{
                 codigo: '1',
                 descripcion: 'CLAUDIO MATTE',
-                logo: 'CM'
+                logo: ''
             }, {
                 codigo: '2',
                 descripcion: 'COLEGIO MANANTIAL',
-                logo: 'CM'
+                logo: ''
             }, {
                 codigo: '3',
                 descripcion: 'HISPANO AMERICANO',
-                logo: 'HA'
+                logo: ''
             }])
-            console.log('INSTITUCIONES INSERTADAS')
+            console.log('INSTITUCIONES INSERTADAS');
+
+            const cursos = await Curso.bulkCreate([{
+                codigo: '1',
+                letra: 'A',
+                codigo_institucion: '1',
+                codigo_nivel_academico: '1'
+            }, {
+                codigo: '2',
+                letra: 'B',
+                codigo_institucion: '1',
+                codigo_nivel_academico: '2'
+            }, {
+                codigo: '3',
+                letra: 'C',
+                codigo_institucion: '1',
+                codigo_nivel_academico: '3'
+            }, {
+                codigo: '4',
+                letra: 'D',
+                codigo_institucion: '1',
+                codigo_nivel_academico: '4'
+            }]);
+            console.log('CURSOS INSERTADOS');
 
         } catch (error) {
             console.log(error);

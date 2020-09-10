@@ -18,14 +18,6 @@ module.exports = (sequelize, type, Unidad, NivelAcademico) =>{
                 key: 'codigo'
             }
         },
-        codigo_nivel_academico:{
-            type: type.STRING(12),
-            allownull: false,
-            references:{
-                model: NivelAcademico,
-                key: 'codigo'
-            }
-        },
         inactivo:{
             type: type.BOOLEAN,
             allownull: false,

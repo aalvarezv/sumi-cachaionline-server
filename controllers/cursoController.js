@@ -1,4 +1,4 @@
-const { Curso, NivelAcademico } = require('../config/db');
+const { Curso, NivelAcademico, Institucion } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -12,7 +12,7 @@ exports.crearCurso = async(req, res) => {
 
     try {
 
-        const { codigo, letra, codigo_nivel_academico, inactivo } = req.body;
+        const { codigo, letra, codigo_institucion, codigo_nivel_academico, inactivo } = req.body;
 
         //verifica que el curso no existe.
         let curso = await Curso.findByPk(codigo);
@@ -20,6 +20,15 @@ exports.crearCurso = async(req, res) => {
             console.log('El curso ya existe');
             return res.status(400).json({
                 msg: 'El curso ya existe'
+            });
+        }
+
+        //verifica que la institución sea valida.
+        let institucion = await Institucion.findByPk(codigo_institucion);
+        if (!institucion) {
+            console.log('La institución ingresada no es válida');
+            return res.status(400).json({
+                msg: 'La institución ingresada no es válida'
             });
         }
 
@@ -36,6 +45,7 @@ exports.crearCurso = async(req, res) => {
         curso = await Curso.create({
             codigo,
             letra,
+            codigo_institucion,
             codigo_nivel_academico,
             inactivo
         });
@@ -79,7 +89,7 @@ exports.actualizarCurso = async(req, res) => {
 
     try {
 
-        let { codigo, letra, codigo_nivel_academico, inactivo } = req.body;
+        let { codigo, letra, codigo_institucion, codigo_nivel_academico,  inactivo } = req.body;
 
         //verifica que el curso a actualizar existe.
         let curso = await Curso.findByPk(codigo);
@@ -87,6 +97,15 @@ exports.actualizarCurso = async(req, res) => {
             return res.status(404).send({
                 msg: `El curso ${codigo} no existe`
             })
+        }
+
+        //verifica que la institución sea valida.
+        let institucion = await Institucion.findByPk(codigo_institucion);
+        if (!institucion) {
+            console.log('La institución ingresada no es válida');
+            return res.status(400).json({
+                msg: 'La institución ingresada no es válida'
+            });
         }
 
         //verifica que el nivel academico del curso a actualizar existe.
@@ -100,6 +119,7 @@ exports.actualizarCurso = async(req, res) => {
         //actualiza los datos.
         curso = await Curso.update({
             letra,
+            codigo_institucion,
             codigo_nivel_academico,
             inactivo
         }, {
@@ -183,15 +203,31 @@ exports.busquedaCursos = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.params
-            //consulta por el curso
+        const { filtro } = req.params;
+        const { codigo_institucion } = req.query;
+        //consulta los cursos de una institución
         const cursos = await Curso.findAll({
-
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("letra")), {
-                [Op.like]: `%${filtro}%`
-            })
+            attributes: ['codigo', 
+                         [Sequelize.fn("concat", Sequelize.col("nivel_academico.descripcion"), " ", Sequelize.col("curso.letra")), 'nivel_letra'],
+                         'letra',
+                         'inactivo'
+                        ],
+            include: [{
+                model: NivelAcademico,
+                attributes: ['codigo', 'descripcion'],
+                required: true
+            }],
+             where: { 
+                [Op.and]: 
+                [ 
+                    Sequelize.where(
+                        Sequelize.fn("concat", Sequelize.col("nivel_academico.descripcion"), Sequelize.col("curso.letra")), {[Op.like]: `%${filtro}%`}
+                    ), 
+                    { codigo_institucion }
+                ]
+            }
         });
-
+     
         //envia la información del curso
         res.json({
             cursos

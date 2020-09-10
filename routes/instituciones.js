@@ -9,8 +9,7 @@ const {crearInstitucion, listarInstituciones, actualizarInstitucion, eliminarIns
 router.post('/crear', auth,
 [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
-    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatorio.'),
-    check('logo').not().isEmpty().withMessage('El logo de rol es obligatorio.')
+    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatorio.')
 ], crearInstitucion);
 
 router.get('/listar', auth, listarInstituciones);
@@ -18,7 +17,6 @@ router.put('/actualizar', auth,
 [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
     check('descripcion').not().isEmpty().withMessage('La descripcion es obligatorio.'),
-    check('logo').not().isEmpty().withMessage('El logo de rol es obligatorio.')
 ],
 actualizarInstitucion);
 router.delete('/eliminar/:codigo', auth, eliminarInstitucion);

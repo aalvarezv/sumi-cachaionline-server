@@ -1,6 +1,7 @@
 module.exports = (sequelize, type) =>{
 
     return sequelize.define('institucion', {
+        
         codigo:{
             type: type.STRING(12),
             primaryKey: true,
@@ -11,7 +12,7 @@ module.exports = (sequelize, type) =>{
             allowNull: false
         },
         logo:{
-            type: type.STRING,
+            type: type.TEXT('long'),
             allowNull: false
         },
         inactivo:{
@@ -19,8 +20,6 @@ module.exports = (sequelize, type) =>{
             allowNull: false,
             defaultValue: false
         }
-
-
 
     },{
         //agrega atributos timestamp (updatedAt, createdAt).

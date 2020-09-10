@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, NivelAcademico) => {
+module.exports = (sequelize, type, Institucion, NivelAcademico) => {
 
     return sequelize.define('curso', {
         codigo: {
@@ -9,6 +9,14 @@ module.exports = (sequelize, type, NivelAcademico) => {
         letra: {
             type: type.STRING(12),
             allowNull: false
+        },
+        codigo_institucion: {
+            type: type.STRING(12),
+            allowNull: false,
+            references: {
+                model: Institucion,
+                key: 'codigo'
+            }
         },
         codigo_nivel_academico: {
             type: type.STRING(12),
@@ -29,6 +37,7 @@ module.exports = (sequelize, type, NivelAcademico) => {
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true,
         //agrega el nombre de la tabla.
-        tableName: 'cursos'
+        tableName: 'cursos',
+        
     })
 }
