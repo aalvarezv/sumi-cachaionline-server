@@ -45,13 +45,15 @@ exports.crearUnidad = async(req, res) => {
     }
 }
 
-exports.listarUnidades = async(req, res) => {
+exports.listarUnidades = async(req, res, next) => {
 
     try {
         const unidades = await Unidad.findAll();
-        res.json({
-            unidades
-        });
+        res.model_name = "unidades"
+        res.model_data = unidades
+
+        next()
+
     } catch (error) {
         console.log(error);
         res.satus(500).send({

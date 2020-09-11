@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const paginateResults = require('../middleware/paginateResults');
 const { check } = require('express-validator');
 
-const { listarUnidades, crearUnidad, actualizarUnidades, eliminarUnidades, datosUnidad, unidadesMateria, unidadesMateriaNivelAcademico, busquedaUnidades } = require('../controllers/unidadController');
+const { listarUnidades, crearUnidad, actualizarUnidades, 
+     eliminarUnidades, datosUnidad, unidadesMateria, unidadesMateriaNivelAcademico, 
+     busquedaUnidades } = require('../controllers/unidadController');
 
 
 router.post('/crear', auth, [
@@ -12,7 +15,7 @@ router.post('/crear', auth, [
         check('codigo_materia').not().isEmpty().withMessage('El codigo de la materia es obligatorio, verifique')
     ],
     crearUnidad);
-router.get('/listar', listarUnidades);
+router.get('/listar', auth, listarUnidades, paginateResults);
 router.put('/actualizar', auth, [
         check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
         check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria, verifique'),

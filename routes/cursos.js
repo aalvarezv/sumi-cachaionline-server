@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-
+const paginateResults = require('../middleware/paginateResults');
 const { body, check } = require('express-validator');
 
-const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, datosCurso, busquedaCursos } = require('../controllers/CursoController');
+const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, 
+        datosCurso, busquedaCursos } = require('../controllers/CursoController');
 
 router.post('/crear', auth, [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
@@ -12,7 +13,7 @@ router.post('/crear', auth, [
     check('codigo_nivel_academico').not().isEmpty().withMessage('El nivel academico de rol es obligatorio.')
 ], crearCurso);
 
-router.get('/listar', auth, listarCursos);
+router.get('/listar', auth, listarCursos, paginateResults);
 router.put('/actualizar', auth, [
         check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
         check('letra').not().isEmpty().withMessage('La letra es obligatorio.'),

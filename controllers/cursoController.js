@@ -63,14 +63,15 @@ exports.crearCurso = async(req, res) => {
 
 }
 
-exports.listarCursos = async(req, res) => {
+exports.listarCursos = async(req, res, next) => {
 
     try {
 
         const cursos = await Curso.findAll();
-        res.json({
-            cursos
-        });
+        res.model_name = "cursos"
+        res.model_data = cursos
+        
+        next()
 
     } catch (error) {
         console.log(error);

@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-
+const paginateResults = require('../middleware/paginateResults');
 const { body, check } = require('express-validator');
 
-const {crearUsuario, listarUsuarios, actualizarUsuario, eliminarUsuario, datosUsuario, busquedaUsuarios} = require('../controllers/usuarioController');
+const {crearUsuario, listarUsuarios, actualizarUsuario, 
+       eliminarUsuario, datosUsuario, busquedaUsuarios} = require('../controllers/usuarioController');
 
 router.post('/crear', 
 [
@@ -17,7 +18,7 @@ router.post('/crear',
     check('codigo_rol').not().isEmpty().withMessage('El código de rol es obligatorio.')
 ], crearUsuario);
 
-router.get('/listar', auth, listarUsuarios);
+router.get('/listar', auth, listarUsuarios, paginateResults);
 router.put('/actualizar', auth, 
 [
     check('rut').not().isEmpty().withMessage('El rut es obligatorio.'),

@@ -63,14 +63,16 @@ exports.crearUsuario = async (req, res) => {
 
 }
 
-exports.listarUsuarios = async (req, res) => {
+exports.listarUsuarios = async (req, res, next) => {
     
     try {
 
         const usuarios = await Usuario.findAll();
-        res.json({
-            usuarios
-        });
+
+        res.model_name = "usuarios"
+        res.model_data = usuarios
+        
+        next()
 
     } catch (error) {
         console.log(error);
