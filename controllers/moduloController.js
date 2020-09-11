@@ -60,18 +60,16 @@ exports.crearModulo = async(req, res) => {
 
 }
 
-exports.listarModulos = async(req, res) => {
+exports.listarModulos = async(req, res, next) => {
 
     try {
 
         const modulos = await Modulo.findAll();
-        res.json({
-            modulos
-        });
 
-        res.json({
-            modulos
-        });
+        res.model_name = "modulos"
+        res.model_data  = modulos
+        
+        next()
 
     } catch (error) {
         console.log(error);
