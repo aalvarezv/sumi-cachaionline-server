@@ -113,7 +113,7 @@ exports.actualizarCurso = async(req, res) => {
         let nivel_academico = await NivelAcademico.findByPk(codigo_nivel_academico);
         if (!nivel_academico) {
             return res.status(404).send({
-                msg: `El codigo nivel academico ${codigo_nivel_academico} no existe`
+                msg: `El código nivel academico ${codigo_nivel_academico} no existe`
             })
         }
 

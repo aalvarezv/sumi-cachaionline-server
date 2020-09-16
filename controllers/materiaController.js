@@ -33,7 +33,7 @@ exports.crearMateria = async(req, res) => {
     } catch (error) {
         console.log(error);
         res.satus(500).send({
-            msg: 'Hubo un error'
+            msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
 }
@@ -91,7 +91,7 @@ exports.actualizarMaterias = async(req, res) => {
         });
 
         res.json({
-            msg: "Materia actualizada existosamente"
+            msg: "Materia actualizada exitosamente"
         });
 
     } catch (error) {

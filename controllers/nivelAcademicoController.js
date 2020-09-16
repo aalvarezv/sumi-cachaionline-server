@@ -94,7 +94,7 @@ exports.actualizarNivelAcademico = async(req, res) => {
         })
 
         res.json({
-            msg: "Nivel academico actualizado existosamente"
+            msg: "Nivel academico actualizado exitosamente"
         })
 
     } catch (error) {

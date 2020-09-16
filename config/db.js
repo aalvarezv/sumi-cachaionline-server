@@ -77,6 +77,9 @@ Curso.hasMany(CursoModulo, {foreignKey: 'codigo_curso'});
 CursoModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 Modulo.hasMany(CursoModulo, {foreignKey: 'codigo_modulo'});
 
+//agregar relación
+
+
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
 
@@ -227,6 +230,42 @@ sequelize.sync({ force: true })
                 codigo: '7',
                 descripcion: 'TEOREMA DE LAGRANGE 2',
                 codigo_unidad: '2',
+            }, {
+                codigo: '8',
+                descripcion: 'TEOREMA DE LAGRANGE 3',
+                codigo_unidad: '2',
+            }, {
+                codigo: '9',
+                descripcion: 'TEOREMA DE LAGRANGE 4',
+                codigo_unidad: '2',
+            }, {
+                codigo: '10',
+                descripcion: 'TEOREMA DE LAGRANGE 5',
+                codigo_unidad: '2',
+            }, {
+                codigo: '11',
+                descripcion: 'TEOREMA DE LAGRANGE 6',
+                codigo_unidad: '2',
+            }, {
+                codigo: '12',
+                descripcion: 'TEOREMA DE LAGRANGE 7',
+                codigo_unidad: '2',
+            }, {
+                codigo: '13',
+                descripcion: 'TEOREMA DE LAGRANGE 8',
+                codigo_unidad: '2',
+            }, {
+                codigo: '14',
+                descripcion: 'TEOREMA DE LAGRANGE 9',
+                codigo_unidad: '2',
+            }, {
+                codigo: '15',
+                descripcion: 'TEOREMA DE LAGRANGE 10',
+                codigo_unidad: '2',
+            }, {
+                codigo: '16',
+                descripcion: 'TEOREMA DE LAGRANGE 11',
+                codigo_unidad: '2',
             }]);
             console.log('MODULOS INSERTADOS');
 
@@ -283,6 +322,8 @@ module.exports = {
     Rol,
     Unidad,
     Modulo,
+    Institucion,
     Curso,
-    Institucion
+    CursoModulo
+    
 }

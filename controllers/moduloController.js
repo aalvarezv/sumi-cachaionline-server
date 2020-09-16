@@ -1,4 +1,4 @@
-const { Modulo, Unidad, NivelAcademico } = require('../config/db');
+const { Modulo, Unidad, NivelAcademico, CursoModulo } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -64,12 +64,33 @@ exports.listarModulos = async(req, res, next) => {
 
     try {
 
-        const modulos = await Modulo.findAll();
+        setTimeout( async() => {
+        
+        const {filtro} = req.query
+
+        ''
+        {
+            
+        }
+    
+        const modulos = await Modulo.findAll({
+
+            where: {
+                descripcion: {
+                [Op.like]: '%'+filtro+'%',  
+                }
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        });
 
         res.model_name = "modulos"
         res.model_data  = modulos
         
         next()
+
+        }, 500);
 
     } catch (error) {
         console.log(error);
@@ -90,7 +111,7 @@ exports.actualizarModulo = async(req, res) => {
         let modulo = await Modulo.findByPk(codigo);
         if (!modulo) {
             return res.status(404).send({
-                msg: `El modulo ${codigo} no existe`
+                msg: `El módulo ${codigo} no existe`
             })
         }
 
@@ -121,7 +142,7 @@ exports.actualizarModulo = async(req, res) => {
         })
 
         res.json({
-            msg: "Modulo actualizado exitosamente"
+            msg: "Módulo actualizado exitosamente"
         });
 
     } catch (error) {
@@ -143,7 +164,7 @@ exports.eliminarModulo = async(req, res) => {
         let modulo = await Modulo.findByPk(codigo);
         if (!modulo) {
             return res.status(404).send({
-                msg: `El modulo ${codigo} no existe`
+                msg: `El módulo ${codigo} no existe`
             })
         }
         modulo = await Modulo.destroy({
@@ -154,7 +175,7 @@ exports.eliminarModulo = async(req, res) => {
 
 
         res.json({
-            msg: 'Modulo eliminado correctamente'
+            msg: 'Módulo eliminado correctamente'
         });
 
     } catch (error) {
@@ -174,7 +195,7 @@ exports.datosModulo = async(req, res) => {
 
         if (!modulo) {
             return res.status(404).send({
-                msg: `El modulo ${codigo} no existe`
+                msg: `El módulo ${codigo} no existe`
             })
         }
 

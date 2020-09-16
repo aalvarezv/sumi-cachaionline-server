@@ -17,9 +17,9 @@ exports.crearInstitucion = async(req, res) => {
         //verifica que las institucion no existe.
         let institucion = await Institucion.findByPk(codigo);
         if (institucion) {
-            console.log('La institucion ya existe');
+            console.log('La institución ya existe');
             return res.status(400).json({
-                msg: 'La institucion ya existe'
+                msg: 'La institución ya existe'
             });
         }
 
@@ -75,7 +75,7 @@ exports.actualizarInstitucion = async(req, res) => {
         let institucion = await Institucion.findByPk(codigo);
         if (!institucion) {
             return res.status(404).send({
-                msg: `La institucion ${codigo} no existe`
+                msg: `La institución ${codigo} no existe`
             })
         }
 
@@ -111,7 +111,7 @@ exports.eliminarInstitucion = async(req, res) => {
         let institucion = await Institucion.findByPk(codigo);
         if (!institucion) {
             return res.status(404).send({
-                msg: `La institucion ${codigo} no existe`
+                msg: `La institución ${codigo} no existe`
             })
         }
         //elimino el registro.
@@ -123,7 +123,7 @@ exports.eliminarInstitucion = async(req, res) => {
 
         //envío una respuesta informando que el registro fue eliminado
         res.json({
-            msg: 'Institucion eliminada correctamente'
+            msg: 'Institución eliminada correctamente'
         });
 
     } catch (error) {
@@ -144,7 +144,7 @@ exports.datosInstitucion = async(req, res) => {
         //si la institucion no existe
         if (!institucion) {
             return res.status(404).send({
-                msg: `La institucion ${codigo} no existe`
+                msg: `La institución ${codigo} no existe`
             })
         }
         //envia la información de la institucion

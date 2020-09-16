@@ -13,8 +13,6 @@ const paginateResults = (req, res) => {
     const total_registros = model_data.length
 
     const results = {}
-
-  
    
     if(endIndex < total_registros){
         results.next = {

@@ -38,9 +38,9 @@ exports.crearPregunta = async(req, res) => {
 
         let modulo = await Modulo.findByPk(codigo_modulo);
         if (!modulo) {
-            console.log('El codigo modulo ingresado no es válido');
+            console.log('El código módulo ingresado no es válido');
             return res.status(400).json({
-                msg: 'El codigo modulo ingresado no es válido'
+                msg: 'El código módulo ingresado no es válido'
             });
         }
 
@@ -122,7 +122,7 @@ exports.actualizarPregunta = async(req, res) => {
         let modulo = await Modulo.findByPk(codigo_modulo);
         if (!modulo) {
             return res.status(404).send({
-                msg: `El modulo ${codigo_modulo} no existe`
+                msg: `El módulo ${codigo_modulo} no existe`
             })
         }
 
