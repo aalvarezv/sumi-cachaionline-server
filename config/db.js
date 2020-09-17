@@ -10,6 +10,7 @@ const MateriaModel = require('../models/Materia');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
 const CursoModuloModel = require('../models/CursoModulo');
+const CursoUsuarioModel = require('../models/CursoUsuario');
 const PreguntaModel = require('../models/Pregunta');
 const AlternativaModel = require('../models/Alternativa');
 
@@ -46,7 +47,8 @@ const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
 const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
-const CursoModulo =CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
+const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
+const CursoUsuario = CursoUsuarioModel(sequelize, Sequelize, Curso, Usuario)
 const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
 
@@ -72,13 +74,16 @@ Unidad.belongsTo(Materia, { foreignKey: 'codigo_materia' });
 Unidad.hasMany(Modulo, { foreignKey: 'codigo_unidad' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
 
-CursoModulo.belongsTo(Curso, {foreignKey: 'codigo_curso'});
-Curso.hasMany(CursoModulo, {foreignKey: 'codigo_curso'});
-CursoModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
-Modulo.hasMany(CursoModulo, {foreignKey: 'codigo_modulo'});
+CursoModulo.belongsTo(Curso, { foreignKey: 'codigo_curso' });
+Curso.hasMany(CursoModulo, { foreignKey: 'codigo_curso' });
+CursoModulo.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
+Modulo.hasMany(CursoModulo, { foreignKey: 'codigo_modulo' });
 
 //agregar relación
-
+CursoUsuario.belongsTo(Curso, { foreingKey: 'codigo_curso' });
+Curso.hasMany(CursoUsuario, { foreingKey: 'codigo_curso' });
+CursoUsuario.belongsTo(Usuario, { foriengKey: 'rut_usuario' });
+Usuario.hasMany(CursoUsuario, { foriengKey: 'rut_usuario' });
 
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
@@ -324,6 +329,7 @@ module.exports = {
     Modulo,
     Institucion,
     Curso,
-    CursoModulo
-    
+    CursoModulo,
+    CursoUsuario
+
 }
