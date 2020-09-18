@@ -80,10 +80,10 @@ CursoModulo.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
 Modulo.hasMany(CursoModulo, { foreignKey: 'codigo_modulo' });
 
 //agregar relación
-CursoUsuario.belongsTo(Curso, { foreingKey: 'codigo_curso' });
-Curso.hasMany(CursoUsuario, { foreingKey: 'codigo_curso' });
-CursoUsuario.belongsTo(Usuario, { foriengKey: 'rut_usuario' });
-Usuario.hasMany(CursoUsuario, { foriengKey: 'rut_usuario' });
+CursoUsuario.belongsTo(Curso, { foreignKey: 'codigo_curso' });
+Curso.hasMany(CursoUsuario, { foreignKey: 'codigo_curso' });
+CursoUsuario.belongsTo(Usuario, { foreignKey: 'rut_usuario' });
+Usuario.hasMany(CursoUsuario, { foreignKey: 'rut_usuario' });
 
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });

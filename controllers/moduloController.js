@@ -66,29 +66,24 @@ exports.listarModulos = async(req, res, next) => {
 
         setTimeout( async() => {
         
-        const {filtro} = req.query
-
-        ''
-        {
-            
-        }
-    
-        const modulos = await Modulo.findAll({
-
-            where: {
-                descripcion: {
-                [Op.like]: '%'+filtro+'%',  
-                }
-            },
-            order: [
-                ['descripcion', 'ASC'],
-            ]
-        });
-
-        res.model_name = "modulos"
-        res.model_data  = modulos
+            const {filtro} = req.query;
         
-        next()
+            const modulos = await Modulo.findAll({
+
+                where: {
+                    descripcion: {
+                    [Op.like]: '%'+filtro+'%',  
+                    }
+                },
+                order: [
+                    ['descripcion', 'ASC'],
+                ]
+            });
+
+            res.model_name = "modulos";
+            res.model_data  = modulos;
+            
+            next();
 
         }, 500);
 

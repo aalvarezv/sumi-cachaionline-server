@@ -67,12 +67,29 @@ exports.listarUsuarios = async (req, res, next) => {
     
     try {
 
-        const usuarios = await Usuario.findAll();
+        setTimeout(async () => {
 
-        res.model_name = "usuarios"
-        res.model_data = usuarios
+            const {filtro} = req.query;
+
+            const usuarios = await Usuario.findAll({
+
+                where: {
+                    nombre: {
+                    [Op.like]: '%'+filtro+'%',  
+                    }
+                },
+                order: [
+                    ['nombre', 'ASC'],
+                ]
+            });
+
+            res.model_name = "usuarios";
+            res.model_data = usuarios;
         
-        next()
+            next();
+
+        }, 500);
+        
 
     } catch (error) {
         console.log(error);

@@ -209,8 +209,11 @@ exports.busquedaCursos = async(req, res) => {
         //consulta los cursos de una institución
         const cursos = await Curso.findAll({
             attributes: ['codigo', 
+                         'letra', 
+                         'codigo_institucion',
+                         'codigo_nivel_academico',
                          [Sequelize.fn("concat", Sequelize.col("nivel_academico.descripcion"), " ", Sequelize.col("curso.letra")), 'nivel_letra'],
-                         'letra',
+                        
                          'inactivo'
                         ],
             include: [{
