@@ -2,7 +2,7 @@ module.exports = (sequelize, type) => {
 
     return sequelize.define('nivel_academico', {
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },

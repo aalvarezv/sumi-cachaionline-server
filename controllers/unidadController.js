@@ -49,10 +49,10 @@ exports.listarUnidades = async(req, res, next) => {
 
     try {
         const unidades = await Unidad.findAll();
-        res.model_name = "unidades"
-        res.model_data = unidades
-
-        next()
+        
+        res.json({
+            unidades
+        })
 
     } catch (error) {
         console.log(error);

@@ -103,7 +103,8 @@ Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
 RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resumen'});
 */
 
-sequelize.sync({ force: true })
+/*
+sequelize.sync({ force: false })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -317,6 +318,7 @@ sequelize.sync({ force: true })
         }
 
     })
+*/
 
 module.exports = {
     Usuario,

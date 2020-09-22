@@ -3,7 +3,7 @@ module.exports = (sequelize, type, Materia)=>{
     return sequelize.define('unidad', {
         
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },
@@ -12,7 +12,7 @@ module.exports = (sequelize, type, Materia)=>{
             allownull: false
         },
         codigo_materia:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             allownull: false,
             references:{
                 model: Materia,

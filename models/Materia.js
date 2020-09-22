@@ -2,7 +2,7 @@ module.exports = (sequelize, type) =>{
 
     return sequelize.define('materia', {
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },
@@ -15,7 +15,7 @@ module.exports = (sequelize, type) =>{
             allownull: false
         },
         imagen:{
-            type: type.STRING,
+            type: type.TEXT('long'),
             allownull: false
         },
         inactivo:{

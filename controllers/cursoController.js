@@ -15,9 +15,16 @@ exports.crearCurso = async(req, res) => {
         const { codigo, letra, codigo_institucion, codigo_nivel_academico, inactivo } = req.body;
 
         //verifica que el curso no existe.
-        let curso = await Curso.findByPk(codigo);
-        if (curso) {
-            console.log('El curso ya existe');
+        let curso = await Curso.findAll({
+            where:{
+                codigo_institucion,
+                codigo_nivel_academico,
+                letra
+            }
+        });
+
+        if (curso.length > 0) {
+            console.log('El curso ya existe ', curso);
             return res.status(400).json({
                 msg: 'El curso ya existe'
             });

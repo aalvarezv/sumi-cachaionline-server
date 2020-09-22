@@ -2,7 +2,7 @@ module.exports = (sequelize, type, Unidad, NivelAcademico) =>{
 
     return sequelize.define('modulo',{
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },
@@ -11,7 +11,7 @@ module.exports = (sequelize, type, Unidad, NivelAcademico) =>{
             allownull: false
         },
         codigo_unidad:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             allownull: false,
             references:{
                 model: Unidad,

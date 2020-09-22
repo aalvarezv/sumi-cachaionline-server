@@ -2,7 +2,7 @@ module.exports = (sequelize, type, Curso, Modulo) => {
 
     return sequelize.define('curso_modulo', {
         codigo_curso: {
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allowNull: false,
             references: {
@@ -11,7 +11,7 @@ module.exports = (sequelize, type, Curso, Modulo) => {
             }
         },
         codigo_modulo: {
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allowNull: false,
             references: {

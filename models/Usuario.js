@@ -23,7 +23,7 @@ module.exports = (sequelize, type, Rol) =>{
             allowNull: false
         },
         codigo_rol:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             allowNull: false,
             references:{
                 model: Rol,
