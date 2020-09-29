@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const paginateResults = require('../middleware/paginateResults');
-const { body, check } = require('express-validator');
+const { check } = require('express-validator');
 
 const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, 
         datosCurso, busquedaCursos } = require('../controllers/CursoController');

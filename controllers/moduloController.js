@@ -62,24 +62,80 @@ exports.crearModulo = async(req, res) => {
 
 exports.listarModulos = async(req, res, next) => {
 
+
     try {
 
         setTimeout( async() => {
         
-            const {filtro} = req.query;
-        
             const modulos = await Modulo.findAll({
 
-                where: {
-                    descripcion: {
-                    [Op.like]: '%'+filtro+'%',  
-                    }
-                },
                 order: [
                     ['descripcion', 'ASC'],
                 ]
             });
 
+            res.model_name = "modulos";
+            res.model_data  = modulos;
+            
+            next();
+
+        }, 500);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+}
+
+exports.listarModulosDisponiblesCurso = async(req, res, next) => {
+
+    console.log('listarModulosDisponiblesCurso');
+    try {
+
+        setTimeout( async() => {
+        
+            const {descripcion, codigo_curso} = JSON.parse(req.query.filters);
+            let {codigo_materia} = JSON.parse(req.query.filters);
+            if (codigo_materia === '0') codigo_materia = '';
+            console.log(codigo_curso);
+          
+            const modulos = await Modulo.findAll({
+                attributes:['codigo', 
+                'descripcion',
+                [Sequelize.literal(`(SELECT COUNT(*) 
+                            FROM cursos_modulos 
+                            WHERE codigo_curso = '${codigo_curso}'
+                            AND codigo_modulo = modulo.codigo)`),'item_select']
+                ],
+                include: [{
+                    attributes: ['codigo_materia'],
+                    model: Unidad,
+                    required: true,
+                    /*Forma de agregar un and al Join.
+                    where: {
+                        codigo_materia: {
+                          [Op.eq]: codigo_materia
+                        }
+                    }*/
+                }],
+                where: { 
+                    [Op.and]: [ 
+                        { descripcion: {[Op.like]: '%'+descripcion+'%'}},
+                        //2 Formas de hacer un where apuntando a la tabla Join.
+                        //{ '$unidad.codigo_materia$': {[Op.eq]: codigo_materia}},
+                        Sequelize.where( 
+                            Sequelize.col("unidad.codigo_materia"), Op.like, '%'+codigo_materia+'%',
+                        ),                        
+                    ]
+                },
+                order: [
+                    ['descripcion', 'ASC'],
+                ]
+            });
+            
             res.model_name = "modulos";
             res.model_data  = modulos;
             
@@ -214,7 +270,12 @@ exports.busquedaModulos = async(req, res) => {
 
         const { filtro } = req.params
         const modulos = await Modulo.findAll({
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
+            include: [{
+                model: Unidad,
+                attributes: [ ['codigo','codigo_unidad'],'codigo_materia'],
+                required: true
+            }],
+            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("modulo.codigo"), Sequelize.col("modulo.descripcion")), {
                 [Op.like]: `%${filtro}%`
             })
         });

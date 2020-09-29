@@ -30,6 +30,10 @@ module.exports = (sequelize, type, Rol) =>{
                 key: 'codigo'
             }
         },
+        imagen:{
+            type: type.TEXT('long'),
+            allownull: false
+        },
         inactivo:{
             type: type.BOOLEAN,
             allowNull: false,

@@ -220,7 +220,6 @@ exports.busquedaCursos = async(req, res) => {
                          'codigo_institucion',
                          'codigo_nivel_academico',
                          [Sequelize.fn("concat", Sequelize.col("nivel_academico.descripcion"), " ", Sequelize.col("curso.letra")), 'nivel_letra'],
-                        
                          'inactivo'
                         ],
             include: [{
@@ -228,9 +227,8 @@ exports.busquedaCursos = async(req, res) => {
                 attributes: ['codigo', 'descripcion'],
                 required: true
             }],
-             where: { 
-                [Op.and]: 
-                [ 
+            where: { 
+                [Op.and]: [ 
                     Sequelize.where(
                         Sequelize.fn("concat", Sequelize.col("nivel_academico.descripcion"), Sequelize.col("curso.letra")), {[Op.like]: `%${filtro}%`}
                     ), 

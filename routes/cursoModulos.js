@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { check, param, query } = require('express-validator');
+const { check, query } = require('express-validator');
 const { agregarModuloCurso, listarModulosCurso, eliminarModuloCurso }
        = require('../controllers/cursoModuloController');
 

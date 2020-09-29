@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
     //revisar si no hay token
     if(!token){
         return res.status(401).json({
-            msg: 'No hay token, permiso no válido'
+            msg: 'TokenMissingError'
         })
     }
     //validar el token
@@ -23,10 +23,10 @@ const auth = (req, res, next) => {
         
     } catch (error) {
         console.log(error);
-        res.status(401).json({msg: 'Token no válido'})
+        res.status(401).json({msg: error.name})
     }
 
 }
 
-module.exports = auth
 
+module.exports = auth

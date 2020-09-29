@@ -24,7 +24,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log,
+    logging: false, //console.log,
     pool: {
         max: 5,
         min: 0,
@@ -38,6 +38,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
     },
     timezone: '-03:00'
 });
+
 //crea el modelo
 const Rol = RolModel(sequelize, Sequelize);
 const Usuario = UsuarioModel(sequelize, Sequelize, Rol);
@@ -104,7 +105,7 @@ RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resume
 */
 
 /*
-sequelize.sync({ force: false })
+sequelize.sync({ force: true })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -126,28 +127,32 @@ sequelize.sync({ force: false })
                 nombre: 'Eduardo Patricio Alvarez Opazo',
                 email: 'ed.alvarezv@gmail.com',
                 telefono: 12345678,
-                codigo_rol: '2'
+                codigo_rol: '2',
+                imagen: ''
             }, {
                 rut: '92622908',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Maria Gloria Vargas Hernandez',
                 email: 'mar.vargash@gmail.com',
                 telefono: 12345678,
-                codigo_rol: '2'
+                codigo_rol: '2',
+                imagen: ''
             }, {
                 rut: '18999799K',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Eduardo Nicolas Alvarez Vargas',
                 email: 'ed.alvarezv@gmail.com',
                 telefono: 12345698,
-                codigo_rol: '1'
+                codigo_rol: '1',
+                imagen: ''
             }, {
                 rut: '162323695',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Alan Patricio Alvarez Vargas',
                 email: 'alvarez.vargas@gmail.com',
                 telefono: 12345633,
-                codigo_rol: '3'
+                codigo_rol: '3',
+                imagen: ''
             }]);
             console.log('USUARIOS INSERTADOS');
 
@@ -332,6 +337,7 @@ module.exports = {
     Institucion,
     Curso,
     CursoModulo,
-    CursoUsuario
+    CursoUsuario,
+    sequelize
 
 }

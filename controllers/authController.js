@@ -3,12 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const autenticarUsuario = async (req, res) => {
-
-    //revisar si hay errores con el express-validator aplicado con el check en el routes/auth
-    // const errores = validationResult(req)
-    // if (!errores.isEmpty()) {
-    //     return res.status(400).json({ errores: errores.array() })
-    // }
     
     try { 
         const { rut, clave } = req.body
@@ -52,7 +46,7 @@ const autenticarUsuario = async (req, res) => {
 
         //firmar el jsonwebtoken 
         jwt.sign(payload, process.env.SECRETA, {
-            expiresIn: 86400, //segundos 1 día.
+            expiresIn: 86400, //86400 segundos 1 día.
         }, (error, token) => {
             if (error) throw error
             res.json({ token })

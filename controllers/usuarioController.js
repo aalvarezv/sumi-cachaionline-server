@@ -1,8 +1,9 @@
-const {Usuario, Rol} = require('../config/db');
-const { Sequelize, Op } = require('sequelize');
+const {Usuario, Rol, sequelize, CursoUsuario, Curso} = require('../config/db');
+const { Sequelize, Op, QueryTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
+
 
 
 exports.crearUsuario = async (req, res) => {
@@ -70,13 +71,13 @@ exports.listarUsuarios = async (req, res, next) => {
         setTimeout(async () => {
 
             const {filtro} = req.query;
-
+            
             const usuarios = await Usuario.findAll({
-
                 where: {
                     nombre: {
                     [Op.like]: '%'+filtro+'%',  
-                    }
+                    },
+                    inactivo: false
                 },
                 order: [
                     ['nombre', 'ASC'],
@@ -91,6 +92,66 @@ exports.listarUsuarios = async (req, res, next) => {
         }, 500);
         
 
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+}
+
+exports.listarUsuariosInscritosDisponiblesCurso = async (req, res, next) => {
+    
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+         return res.status(400).json({ errors: errors.array() });
+    }
+    
+    console.log('listarUsuariosInscritosDisponiblesCurso');
+
+    try {
+
+        setTimeout(async () => {
+
+            const {nombre, codigo_institucion, codigo_curso} = JSON.parse(req.query.filters);
+            let  {codigo_rol} = JSON.parse(req.query.filters);
+            
+            if(codigo_rol === '0') codigo_rol = ''     
+
+            const usuarios = await sequelize.query(`
+            SELECT rut, nombre, codigo_rol, 
+                   existe_en_institucion, 
+                   existe_en_curso AS item_select 
+            FROM (
+                SELECT rut, nombre, codigo_rol,
+                    (SELECT COUNT(*) 
+                    FROM cursos_usuarios cu1
+                    LEFT JOIN cursos c1 ON c1.codigo = cu1.codigo_curso
+                    WHERE cu1.rut_usuario = rut 
+                          AND c1.codigo_institucion = '${codigo_institucion}'
+                    ) AS existe_en_institucion,
+                    (SELECT count(*) 
+                        FROM cursos_usuarios
+                     WHERE rut_usuario = rut 
+                           AND codigo_curso = '${codigo_curso}'
+                    ) AS existe_en_curso
+                FROM usuarios
+                WHERE inactivo = 0 
+                      AND nombre LIKE '%${nombre}%'
+                      AND (codigo_rol IN ('2','3') AND codigo_rol LIKE '%${codigo_rol}%')
+            ) tb 
+            WHERE (existe_en_institucion = 0 AND existe_en_curso = 0) 
+               OR (existe_en_institucion = 1 AND existe_en_curso = 1)
+               OR (codigo_rol = '3');`, { type: QueryTypes.SELECT });
+
+            res.model_name = "usuarios";
+            res.model_data = usuarios;
+        
+            next();
+
+        }, 500);
+        
     } catch (error) {
         console.log(error);
         res.status(500).send({
@@ -228,6 +289,30 @@ exports.busquedaUsuarios = async (req, res) => {
         //consulta por el usuario
         const usuarios = await Usuario.findAll( 
             { 
+                include: [{
+                    model: CursoUsuario,
+                    attributes: ['codigo_curso'],
+                    required: false,
+                    include:[{
+                        model: Curso,
+                        attributes: ['codigo','letra', 
+                                     'codigo_institucion', 
+                                     [Sequelize.literal(`
+                                        (SELECT descripcion 
+                                            FROM instituciones 
+                                        WHERE codigo = codigo_institucion
+                                        )`), 'descripcion_institucion'
+                                     ],
+                                     'codigo_nivel_academico',
+                                     [Sequelize.literal(`
+                                        (SELECT descripcion
+                                            FROM niveles_academicos
+                                        WHERE codigo = codigo_nivel_academico)
+                                     `),'descripcion_nivel_academico']
+                                    ],
+                        required: false,
+                    }],
+                }],
                 where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
                     [Op.like]: `%${filtro}%`
                 })
