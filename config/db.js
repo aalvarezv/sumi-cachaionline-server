@@ -24,7 +24,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: false, //console.log,
+    logging: console.log, //false, //
     pool: {
         max: 5,
         min: 0,
@@ -42,7 +42,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
 //crea el modelo
 const Rol = RolModel(sequelize, Sequelize);
 const Usuario = UsuarioModel(sequelize, Sequelize, Rol);
-const Institucion = InstitucionModel(sequelize, Sequelize);
+const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
 const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
 const Materia = MateriaModel(sequelize, Sequelize);
@@ -53,15 +53,17 @@ const CursoUsuario = CursoUsuarioModel(sequelize, Sequelize, Curso, Usuario)
 const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
 
-/*
-const RespuestaResumen = RespuestaResumenModel(sequelize, Sequelize, Usuario, Materia);
-const RespuestaUnidad = RespuestaUnidadModel(sequelize, Sequelize, RespuestaResumen, Unidad);
-const RespuestaDetalle = RespuestaDetalleModel(sequelize, Sequelize, Pregunta, Alternativa); 
-*/
 
-//Relaciones
 Rol.hasMany(Usuario, { foreignKey: 'codigo_rol' });
 Usuario.belongsTo(Rol, { foreignKey: 'codigo_rol' });
+
+//rector institución
+Institucion.hasOne(Usuario, { foreignKey: 'rut_usuario_rector' });
+Usuario.belongsTo(Institucion, { foreignKey: 'rut_usuario_rector' });
+//administrador institución.
+Institucion.hasOne(Usuario, { foreignKey: 'rut_usuario_administrador' });
+Usuario.belongsTo(Institucion, { foreignKey: 'rut_usuario_administrador' });
+
 
 Curso.belongsTo(Institucion, { foreignKey: 'codigo_institucion' });
 Institucion.hasMany(Curso, { foreignKey: 'codigo_institucion' });
@@ -75,16 +77,13 @@ Unidad.belongsTo(Materia, { foreignKey: 'codigo_materia' });
 Unidad.hasMany(Modulo, { foreignKey: 'codigo_unidad' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
 
-CursoModulo.belongsTo(Curso, { foreignKey: 'codigo_curso' });
-Curso.hasMany(CursoModulo, { foreignKey: 'codigo_curso' });
-CursoModulo.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
-Modulo.hasMany(CursoModulo, { foreignKey: 'codigo_modulo' });
 
-//agregar relación
-CursoUsuario.belongsTo(Curso, { foreignKey: 'codigo_curso' });
-Curso.hasMany(CursoUsuario, { foreignKey: 'codigo_curso' });
-CursoUsuario.belongsTo(Usuario, { foreignKey: 'rut_usuario' });
-Usuario.hasMany(CursoUsuario, { foreignKey: 'rut_usuario' });
+Curso.belongsToMany(Usuario, { through: CursoUsuario, foreignKey: 'codigo_curso' });
+Usuario.belongsToMany(Curso, { through: CursoUsuario, foreignKey: 'rut_usuario' });
+
+Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
+Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
+
 
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
@@ -92,33 +91,30 @@ Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
 Pregunta.hasMany(Alternativa, { foreignKey: 'codigo_pregunta' });
 Alternativa.belongsTo(Pregunta, { foreignKey: 'codigo_pregunta' });
 
-/*
-Usuario.hasMany(RespuestaResumen, {foreignKey: 'rut_usuario'});
-Materia.hasMany(RespuestaResumen, {foreignKey: 'codigo_materia'});
 
-RespuestaResumen.hasMany(RespuestaUnidad, {foreignKey: 'codigo_respuesta_resumen'});
-Unidad.hasMany(RespuestaUnidad, {foreignKey: 'codigo_unidad'});
 
-Pregunta.hasMany(RespuestaDetalle, {foreignKey: 'codigo_pregunta'});
-Alternativa.hasMany(RespuestaDetalle, {foreignKey: 'codigo_alternativa'});
-RespuestaResumen.hasMany(RespuestaDetalle, {foreignKey: 'codigo_respuesta_resumen'});
-*/
-
-/*
 sequelize.sync({ force: true })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
             const roles = await Rol.bulkCreate([{
                 codigo: '1',
-                descripcion: 'ADMINISTRADOR'
+                descripcion: 'ADMINISTRADOR SISTEMA'
             }, {
                 codigo: '2',
                 descripcion: 'ALUMNO'
             }, {
                 codigo: '3',
                 descripcion: 'PROFESOR'
-            }]);
+            }, {
+                codigo: '4',
+                descripcion: 'RECTOR'
+            }, {
+                codigo: '5',
+                descripcion: 'ADMINISTRADOR INSTITUCIÓN'
+            }
+            
+            ]);
             console.log('ROLES INSERTADOS');
 
             const usuarios = await Usuario.bulkCreate([{
@@ -152,6 +148,22 @@ sequelize.sync({ force: true })
                 email: 'alvarez.vargas@gmail.com',
                 telefono: 12345633,
                 codigo_rol: '3',
+                imagen: ''
+            },{
+                rut: '18380233K',
+                clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
+                nombre: 'Wendy Perez Reyes',
+                email: 'wen.preyes@gmail.com',
+                telefono: 12345633,
+                codigo_rol: '4',
+                imagen: ''
+            },{
+                rut: '241568628',
+                clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
+                nombre: 'Juan Perez',
+                email: 'admin.institucion@gmail.com',
+                telefono: 12345633,
+                codigo_rol: '5',
                 imagen: ''
             }]);
             console.log('USUARIOS INSERTADOS');
@@ -283,14 +295,22 @@ sequelize.sync({ force: true })
             const instituciones = await Institucion.bulkCreate([{
                 codigo: '1',
                 descripcion: 'CLAUDIO MATTE',
+                rut_usuario_rector: '18380233K',
+                rut_usuario_administrador: '241568628',
+                direccion: '',
+                email: '',
+                telefono: '',
+                website: '',
                 logo: ''
             }, {
                 codigo: '2',
                 descripcion: 'COLEGIO MANANTIAL',
-                logo: ''
-            }, {
-                codigo: '3',
-                descripcion: 'HISPANO AMERICANO',
+                rut_usuario_rector: '18380233K',
+                rut_usuario_administrador: '241568628',
+                direccion: '',
+                email: '',
+                telefono: '',
+                website: '',
                 logo: ''
             }])
             console.log('INSTITUCIONES INSERTADAS');
@@ -323,7 +343,6 @@ sequelize.sync({ force: true })
         }
 
     })
-*/
 
 module.exports = {
     Usuario,

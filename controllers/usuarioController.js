@@ -169,7 +169,7 @@ exports.actualizarUsuario = async (req, res) => {
 
     try{
 
-        let {rut, clave, nombre, email, telefono, codigo_rol, inactivo} = req.body;
+        let {rut, clave, nombre, email, telefono, codigo_rol, imagen, inactivo} = req.body;
 
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
@@ -203,6 +203,7 @@ exports.actualizarUsuario = async (req, res) => {
                 email,
                 telefono,
                 codigo_rol,
+                imagen,
                 inactivo
         },{ where: {
                 rut
@@ -288,31 +289,40 @@ exports.busquedaUsuarios = async (req, res) => {
         const {filtro} = req.params
         //consulta por el usuario
         const usuarios = await Usuario.findAll( 
-            { 
+            {  
+                include:[{
+                    model: Curso,
+                    attributes: ['codigo',
+                                 'letra', 
+                                 'codigo_institucion',
+                                 [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `cursos`.`codigo_institucion`)'), 
+                                 'descripcion_institucion'],
+                                 'codigo_nivel_academico',
+                                 [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `cursos`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']
+                                ],
+                    required: false,
+                }],
+                /*
                 include: [{
                     model: CursoUsuario,
+                    as: 'curso_usuarios',
                     attributes: ['codigo_curso'],
                     required: false,
                     include:[{
                         model: Curso,
-                        attributes: ['codigo','letra', 
-                                     'codigo_institucion', 
-                                     [Sequelize.literal(`
-                                        (SELECT descripcion 
-                                            FROM instituciones 
-                                        WHERE codigo = codigo_institucion
-                                        )`), 'descripcion_institucion'
-                                     ],
+                        as: 'curso',
+                        attributes: ['codigo',
+                                     'letra', 
+                                     'codigo_institucion',
+                                     *//*
+                                     [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `curso_usuarios->curso`.`codigo_institucion`)'), 
+                                     'descripcion_institucion'],
                                      'codigo_nivel_academico',
-                                     [Sequelize.literal(`
-                                        (SELECT descripcion
-                                            FROM niveles_academicos
-                                        WHERE codigo = codigo_nivel_academico)
-                                     `),'descripcion_nivel_academico']
+                                     [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*//*
                                     ],
                         required: false,
                     }],
-                }],
+                }],*/
                 where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
                     [Op.like]: `%${filtro}%`
                 })

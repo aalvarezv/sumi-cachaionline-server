@@ -1,4 +1,4 @@
-const { Modulo, Unidad, NivelAcademico, CursoModulo } = require('../config/db');
+const { Modulo, Unidad, NivelAcademico } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -100,8 +100,7 @@ exports.listarModulosDisponiblesCurso = async(req, res, next) => {
             const {descripcion, codigo_curso} = JSON.parse(req.query.filters);
             let {codigo_materia} = JSON.parse(req.query.filters);
             if (codigo_materia === '0') codigo_materia = '';
-            console.log(codigo_curso);
-          
+         
             const modulos = await Modulo.findAll({
                 attributes:['codigo', 
                 'descripcion',
