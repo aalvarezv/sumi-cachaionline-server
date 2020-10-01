@@ -1,4 +1,4 @@
-const { Institucion } = require('../config/db');
+const { Institucion, Usuario } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -12,7 +12,8 @@ exports.crearInstitucion = async(req, res) => {
 
     try {
 
-        const { codigo, descripcion, logo, inactivo } = req.body;
+        const { codigo, descripcion, rut_usuario_rector, rut_usuario_administrador,direccion,email, telefono,
+                website ,logo, inactivo } = req.body;
 
         //verifica que las institucion no existe.
         let institucion = await Institucion.findByPk(codigo);
@@ -23,10 +24,51 @@ exports.crearInstitucion = async(req, res) => {
             });
         }
 
+        //Verifica que el rut_usuario_rector sea valido y que corresponda a un rector.
+        let usuario_rector = await Usuario.findByPk(rut_usuario_rector);
+        if (usuario_rector) {
+            if (usuario_rector.dataValues.codigo_rol != 4) {
+                console.log('El rut ingresado no corresponde a un rector');
+                return res.status(400).json({
+                    msg: 'El rut ingresado no corresponde a un rector'
+                });
+            }
+        } else {
+            console.log('El rector ingresado no es válido');
+            return res.status(400).json({
+                msg: 'El rector ingresado no es válido'
+            });
+        }
+
+        //Verifica que el rut_usuario_administrador sea valido y corresponda a un administrador
+        let usuario_administrador = await Usuario.findByPk(rut_usuario_administrador);
+        if (usuario_administrador) {
+            if (usuario_administrador.dataValues.codigo_rol != 5) {
+                console.log('El rut ingresado no corresponde a un administrador');
+                return res.status(400).json({
+                    msg: 'El rut ingresado no corresponde a un administrador'
+                });
+            }
+
+        } else {
+            console.log('El administrador ingresado no es válido');
+            return res.status(400).json({
+                msg: 'El administrador ingresado no es válido'
+            });
+        }
+
+
+
         //Guarda la nueva institucion
         institucion = await Institucion.create({
             codigo,
             descripcion,
+            rut_usuario_rector,
+            rut_usuario_administrador,
+            direccion,
+            email,
+            telefono,
+            website,
             logo,
             inactivo
         });
@@ -69,7 +111,8 @@ exports.actualizarInstitucion = async(req, res) => {
 
     try {
 
-        let { codigo, descripcion, logo, inactivo } = req.body;
+        let { codigo, descripcion, rut_usuario_rector, rut_usuario_administrador,direccion,email, telefono,
+            website ,logo, inactivo } = req.body;
 
         //verifica que la institucion a actualizar existe.
         let institucion = await Institucion.findByPk(codigo);
@@ -82,6 +125,12 @@ exports.actualizarInstitucion = async(req, res) => {
         //actualiza los datos.
         institucion = await Institucion.update({
             descripcion,
+            rut_usuario_rector,
+            rut_usuario_administrador,
+            direccion,
+            email,
+            telefono,
+            website,
             logo,
             inactivo
         }, {

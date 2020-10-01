@@ -1,4 +1,4 @@
-const {Usuario, Rol, sequelize, CursoUsuario, Curso} = require('../config/db');
+const { Usuario, Rol, sequelize, CursoUsuario, Curso } = require('../config/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
@@ -6,17 +6,17 @@ const { validationResult } = require('express-validator');
 
 
 
-exports.crearUsuario = async (req, res) => {
+exports.crearUsuario = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-    
-    try{
-    
-        const {rut, clave, nombre, email, telefono, codigo_rol, inactivo} = req.body;
+
+    try {
+
+        const { rut, clave, nombre, email, telefono, codigo_rol, inactivo } = req.body;
 
         //verifica que el usuario no existe.
         let usuario = await Usuario.findByPk(rut);
@@ -29,7 +29,7 @@ exports.crearUsuario = async (req, res) => {
 
         //verifica que el rol sea válido.
         let rol = await Rol.findByPk(codigo_rol);
-        if(!rol){
+        if (!rol) {
             console.log('El rol ingresado no es válido');
             return res.status(400).json({
                 msg: 'El rol ingresado no es válido'
@@ -39,22 +39,22 @@ exports.crearUsuario = async (req, res) => {
         //genero un hash para el password
         let salt = bcrypt.genSaltSync(10);
         let clave_hash = bcrypt.hashSync(clave, salt);
-       
+
         //Guarda el nuevo usuario
         usuario = await Usuario.create({
-            rut, 
-            clave: clave_hash, 
-            nombre, 
-            email, 
-            telefono, 
+            rut,
+            clave: clave_hash,
+            nombre,
+            email,
+            telefono,
             codigo_rol,
             inactivo
         });
 
         //envía la respuesta
         res.json(usuario);
-    
-    }catch(error){
+
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -64,18 +64,18 @@ exports.crearUsuario = async (req, res) => {
 
 }
 
-exports.listarUsuarios = async (req, res, next) => {
-    
+exports.listarUsuarios = async(req, res, next) => {
+
     try {
 
-        setTimeout(async () => {
+        setTimeout(async() => {
 
-            const {filtro} = req.query;
-            
+            const { filtro } = req.query;
+
             const usuarios = await Usuario.findAll({
                 where: {
                     nombre: {
-                    [Op.like]: '%'+filtro+'%',  
+                        [Op.like]: '%' + filtro + '%',
                     },
                     inactivo: false
                 },
@@ -86,11 +86,11 @@ exports.listarUsuarios = async (req, res, next) => {
 
             res.model_name = "usuarios";
             res.model_data = usuarios;
-        
+
             next();
 
         }, 500);
-        
+
 
     } catch (error) {
         console.log(error);
@@ -100,24 +100,24 @@ exports.listarUsuarios = async (req, res, next) => {
     }
 }
 
-exports.listarUsuariosInscritosDisponiblesCurso = async (req, res, next) => {
-    
+exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
+
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-         return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array() });
     }
-    
+
     console.log('listarUsuariosInscritosDisponiblesCurso');
 
     try {
 
-        setTimeout(async () => {
+        setTimeout(async() => {
 
-            const {nombre, codigo_institucion, codigo_curso} = JSON.parse(req.query.filters);
-            let  {codigo_rol} = JSON.parse(req.query.filters);
-            
-            if(codigo_rol === '0') codigo_rol = ''     
+            const { nombre, codigo_institucion, codigo_curso } = JSON.parse(req.query.filters);
+            let { codigo_rol } = JSON.parse(req.query.filters);
+
+            if (codigo_rol === '0') codigo_rol = ''
 
             const usuarios = await sequelize.query(`
             SELECT rut, nombre, codigo_rol, 
@@ -147,11 +147,11 @@ exports.listarUsuariosInscritosDisponiblesCurso = async (req, res, next) => {
 
             res.model_name = "usuarios";
             res.model_data = usuarios;
-        
+
             next();
 
         }, 500);
-        
+
     } catch (error) {
         console.log(error);
         res.status(500).send({
@@ -160,20 +160,20 @@ exports.listarUsuariosInscritosDisponiblesCurso = async (req, res, next) => {
     }
 }
 
-exports.actualizarUsuario = async (req, res) => {
-    
+exports.actualizarUsuario = async(req, res) => {
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
+    try {
 
-        let {rut, clave, nombre, email, telefono, codigo_rol, imagen, inactivo} = req.body;
+        let { rut, clave, nombre, email, telefono, codigo_rol, imagen, inactivo } = req.body;
 
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
-        if(!usuario){
+        if (!usuario) {
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
             })
@@ -181,16 +181,16 @@ exports.actualizarUsuario = async (req, res) => {
 
         //compara la clave recibida con la almacenada en la base de datos
         //si son distintas entonces el usuario la actualizó y aplica el salt a la nueva clave
-        if(clave !== usuario.clave){
+        if (clave !== usuario.clave) {
             console.log('Actualiza la clave')
-           //genero un hash para el password
+                //genero un hash para el password
             let salt = bcrypt.genSaltSync(10);
             clave = bcrypt.hashSync(clave, salt);
         }
 
         //verifica que el rol del usuario a actualizar existe.
         let rol = await Rol.findByPk(codigo_rol);
-        if(!rol){
+        if (!rol) {
             return res.status(404).send({
                 msg: `El codigo rol ${codigo_rol} no existe`
             })
@@ -198,20 +198,22 @@ exports.actualizarUsuario = async (req, res) => {
 
         //actualiza los datos.
         usuario = await Usuario.update({
-                nombre,
-                clave,
-                email,
-                telefono,
-                codigo_rol,
-                imagen,
-                inactivo
-        },{ where: {
+            nombre,
+            clave,
+            email,
+            telefono,
+            codigo_rol,
+            imagen,
+            inactivo
+        }, {
+            where: {
                 rut
-        }})
+            }
+        })
 
         res.json(usuario);
 
-     } catch(error){
+    } catch (error) {
         console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
@@ -221,14 +223,14 @@ exports.actualizarUsuario = async (req, res) => {
 
 }
 
-exports.eliminarUsuario = async (req, res) => {
+exports.eliminarUsuario = async(req, res) => {
 
-    try{    
+    try {
         //obtengo el rut del request
-        const {rut} = req.params;
+        const { rut } = req.params;
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
-        if(!usuario){
+        if (!usuario) {
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
             })
@@ -253,17 +255,15 @@ exports.eliminarUsuario = async (req, res) => {
     }
 }
 
-exports.datosUsuario = async (req, res) => {
+exports.datosUsuario = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const {rut} = req.params
-        //consulta por el usuario
-        const usuario = await Usuario.findByPk(rut, 
-            { attributes: { exclude: ['clave'] }}
-            );
+        const { rut } = req.params
+            //consulta por el usuario
+        const usuario = await Usuario.findByPk(rut, { attributes: { exclude: ['clave'] } });
         //si el usuario no existe
-        if(!usuario){
+        if (!usuario) {
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
             })
@@ -282,53 +282,52 @@ exports.datosUsuario = async (req, res) => {
 
 }
 
-exports.busquedaUsuarios = async (req, res) => {
+exports.busquedaUsuarios = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const {filtro} = req.params
-        //consulta por el usuario
-        const usuarios = await Usuario.findAll( 
-            {  
+        const { filtro } = req.params
+            //consulta por el usuario
+        const usuarios = await Usuario.findAll({
+            include: [{
+                model: Curso,
+                attributes: ['codigo',
+                    'letra',
+                    'codigo_institucion', [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `cursos`.`codigo_institucion`)'),
+                        'descripcion_institucion'
+                    ],
+                    'codigo_nivel_academico', [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `cursos`.`codigo_nivel_academico`)'), 'descripcion_nivel_academico']
+                ],
+                required: false,
+            }],
+            /*
+            include: [{
+                model: CursoUsuario,
+                as: 'curso_usuarios',
+                attributes: ['codigo_curso'],
+                required: false,
                 include:[{
                     model: Curso,
+                    as: 'curso',
                     attributes: ['codigo',
                                  'letra', 
                                  'codigo_institucion',
-                                 [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `cursos`.`codigo_institucion`)'), 
-                                 'descripcion_institucion'],
-                                 'codigo_nivel_academico',
-                                 [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `cursos`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']
-                                ],
-                    required: false,
-                }],
-                /*
-                include: [{
-                    model: CursoUsuario,
-                    as: 'curso_usuarios',
-                    attributes: ['codigo_curso'],
-                    required: false,
-                    include:[{
-                        model: Curso,
-                        as: 'curso',
-                        attributes: ['codigo',
-                                     'letra', 
-                                     'codigo_institucion',
-                                     *//*
-                                     [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `curso_usuarios->curso`.`codigo_institucion`)'), 
-                                     'descripcion_institucion'],
-                                     'codigo_nivel_academico',
-                                     [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*//*
-                                    ],
-                        required: false,
-                    }],
-                }],*/
-                where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
-                    [Op.like]: `%${filtro}%`
-                })
-            }
-        );
-       
+                                 */
+            /*
+                                                 [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `curso_usuarios->curso`.`codigo_institucion`)'), 
+                                                 'descripcion_institucion'],
+                                                 'codigo_nivel_academico',
+                                                 [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*/
+            /*
+                                                ],
+                                    required: false,
+                                }],
+                            }],*/
+            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
+                [Op.like]: `%${filtro}%`
+            })
+        });
+
         //envia la información del usuario
         res.json({
             usuarios

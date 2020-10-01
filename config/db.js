@@ -13,6 +13,7 @@ const CursoModuloModel = require('../models/CursoModulo');
 const CursoUsuarioModel = require('../models/CursoUsuario');
 const PreguntaModel = require('../models/Pregunta');
 const AlternativaModel = require('../models/Alternativa');
+const RingModel = require('../models/Ring');
 
 const RespuestaDetalleModel = require('../models/RespuestaDetalle');
 const RespuestaResumenModel = require('../models/RespuestaResumen');
@@ -24,7 +25,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log, //false, //
+    logging: false,
     pool: {
         max: 5,
         min: 0,
@@ -49,9 +50,10 @@ const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
-const CursoUsuario = CursoUsuarioModel(sequelize, Sequelize, Curso, Usuario)
+const CursoUsuario = CursoUsuarioModel(sequelize, Sequelize, Curso, Usuario);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
+const Ring = RingModel(sequelize, Sequelize, Usuario);
 
 
 Rol.hasMany(Usuario, { foreignKey: 'codigo_rol' });
@@ -84,6 +86,8 @@ Usuario.belongsToMany(Curso, { through: CursoUsuario, foreignKey: 'rut_usuario' 
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
 
+//relacion Ring Usuario
+
 
 Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
 Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
@@ -98,22 +102,22 @@ sequelize.sync({ force: true })
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
             const roles = await Rol.bulkCreate([{
-                codigo: '1',
-                descripcion: 'ADMINISTRADOR SISTEMA'
-            }, {
-                codigo: '2',
-                descripcion: 'ALUMNO'
-            }, {
-                codigo: '3',
-                descripcion: 'PROFESOR'
-            }, {
-                codigo: '4',
-                descripcion: 'RECTOR'
-            }, {
-                codigo: '5',
-                descripcion: 'ADMINISTRADOR INSTITUCIÓN'
-            }
-            
+                    codigo: '1',
+                    descripcion: 'ADMINISTRADOR SISTEMA'
+                }, {
+                    codigo: '2',
+                    descripcion: 'ALUMNO'
+                }, {
+                    codigo: '3',
+                    descripcion: 'PROFESOR'
+                }, {
+                    codigo: '4',
+                    descripcion: 'RECTOR'
+                }, {
+                    codigo: '5',
+                    descripcion: 'ADMINISTRADOR INSTITUCIÓN'
+                }
+
             ]);
             console.log('ROLES INSERTADOS');
 
@@ -149,7 +153,7 @@ sequelize.sync({ force: true })
                 telefono: 12345633,
                 codigo_rol: '3',
                 imagen: ''
-            },{
+            }, {
                 rut: '18380233K',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Wendy Perez Reyes',
@@ -157,7 +161,7 @@ sequelize.sync({ force: true })
                 telefono: 12345633,
                 codigo_rol: '4',
                 imagen: ''
-            },{
+            }, {
                 rut: '241568628',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Juan Perez',
@@ -357,6 +361,7 @@ module.exports = {
     Curso,
     CursoModulo,
     CursoUsuario,
-    sequelize
+    sequelize,
+    Ring
 
 }
