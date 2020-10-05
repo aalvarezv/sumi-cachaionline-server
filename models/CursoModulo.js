@@ -18,7 +18,7 @@ module.exports = (sequelize, type, Curso, Modulo) => {
                 model: Modulo,
                 key: 'codigo'
             }
-        },
+        }
         
     }, {
         //agrega atributos timestamp (updatedAt, createdAt).

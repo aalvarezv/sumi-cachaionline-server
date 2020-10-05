@@ -21,6 +21,6 @@ module.exports = (sequelize, type) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'configuracion'
+        tableName: 'configuraciones'
     })
 }
