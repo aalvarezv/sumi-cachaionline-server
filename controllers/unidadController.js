@@ -49,7 +49,7 @@ exports.listarUnidades = async(req, res, next) => {
 
     try {
         const unidades = await Unidad.findAll();
-        
+
         res.json({
             unidades
         })
@@ -244,14 +244,14 @@ exports.busquedaUnidades = async(req, res) => {
     try {
         //obtiene el parametro desde la url
         const { filtro } = req.params
-            //consulta por el usuario
+            //consulta por la unidad
         const unidades = await Unidad.findAll({
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
                 [Op.like]: `%${filtro}%`
             })
         });
 
-        //envia la información del usuario
+        //envia la información de la unidad
         res.json({
             unidades
         })

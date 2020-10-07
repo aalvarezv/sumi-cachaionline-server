@@ -17,5 +17,7 @@ app.use('/api/cursos-modulos/', require('./cursoModulos'));
 app.use('/api/cursos-usuarios-roles/', require('./cursoUsuariosRol'));
 app.use('/api/usuario-instituciones-roles/', require('./usuarioInstitucionRol'));
 
+app.use('/api/rings/', require('./rings'));
+
 
 module.exports = app;
