@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Rol) =>{
+module.exports = (sequelize, type) =>{
 
     return sequelize.define('usuario', {
         rut:{
@@ -21,14 +21,6 @@ module.exports = (sequelize, type, Rol) =>{
         telefono:{
             type: type.INTEGER,
             allowNull: false
-        },
-        codigo_rol:{
-            type: type.STRING(128),
-            allowNull: false,
-            references:{
-                model: Rol,
-                key: 'codigo'
-            }
         },
         imagen:{
             type: type.TEXT('long'),

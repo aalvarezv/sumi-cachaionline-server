@@ -1,9 +1,8 @@
-const { Usuario, Rol, sequelize, CursoUsuario, Curso } = require('../config/db');
+const { Usuario, Rol, sequelize, Institucion, Curso } = require('../config/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
-
 
 
 exports.crearUsuario = async(req, res) => {
@@ -16,7 +15,7 @@ exports.crearUsuario = async(req, res) => {
 
     try {
 
-        const { rut, clave, nombre, email, telefono, codigo_rol, inactivo } = req.body;
+        const { rut, clave, nombre, email, telefono, imagen, inactivo } = req.body;
 
         //verifica que el usuario no existe.
         let usuario = await Usuario.findByPk(rut);
@@ -24,15 +23,6 @@ exports.crearUsuario = async(req, res) => {
             console.log('El usuario ya existe');
             return res.status(400).json({
                 msg: 'El usuario ya existe'
-            });
-        }
-
-        //verifica que el rol sea válido.
-        let rol = await Rol.findByPk(codigo_rol);
-        if (!rol) {
-            console.log('El rol ingresado no es válido');
-            return res.status(400).json({
-                msg: 'El rol ingresado no es válido'
             });
         }
 
@@ -47,7 +37,7 @@ exports.crearUsuario = async(req, res) => {
             nombre,
             email,
             telefono,
-            codigo_rol,
+            imagen,
             inactivo
         });
 
@@ -116,35 +106,63 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 
             const { nombre, codigo_institucion, codigo_curso } = JSON.parse(req.query.filters);
             let { codigo_rol } = JSON.parse(req.query.filters);
-
             if (codigo_rol === '0') codigo_rol = ''
 
             const usuarios = await sequelize.query(`
-            SELECT rut, nombre, codigo_rol, 
-                   existe_en_institucion, 
-                   existe_en_curso AS item_select 
-            FROM (
-                SELECT rut, nombre, codigo_rol,
-                    (SELECT COUNT(*) 
-                    FROM cursos_usuarios cu1
-                    LEFT JOIN cursos c1 ON c1.codigo = cu1.codigo_curso
-                    WHERE cu1.rut_usuario = rut 
-                          AND c1.codigo_institucion = '${codigo_institucion}'
-                    ) AS existe_en_institucion,
-                    (SELECT count(*) 
-                        FROM cursos_usuarios
-                     WHERE rut_usuario = rut 
-                           AND codigo_curso = '${codigo_curso}'
-                    ) AS existe_en_curso
-                FROM usuarios
-                WHERE inactivo = 0 
-                      AND nombre LIKE '%${nombre}%'
-                      AND (codigo_rol IN ('2','3') AND codigo_rol LIKE '%${codigo_rol}%')
-            ) tb 
-            WHERE (existe_en_institucion = 0 AND existe_en_curso = 0) 
-               OR (existe_en_institucion = 1 AND existe_en_curso = 1)
-               OR (codigo_rol = '3');`, { type: QueryTypes.SELECT });
-
+                SELECT 
+                    rut_rol,
+                    rut,
+                    nombre,
+                    codigo_rol,
+                    descripcion_rol,
+                    codigo_institucion,
+                    descripcion_institucion,
+                    existe_usr_rol_en_actual_curso AS item_select,
+                    existe_usr_rol_en_actual_curso,
+                    existe_usr_rol_en_otro_curso
+                FROM (
+                    SELECT 
+                        usr.rut, 
+                        usr.nombre, 
+                        rl.codigo AS codigo_rol,
+                        CONCAT(usr.rut, rl.codigo) AS rut_rol,
+                        rl.descripcion AS descripcion_rol,
+                        uir.codigo_institucion,
+                        it.descripcion AS  descripcion_institucion,
+                        #EXISTE EN EL CURSO ACTUAL DE LA INSTITUCION.
+                        (SELECT COUNT(*) 
+                            FROM cursos_usuarios_roles cur 
+                            INNER JOIN cursos c ON c.codigo = cur.codigo_curso
+                            WHERE cur.rut_usuario = rut 
+                                AND cur.codigo_curso = '${codigo_curso}'
+                                AND c.codigo_institucion = '${codigo_institucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
+                                AND cur.codigo_rol = rl.codigo
+                        ) AS existe_usr_rol_en_actual_curso,
+                        #EXISTE EN OTRO CURSO DE LA MISMA INSTITUCIÓN.
+                        (SELECT COUNT(*) 
+                            FROM cursos_usuarios_roles cur 
+                            INNER JOIN cursos c ON c.codigo = cur.codigo_curso
+                            WHERE cur.rut_usuario = rut 
+                                AND cur.codigo_curso <> '${codigo_curso}'
+                                AND c.codigo_institucion = '${codigo_institucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
+                                AND cur.codigo_rol = rl.codigo
+                        ) AS existe_usr_rol_en_otro_curso
+                    FROM usuarios usr
+                    INNER JOIN usuarios_instituciones_roles uir ON usr.rut = uir.rut_usuario 
+                    INNER JOIN roles rl ON rl.codigo = uir.codigo_rol
+                    INNER JOIN instituciones it ON it.codigo = uir.codigo_institucion
+                    WHERE 
+                        usr.inactivo = 0 
+                        AND usr.nombre LIKE '%${nombre}%'
+                        AND uir.codigo_institucion = '${codigo_institucion}' 
+                        AND rl.codigo IN (2,3) 
+                        AND rl.codigo LIKE '%${codigo_rol}%'
+                )tb
+                    WHERE (existe_usr_rol_en_actual_curso = 0 AND existe_usr_rol_en_otro_curso = 0) #SIN CURSO.
+                        OR (existe_usr_rol_en_actual_curso = 1 AND existe_usr_rol_en_otro_curso = 0)#EN CURSO ACTUAL.
+                        OR (codigo_rol = 3) #PROFESOR.
+            `, { type: QueryTypes.SELECT });
+            
             res.model_name = "usuarios";
             res.model_data = usuarios;
 
@@ -169,7 +187,7 @@ exports.actualizarUsuario = async(req, res) => {
 
     try {
 
-        let { rut, clave, nombre, email, telefono, codigo_rol, imagen, inactivo } = req.body;
+        let { rut, clave, nombre, email, telefono, imagen, inactivo } = req.body;
 
         //verifica que el usuario a actualizar existe.
         let usuario = await Usuario.findByPk(rut);
@@ -188,21 +206,12 @@ exports.actualizarUsuario = async(req, res) => {
             clave = bcrypt.hashSync(clave, salt);
         }
 
-        //verifica que el rol del usuario a actualizar existe.
-        let rol = await Rol.findByPk(codigo_rol);
-        if (!rol) {
-            return res.status(404).send({
-                msg: `El codigo rol ${codigo_rol} no existe`
-            })
-        }
-
         //actualiza los datos.
         usuario = await Usuario.update({
             nombre,
             clave,
             email,
             telefono,
-            codigo_rol,
             imagen,
             inactivo
         }, {
@@ -261,13 +270,16 @@ exports.datosUsuario = async(req, res) => {
         //obtiene el parametro desde la url
         const { rut } = req.params
             //consulta por el usuario
-        const usuario = await Usuario.findByPk(rut, { attributes: { exclude: ['clave'] } });
+        const usuario = await Usuario.findByPk(rut, {
+            attributes: { exclude: ['clave'] } 
+        });
         //si el usuario no existe
         if (!usuario) {
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
             })
         }
+
         //envia la información del usuario
         res.json({
             usuario
@@ -287,42 +299,8 @@ exports.busquedaUsuarios = async(req, res) => {
     try {
         //obtiene el parametro desde la url
         const { filtro } = req.params
-            //consulta por el usuario
+        //consulta por el usuario
         const usuarios = await Usuario.findAll({
-            include: [{
-                model: Curso,
-                attributes: ['codigo',
-                    'letra',
-                    'codigo_institucion', [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `cursos`.`codigo_institucion`)'),
-                        'descripcion_institucion'
-                    ],
-                    'codigo_nivel_academico', [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `cursos`.`codigo_nivel_academico`)'), 'descripcion_nivel_academico']
-                ],
-                required: false,
-            }],
-            /*
-            include: [{
-                model: CursoUsuario,
-                as: 'curso_usuarios',
-                attributes: ['codigo_curso'],
-                required: false,
-                include:[{
-                    model: Curso,
-                    as: 'curso',
-                    attributes: ['codigo',
-                                 'letra', 
-                                 'codigo_institucion',
-                                 */
-            /*
-                                                 [Sequelize.literal('(SELECT descripcion FROM instituciones WHERE codigo = `curso_usuarios->curso`.`codigo_institucion`)'), 
-                                                 'descripcion_institucion'],
-                                                 'codigo_nivel_academico',
-                                                 [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*/
-            /*
-                                                ],
-                                    required: false,
-                                }],
-                            }],*/
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
                 [Op.like]: `%${filtro}%`
             })

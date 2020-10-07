@@ -1,7 +1,7 @@
-const { CursoUsuario } = require('../config/db');
+const { CursoUsuarioRol } = require('../config/db');
 const { validationResult } = require('express-validator');
 
-exports.agregarUsuarioCurso = async(req, res) => {
+exports.crearUsuarioCursoRol = async(req, res) => {
 
     //Si hay errores en la validación
     const errors = validationResult(req);
@@ -11,13 +11,14 @@ exports.agregarUsuarioCurso = async(req, res) => {
 
     try {
 
-        const { codigo_curso, rut_usuario } = req.body;
+        const { codigo_curso, rut_usuario, codigo_rol } = req.body;
 
         //Verifica si existe la combinación curso vs usuario
-        let curso_usuario = await CursoUsuario.findAll({
+        let curso_usuario = await CursoUsuarioRol.findAll({
             where: {
                 codigo_curso,
-                rut_usuario
+                rut_usuario,
+                codigo_rol
             }
         });
 
@@ -28,10 +29,11 @@ exports.agregarUsuarioCurso = async(req, res) => {
             });
         }
 
-        //Guarda la nueva relación entre curso y usuario
-        curso_usuario = await CursoUsuario.create({
+        //Guarda la nueva relación entre curso, usuario y rol
+        curso_usuario = await CursoUsuarioRol.create({
             codigo_curso,
-            rut_usuario
+            rut_usuario,
+            codigo_rol
         });
 
         //envía la respuesta
@@ -44,42 +46,19 @@ exports.agregarUsuarioCurso = async(req, res) => {
     }
 }
 
-exports.listarUsuarioCurso = async(req, res) => {
-
-    try {
-
-        const { codigo_curso } = req.params;
-
-        const usuarios_curso = await CursoUsuario.findAll({
-            attributes: ['rut_usuario'],
-            where: {
-                codigo_curso
-            }
-        });
-
-        res.json({
-            usuarios_curso
-        })
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            msg: 'Hubo un error, por favor vuelva a intentar'
-        })
-    }
-}
-
-exports.eliminarUsuarioCurso = async(req, res) => {
+exports.eliminarUsuarioCursoRol = async(req, res) => {
 
     //Si hay errores de la validación
     const { codigo_curso } = req.params;
-    const { rut_usuario } = req.query;
+    const { rut_usuario, codigo_rol } = req.query;
 
     try {
         //Verifica si existe la combinación curso vs usuario.
-        let curso_usuario = await CursoUsuario.findAll({
+        let curso_usuario = await CursoUsuarioRol.findAll({
             where: {
                 codigo_curso,
-                rut_usuario
+                rut_usuario,
+                codigo_rol
             }
         });
 
@@ -91,10 +70,11 @@ exports.eliminarUsuarioCurso = async(req, res) => {
         }
 
         //Elimino el registro
-        await CursoUsuario.destroy({
+        await CursoUsuarioRol.destroy({
             where: {
                 codigo_curso,
-                rut_usuario
+                rut_usuario,
+                codigo_rol
             }
         });
 

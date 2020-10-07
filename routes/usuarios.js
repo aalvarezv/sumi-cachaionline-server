@@ -14,8 +14,7 @@ router.post('/crear',
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
     check('email').not().isEmpty().withMessage('El email es obligatorio.'),
     body('email').if(body('email').exists()).isEmail().withMessage('No es un email válido.'),
-    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),
-    check('codigo_rol').not().isEmpty().withMessage('El código de rol es obligatorio.')
+    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.')
 ], crearUsuario);
 
 router.get('/listar', auth, listarUsuarios, paginateResults);
@@ -61,8 +60,7 @@ router.put('/actualizar', auth,
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
     check('email').not().isEmpty().withMessage('El email es obligatorio.'),
     body('email').if(body('email').exists()).isEmail().withMessage('No es un email válido.'),
-    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),
-    check('codigo_rol').not().isEmpty().withMessage('El código de rol es obligatorio.')
+    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.')
 ], actualizarUsuario);
 
 router.delete('/eliminar/:rut', auth, eliminarUsuario);

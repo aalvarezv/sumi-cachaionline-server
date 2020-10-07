@@ -4,21 +4,23 @@ require('dotenv').config({ path: './variables.env' });
 const RolModel = require('../models/Rol');
 const UsuarioModel = require('../models/Usuario');
 const InstitucionModel = require('../models/Institucion');
+const UsuarioInstitucionRolModel = require('../models/UsuarioInstitucionRol');
 const NivelAcademicoModel = require('../models/NivelAcademico');
 const CursoModel = require('../models/Curso');
 const MateriaModel = require('../models/Materia');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
 const CursoModuloModel = require('../models/CursoModulo');
-const CursoUsuarioModel = require('../models/CursoUsuario');
+const CursoUsuarioRolModel = require('../models/CursoUsuarioRol');
 const PreguntaModel = require('../models/Pregunta');
 const AlternativaModel = require('../models/Alternativa');
 const RingModel = require('../models/Ring');
 
+/*
 const RespuestaDetalleModel = require('../models/RespuestaDetalle');
 const RespuestaResumenModel = require('../models/RespuestaResumen');
 const RespuestaUnidadModel = require('../models/RespuestaUnidad');
-
+*/
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
     define: {
@@ -42,30 +44,50 @@ const sequelize = new Sequelize(process.env.DB_URI, {
 
 //crea el modelo
 const Rol = RolModel(sequelize, Sequelize);
-const Usuario = UsuarioModel(sequelize, Sequelize, Rol);
+const Usuario = UsuarioModel(sequelize, Sequelize);
 const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
 const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
+const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, Usuario, Institucion, Rol );
 const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad, NivelAcademico);
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
-const CursoUsuario = CursoUsuarioModel(sequelize, Sequelize, Curso, Usuario);
+const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const Alternativa = AlternativaModel(sequelize, Sequelize, Pregunta);
 const Ring = RingModel(sequelize, Sequelize, Usuario);
 
 
-Rol.hasMany(Usuario, { foreignKey: 'codigo_rol' });
-Usuario.belongsTo(Rol, { foreignKey: 'codigo_rol' });
+//Relaciones
+Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario'});
+UsuarioInstitucionRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
+Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion'});
+UsuarioInstitucionRol.belongsTo(Institucion, {foreignKey: 'codigo_institucion'});
+Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol'});
+UsuarioInstitucionRol.belongsTo(Rol, {foreignKey: 'codigo_rol'});
 
-//rector institución
+//NivelAcademico.hasMany(Curso, { foreignKey: 'codigo_nivel_academico' });
+Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
+Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
+
+Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' });
+Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_usuario' });
+Rol.hasMany(CursoUsuarioRol, {foreignKey: 'codigo_rol'});
+
+
+/*Usuario.belongsToMany(Rol, { through: UsuarioRolInstitucion, foreignKey: 'rut_usuario' });
+Usuario.belongsToMany(Institucion, { through: UsuarioRolInstitucion, foreignKey: 'rut_usuario', as: "usuario_instituciones" });
+Institucion.belongsToMany(Usuario, { through: UsuarioRolInstitucion, foreignKey: 'codigo_institucion', as: "institucion_usuarios" })
+*/
+/**/
+
+/*rector institución
 Institucion.hasOne(Usuario, { foreignKey: 'rut_usuario_rector' });
 Usuario.belongsTo(Institucion, { foreignKey: 'rut_usuario_rector' });
 //administrador institución.
 Institucion.hasOne(Usuario, { foreignKey: 'rut_usuario_administrador' });
 Usuario.belongsTo(Institucion, { foreignKey: 'rut_usuario_administrador' });
-
 
 Curso.belongsTo(Institucion, { foreignKey: 'codigo_institucion' });
 Institucion.hasMany(Curso, { foreignKey: 'codigo_institucion' });
@@ -78,22 +100,13 @@ Unidad.belongsTo(Materia, { foreignKey: 'codigo_materia' });
 
 Unidad.hasMany(Modulo, { foreignKey: 'codigo_unidad' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
+*/
 
-
-Curso.belongsToMany(Usuario, { through: CursoUsuario, foreignKey: 'codigo_curso' });
-Usuario.belongsToMany(Curso, { through: CursoUsuario, foreignKey: 'rut_usuario' });
 
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
 
 //relacion Ring Usuario
-
-
-Modulo.hasMany(Pregunta, { foreignKey: 'codigo_modulo' });
-Pregunta.belongsTo(Modulo, { foreignKey: 'codigo_modulo' });
-
-Pregunta.hasMany(Alternativa, { foreignKey: 'codigo_pregunta' });
-Alternativa.belongsTo(Pregunta, { foreignKey: 'codigo_pregunta' });
 
 
 
@@ -350,18 +363,18 @@ sequelize.sync({ force: true })
 
 module.exports = {
     Usuario,
+    Rol,
+    Institucion,
+    NivelAcademico,
+    Curso,
+    UsuarioInstitucionRol,
     Materia,
     Alternativa,
-    NivelAcademico,
     Pregunta,
-    Rol,
     Unidad,
     Modulo,
-    Institucion,
-    Curso,
     CursoModulo,
-    CursoUsuario,
+    CursoUsuarioRol,
     sequelize,
     Ring
-
 }
