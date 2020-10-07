@@ -5,7 +5,7 @@ const paginateResults = require('../middleware/paginateResults');
 const { check, query } = require('express-validator');
 
 const {crearModulo,listarModulos, listarModulosDisponiblesCurso,  actualizarModulo, 
-       eliminarModulo, datosModulo, busquedaModulos} = require('../controllers/moduloController');
+       eliminarModulo, datosModulo, busquedaModulos, modulosUnidad} = require('../controllers/moduloController');
 
 
 router.post('/crear', auth, 
@@ -13,12 +13,10 @@ router.post('/crear', auth,
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
     check('descripcion').not().isEmpty().withMessage('La descripcion es obligatoria, verifique'),
     check('codigo_unidad').not().isEmpty().withMessage('El codigo unidad es obligatorio, verifique'),
-    check('codigo_nivel_academico').not().isEmpty().withMessage('El codigo nivel academico es obligatorio, verifique')
 ]
 ,crearModulo);
 
 router.get('/listar', auth, listarModulos, paginateResults);
-
 
 //lista todos los modulos disponibles para un curso.
 router.get('/listar-disponibles-curso', auth, 
@@ -46,10 +44,16 @@ router.get('/listar-disponibles-curso', auth,
     })
 ], listarModulosDisponiblesCurso, paginateResults);
 
-
-router.put('/actualizar', auth, actualizarModulo);
+router.put('/actualizar', auth,
+[
+    check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
+    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatoria, verifique'),
+    check('codigo_unidad').not().isEmpty().withMessage('El codigo unidad es obligatorio, verifique'),
+],
+actualizarModulo);
 router.delete('/eliminar/:codigo', auth, eliminarModulo);
 router.get('/datos/:codigo', auth, datosModulo);
+router.get('/unidad/:codigo_unidad', modulosUnidad);
 router.get('/busqueda/:filtro', auth, busquedaModulos);
 
 module.exports = router;

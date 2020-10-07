@@ -2,7 +2,7 @@ const { CursoModulo } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 
-exports.agregarModuloCurso = async(req, res) => {
+exports.crearModuloCurso = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -45,31 +45,6 @@ exports.agregarModuloCurso = async(req, res) => {
         });
     }
 
-}
-
-exports.listarModulosCurso = async(req, res) => {
-
-    try {
-
-        const { codigo_curso } = req.params;
-
-        const modulos_curso = await CursoModulo.findAll({
-            attributes: ['codigo_modulo'],
-            where: {
-                codigo_curso
-            }
-        });
-
-        res.json({
-            modulos_curso
-        });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            msg: 'Hubo un error, por favor vuelva a intentar'
-        });
-    }
 }
 
 exports.eliminarModuloCurso = async(req, res) => {

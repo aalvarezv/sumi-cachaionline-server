@@ -2,7 +2,7 @@ module.exports = (sequelize, type, Modulo) =>{
 
     return sequelize.define('pregunta',{
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },
@@ -21,30 +21,6 @@ module.exports = (sequelize, type, Modulo) =>{
         pregunta_video:{
             type: type.STRING,
             allownull: false
-        },
-        respuesta_texto:{
-            type: type.STRING,
-            allownull: false
-        },
-        respuesta_imagen:{
-            type: type.STRING,
-            allownull: false
-        },
-        respuesta_audio:{
-            type: type.STRING,
-            allownull: false
-        },
-        respuesta_video:{
-            type: type.STRING,
-            allownull: false
-        },
-        codigo_modulo:{
-            type: type.STRING(12),
-            allownull: false,
-            references:{
-                model: Modulo,
-                key: 'codigo'
-            }
         },
         inactivo:{
             type: type.BOOLEAN,

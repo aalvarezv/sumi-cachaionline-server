@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { check, param, query } = require('express-validator');
-const { crearUsuarioCursoRol, listarUsuarioCursoRol, eliminarUsuarioCursoRol } = require('../controllers/cursoUsuarioRolController');
+const { crearUsuarioCursoRol, eliminarUsuarioCursoRol } = require('../controllers/cursoUsuarioRolController');
 
 
 router.post('/crear', auth, [

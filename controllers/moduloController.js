@@ -31,14 +31,6 @@ exports.crearModulo = async(req, res) => {
             });
         }
 
-        let nivelAcademico = await NivelAcademico.findByPk(codigo_nivel_academico);
-        if (!nivelAcademico) {
-            console.log('El codigo nivel academico ingresado no es válido');
-            return res.status(400).json({
-                msg: 'El codigo nivel academico ingresado no es válido'
-            });
-        }
-
         modulo = await Modulo.create({
             codigo,
             descripcion,
@@ -46,7 +38,6 @@ exports.crearModulo = async(req, res) => {
             codigo_nivel_academico,
             inactivo
         });
-
 
         res.json(modulo);
 
@@ -157,7 +148,6 @@ exports.actualizarModulo = async(req, res) => {
 
         const { codigo, descripcion, codigo_unidad, codigo_nivel_academico, inactivo } = req.body;
 
-
         let modulo = await Modulo.findByPk(codigo);
         if (!modulo) {
             return res.status(404).send({
@@ -171,14 +161,6 @@ exports.actualizarModulo = async(req, res) => {
                 msg: `La unidad ${codigo_unidad} no existe`
             })
         }
-
-        let nivelAcademico = await NivelAcademico.findByPk(codigo_nivel_academico);
-        if (!nivelAcademico) {
-            return res.status(404).send({
-                msg: `El nivel academico ${codigo_nivel_academico} no existe`
-            })
-        }
-
 
         modulo = await Modulo.update({
             descripcion,
@@ -261,6 +243,40 @@ exports.datosModulo = async(req, res) => {
     }
 
 
+}
+
+exports.modulosUnidad = async(req, res) => {
+
+    try {
+
+        const { codigo_unidad } = req.params;
+
+        const modulos = await Modulo.findAll({
+            where: {
+                codigo_unidad,
+                inactivo: false
+            },
+            order: [
+                ['descripcion', 'ASC']
+            ]
+        });
+
+        if (!modulos) {
+            return res.status(404).send({
+                msg: `La unidad ${codigo_unidad} no tiene módulos asociados`
+            });
+        }
+
+        res.json({
+            modulos
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
 }
 
 exports.busquedaModulos = async(req, res) => {

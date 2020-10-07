@@ -1,21 +1,37 @@
 module.exports = (sequelize, type, Pregunta) =>{
 
-    return sequelize.define('alternativa',{
+    return sequelize.define('pregunta_alternativa',{
         codigo:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allownull: false
         },
-        descripcion:{
-            type: type.STRING,
+        alternativa_texto:{
+            type: type.TEXT('long'),
+            allownull: false
+        },
+        alternativa_imagen:{
+            type: type.TEXT('long'),
+            allownull: false
+        },
+        alternativa_audio:{
+            type: type.TEXT('long'),
+            allownull: false
+        },
+        alternativa_video:{
+            type: type.TEXT('long'),
             allownull: false
         },
         correcta:{
             type: type.BOOLEAN,
             allownull: false
         },
+        numero:{
+            type: type.INTEGER,
+            allownull: false
+        },        
         codigo_pregunta:{
-            type: type.STRING(12),
+            type: type.STRING(128),
             allownull: false,
             references:{
                 model: Pregunta,
@@ -33,6 +49,6 @@ module.exports = (sequelize, type, Pregunta) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'alternativas'
+        tableName: 'pregunta_alternativas'
     })
 }

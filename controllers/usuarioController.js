@@ -110,9 +110,11 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 
             const usuarios = await sequelize.query(`
                 SELECT 
-                    rut_rol,
                     rut,
-                    nombre,
+                    rut_rol,
+                    #SI ROL ES VACÍO ENTONCES ESTÁ LISTANDO TODOS LOS ROLES, POR LO TANTO CONCATEMAMOS
+                    #EL NOMBRE_USUARIO + ROL_DESCRIPCION, EN CASO CONTRARIO, SOLO EL NOMBRE. 
+                    ${(codigo_rol !== '') ? 'CONCAT(nombre) AS nombre_rol' : 'CONCAT(descripcion_rol," ",nombre) AS nombre_rol'},
                     codigo_rol,
                     descripcion_rol,
                     codigo_institucion,
