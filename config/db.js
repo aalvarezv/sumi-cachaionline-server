@@ -16,10 +16,14 @@ const CursoUsuarioRolModel = require('../models/CursoUsuarioRol');
 const PreguntaModel = require('../models/Pregunta');
 const PreguntaAlternativaModel = require('../models/PreguntaAlternativa');
 const RingModel = require('../models/Ring');
+const RingUsuarioModel = require('../models/RingUsuario');
+const RingPreguntaModel = require('../models/RingPregunta');
+const PreguntaPistaModel = require('../models/PreguntaPista');
+const PreguntaSolucionModel = require('../models/PreguntaSolucion');
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
-    define: {
+    define: { 
         timestamps: false
     },
     dialect: 'mysql',
@@ -44,7 +48,7 @@ const Usuario = UsuarioModel(sequelize, Sequelize);
 const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
 const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
-const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, Usuario, Institucion, Rol );
+const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, Usuario, Institucion, Rol);
 const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad);
@@ -54,26 +58,30 @@ const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuari
 const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
 const Ring = RingModel(sequelize, Sequelize, Usuario);
+const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
+const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
+const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
+const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 
 //Relaciones
-Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario'});
-UsuarioInstitucionRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
-Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion'});
-UsuarioInstitucionRol.belongsTo(Institucion, {foreignKey: 'codigo_institucion'});
-Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol'});
-UsuarioInstitucionRol.belongsTo(Rol, {foreignKey: 'codigo_rol'});
+Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
+UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' });
+Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion' });
+UsuarioInstitucionRol.belongsTo(Institucion, { foreignKey: 'codigo_institucion' });
+Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol' });
+UsuarioInstitucionRol.belongsTo(Rol, { foreignKey: 'codigo_rol' });
 
 Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
 
 Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' });
 Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_usuario' });
-Rol.hasMany(CursoUsuarioRol, {foreignKey: 'codigo_rol'});
+Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' });
 
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
 
-/*
+
 sequelize.sync({ force: true })
     .then(async() => {
         try {
@@ -103,7 +111,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Eduardo Patricio Alvarez Opazo',
                 email: 'ed.alvarezv@gmail.com',
-                telefono: 12345678,
+                telefono: '12345678',
                 codigo_rol: '2',
                 imagen: ''
             }, {
@@ -111,7 +119,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Maria Gloria Vargas Hernandez',
                 email: 'mar.vargash@gmail.com',
-                telefono: 12345678,
+                telefono: '12345678',
                 codigo_rol: '2',
                 imagen: ''
             }, {
@@ -119,7 +127,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Eduardo Nicolas Alvarez Vargas',
                 email: 'ed.alvarezv@gmail.com',
-                telefono: 12345698,
+                telefono: '12345698',
                 codigo_rol: '1',
                 imagen: ''
             }, {
@@ -127,7 +135,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Alan Patricio Alvarez Vargas',
                 email: 'alvarez.vargas@gmail.com',
-                telefono: 12345633,
+                telefono: '12345633',
                 codigo_rol: '3',
                 imagen: ''
             }, {
@@ -135,7 +143,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Wendy Perez Reyes',
                 email: 'wen.preyes@gmail.com',
-                telefono: 12345633,
+                telefono: '12345633',
                 codigo_rol: '4',
                 imagen: ''
             }, {
@@ -143,7 +151,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Juan Perez',
                 email: 'admin.institucion@gmail.com',
-                telefono: 12345633,
+                telefono: '12345633',
                 codigo_rol: '5',
                 imagen: ''
             }]);
@@ -280,7 +288,7 @@ sequelize.sync({ force: true })
                 rut_usuario_administrador: '241568628',
                 direccion: '',
                 email: '',
-                telefono: '',
+                telefono: 0,
                 website: '',
                 logo: ''
             }, {
@@ -290,7 +298,7 @@ sequelize.sync({ force: true })
                 rut_usuario_administrador: '241568628',
                 direccion: '',
                 email: '',
-                telefono: '',
+                telefono: 0,
                 website: '',
                 logo: ''
             }])
@@ -324,7 +332,7 @@ sequelize.sync({ force: true })
         }
 
     })
-*/
+
 module.exports = {
     Usuario,
     Rol,
@@ -341,5 +349,9 @@ module.exports = {
     CursoModulo,
     CursoUsuarioRol,
     sequelize,
-    Ring
+    Ring,
+    RingUsuario,
+    RingPregunta,
+    PreguntaPista,
+    PreguntaSolucion
 }

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-
+ 
 app.use('/api/auth/', require('./auth'));
 app.use('/api/usuarios/', require('./usuarios'));
 app.use('/api/materias/', require('./materias'));
@@ -17,7 +17,15 @@ app.use('/api/cursos-modulos/', require('./cursoModulos'));
 app.use('/api/cursos-usuarios-roles/', require('./cursoUsuariosRol'));
 app.use('/api/usuario-instituciones-roles/', require('./usuarioInstitucionRol'));
 
-app.use('/api/rings/', require('./rings'));
+
+app.use('/api/rings/', require('./rings')); 
+app.use('/api/ring-usuarios/', require('./ringUsuarios'));
+app.use('/api/ring-preguntas/',require('./ringPreguntas'));
+app.use('/api/pregunta-pistas/', require('./preguntaPistas'));
+app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));
+
+
+
 
 
 module.exports = app;

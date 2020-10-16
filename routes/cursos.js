@@ -5,7 +5,7 @@ const paginateResults = require('../middleware/paginateResults');
 const { check } = require('express-validator');
 
 const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, 
-        datosCurso, busquedaCursos } = require('../controllers/CursoController');
+        datosCurso, busquedaCursos } = require('../controllers/cursoController');
 
 router.post('/crear', auth, [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
