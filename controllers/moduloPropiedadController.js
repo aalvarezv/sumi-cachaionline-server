@@ -2,7 +2,7 @@ const { ModuloPropiedad } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 
-exports.crearPropiedadModulo = async(req, res) => {
+exports.crearPropiedadModulo = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -12,16 +12,19 @@ exports.crearPropiedadModulo = async(req, res) => {
 
     try {
       
-        const { codigo, codigo_modulo } = req.body;
+        const { codigo, descripcion, codigo_modulo } = req.body;
 
         //Guarda la nueva relacion entre curso y modulo
         modulo_propiedad = await ModuloPropiedad.create({
             codigo,
-            codigo_modulo,
+            descripcion,
+            codigo_modulo
         });
 
-        //envía la respuesta
-        res.json(modulo_propiedad);
+        //next para pasar a listarPropiedadesModulo 
+        req.params.codigo_modulo = codigo_modulo;
+        next();
+
 
     } catch (error) {
         console.log(error);
@@ -32,7 +35,31 @@ exports.crearPropiedadModulo = async(req, res) => {
 
 }
 
-exports.eliminarPropiedadModulo = async(req, res) => {
+exports.listarPropiedadesModulo = async(req, res) => {
+
+    try {
+       
+        const { codigo_modulo } = req.params;
+
+        const modulo_propiedades = await ModuloPropiedad.findAll({
+            where: {
+                codigo_modulo
+            }
+        });
+
+        res.json({
+            modulo_propiedades
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+}
+
+exports.eliminarPropiedadModulo = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -43,6 +70,7 @@ exports.eliminarPropiedadModulo = async(req, res) => {
     try {
         
         //obtengo el codigo del request
+        const {codigo_modulo} = req.query;
         const { codigo } = req.params;
 
         //elimino el registro.
@@ -52,10 +80,9 @@ exports.eliminarPropiedadModulo = async(req, res) => {
             }
         });
 
-        //envío una respuesta informando que el registro fue eliminado
-        res.json({
-            msg: 'Propiedad eliminada correctamente del módulo'
-        });
+        //next para pasar a listarPropiedadesModulo 
+        req.params.codigo_modulo = codigo_modulo;
+        next();
 
     } catch (error) {
         console.log(error);

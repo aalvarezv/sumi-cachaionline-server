@@ -23,7 +23,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log,
+    logging: false, //console.log,
     pool: {
         max: 5,
         min: 0,
@@ -73,7 +73,7 @@ Rol.hasMany(CursoUsuarioRol, {foreignKey: 'codigo_rol'});
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
 
-/*
+
 sequelize.sync({ force: true })
     .then(async() => {
         try {
@@ -324,7 +324,7 @@ sequelize.sync({ force: true })
         }
 
     })
-*/
+
 module.exports = {
     Usuario,
     Rol,

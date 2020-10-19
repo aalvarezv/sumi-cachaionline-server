@@ -14,15 +14,10 @@ exports.crearPregunta = async(req, res) => {
 
         const {
             codigo,
-            pregunta_texto,
-            pregunta_imagen,
-            pregunta_audio,
-            pregunta_video,
-            respuesta_texto,
-            respuesta_imagen,
-            respuesta_audio,
-            respuesta_video,
-            codigo_modulo
+            texto,
+            imagen,
+            audio,
+            video,
         } = req.body;
 
 
@@ -34,29 +29,13 @@ exports.crearPregunta = async(req, res) => {
             });
         }
 
-
-
-        let modulo = await Modulo.findByPk(codigo_modulo);
-        if (!modulo) {
-            console.log('El código módulo ingresado no es válido');
-            return res.status(400).json({
-                msg: 'El código módulo ingresado no es válido'
-            });
-        }
-
         pregunta = await Pregunta.create({
             codigo,
-            pregunta_texto,
-            pregunta_imagen,
-            pregunta_audio,
-            pregunta_video,
-            respuesta_texto,
-            respuesta_imagen,
-            respuesta_audio,
-            respuesta_video,
-            codigo_modulo
+            texto,
+            imagen,
+            audio,
+            video,
         });
-
 
         res.json({
             pregunta

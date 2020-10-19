@@ -11,7 +11,7 @@ exports.crearUsuarioInstitucionRol = async(req, res, next) => {
     }
 
     try {
-      
+        
         const { codigo, rut_usuario, codigo_institucion, codigo_rol } = req.body;
 
         //Verifica si existe la combinación curso vs usuario

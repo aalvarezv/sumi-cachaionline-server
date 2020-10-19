@@ -6,19 +6,19 @@ module.exports = (sequelize, type, Modulo) =>{
             primaryKey: true,
             allownull: false
         },
-        pregunta_texto:{
+        texto:{
             type: type.STRING,
             allownull: false
         },
-        pregunta_imagen:{
+        imagen:{
             type: type.STRING,
             allownull: false
         },
-        pregunta_audio:{
+        audio:{
             type: type.STRING,
             allownull: false
         },
-        pregunta_video:{
+        video:{
             type: type.STRING,
             allownull: false
         },
