@@ -23,6 +23,8 @@ app.use('/api/ring-usuarios/', require('./ringUsuarios'));
 app.use('/api/ring-preguntas/',require('./ringPreguntas'));
 app.use('/api/pregunta-pistas/', require('./preguntaPistas'));
 app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));
+app.use('/api/pregunta-modulos/', require('./preguntaModulos'));
+app.use('/api/pregunta-modulo-propiedades/', require('./preguntaModuloPropiedades'));
 
 
 

@@ -20,6 +20,8 @@ const RingUsuarioModel = require('../models/RingUsuario');
 const RingPreguntaModel = require('../models/RingPregunta');
 const PreguntaPistaModel = require('../models/PreguntaPista');
 const PreguntaSolucionModel = require('../models/PreguntaSolucion');
+const PreguntaModuloModel = require('../models/PreguntaModulo');
+const PreguntaModuloPropiedadModel = require ('../models/PreguntaModuloPropiedad');
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
@@ -62,6 +64,8 @@ const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
+const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
+const PreguntaModuloPropiedad = PreguntaModuloPropiedadModel(sequelize, Sequelize, Pregunta, ModuloPropiedad);
 
 //Relaciones
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
@@ -353,5 +357,7 @@ module.exports = {
     RingUsuario,
     RingPregunta,
     PreguntaPista,
-    PreguntaSolucion
+    PreguntaSolucion,
+    PreguntaModulo,
+    PreguntaModuloPropiedad
 }

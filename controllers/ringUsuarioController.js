@@ -35,7 +35,7 @@ exports.crearRingUsuario = async(req, res) => {
         });
 
         //envía la respuesta
-        res.json(ring_usuario);
+        res.json({ring_usuario});
 
     } catch (error) {
         console.log(error);

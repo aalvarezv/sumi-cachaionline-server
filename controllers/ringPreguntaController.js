@@ -35,7 +35,7 @@ exports.crearRingPregunta = async(req, res) => {
         });
 
         //envía la respuesta
-        res.json(ring_pregunta);
+        res.json({ring_pregunta});
 
     } catch (error) {
         console.log(error);
