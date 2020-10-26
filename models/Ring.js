@@ -5,7 +5,7 @@ module.exports = (sequelize, type, Usuario) => {
     return sequelize.define('ring', {
 
         codigo: {
-            type: type.STRING(12),
+            type: type.STRING(128),
             primaryKey: true,
             allowNull: false
         },
