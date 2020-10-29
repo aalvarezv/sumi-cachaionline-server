@@ -6,20 +6,8 @@ module.exports = (sequelize, type, Pregunta) =>{
             primaryKey: true,
             allownull: false
         },
-        alternativa_texto:{
-            type: type.TEXT('long'),
-            allownull: false
-        },
-        alternativa_imagen:{
-            type: type.TEXT('long'),
-            allownull: false
-        },
-        alternativa_audio:{
-            type: type.TEXT('long'),
-            allownull: false
-        },
-        alternativa_video:{
-            type: type.TEXT('long'),
+        letra:{
+            type: type.STRING(1),
             allownull: false
         },
         correcta:{

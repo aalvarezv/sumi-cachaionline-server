@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config({ path: './variables.env' });
 
+const ConfiguracionModel = require('../models/Configuracion');
 const RolModel = require('../models/Rol');
 const UsuarioModel = require('../models/Usuario');
 const InstitucionModel = require('../models/Institucion');
@@ -29,7 +30,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: false, //console.log,
+    logging: console.log,
     pool: {
         max: 5,
         min: 0,
@@ -45,6 +46,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
 });
 
 //Crea el modelo
+const Configuracion = ConfiguracionModel(sequelize, Sequelize);
 const Rol = RolModel(sequelize, Sequelize);
 const Usuario = UsuarioModel(sequelize, Sequelize);
 const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
@@ -57,7 +59,7 @@ const Modulo = ModuloModel(sequelize, Sequelize, Unidad);
 const ModuloPropiedad = ModuloPropiedadModel(sequelize, Sequelize, Modulo);
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
-const Pregunta = PreguntaModel(sequelize, Sequelize, Modulo);
+const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
 const Ring = RingModel(sequelize, Sequelize, Usuario);
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
@@ -67,7 +69,7 @@ const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
 const PreguntaModuloPropiedad = PreguntaModuloPropiedadModel(sequelize, Sequelize, Pregunta, ModuloPropiedad);
 
-//Relaciones
+//RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
 UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' });
 Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion' });
@@ -77,19 +79,42 @@ UsuarioInstitucionRol.belongsTo(Rol, { foreignKey: 'codigo_rol' });
 
 Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
+Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'});
 
 Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' });
 Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_usuario' });
 Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' });
 
-Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
-Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
+Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' });
+Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' });
+ModuloPropiedad.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 
+Pregunta.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
+Pregunta.hasMany(PreguntaAlternativa, {foreignKey: 'codigo_pregunta', as : 'pregunta_alternativa'});
+Pregunta.hasMany(PreguntaSolucion, {foreignKey: 'codigo_pregunta', as: 'pregunta_solucion'});
+Pregunta.hasMany(PreguntaPista, {foreignKey: 'codigo_pregunta'});
+Pregunta.hasMany(PreguntaModulo, {foreignKey: 'codigo_pregunta'});
+Pregunta.hasMany(PreguntaModuloPropiedad, {foreignKey: 'codigo_pregunta', as: 'pregunta_modulo_propiedad'});
 
-sequelize.sync({ force: true })
+PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
+PreguntaModuloPropiedad.belongsTo(ModuloPropiedad, {foreignKey: 'codigo_modulo_propiedad'});
+
+sequelize.sync({ force: false })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
+            const configuraciones = await Configuracion.bulkCreate([{
+                seccion: 'PREGUNTAS',
+                clave: 'DIR',
+                valor: '/Users/alanalvarez/.bitnami/stackman/machines/xampp/volumes/root/htdocs/cachaionline/preguntas/'
+            },
+            {
+                seccion: 'PREGUNTAS',
+                clave: 'URL',
+                valor: 'http://192.168.64.2/cachaionline/preguntas/'
+            }]);
+            console.log('CONFIGURACIONES INSERTADAS');
+
             const roles = await Rol.bulkCreate([{
                     codigo: '1',
                     descripcion: 'ADMINISTRADOR SISTEMA'
@@ -338,6 +363,7 @@ sequelize.sync({ force: true })
     })
 
 module.exports = {
+    Configuracion,
     Usuario,
     Rol,
     Institucion,

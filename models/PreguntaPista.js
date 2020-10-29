@@ -17,6 +17,12 @@ module.exports = (sequelize, type, Pregunta) => {
                 key: 'codigo'
             }
         },
+        numero: {
+            type: type.STRING
+        },
+        texto: {
+            type: type.STRING
+        },
         imagen: {
             type: type.STRING
         },

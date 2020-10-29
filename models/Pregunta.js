@@ -1,10 +1,19 @@
-module.exports = (sequelize, type, Modulo) =>{
+module.exports = (sequelize, type, Usuario) =>{
 
     return sequelize.define('pregunta',{
         codigo:{
             type: type.STRING(128),
             primaryKey: true,
             allownull: false
+        },
+        rut_usuario_creador: {
+            type: type.STRING(12),
+            primaryKey: true,
+            allowNull: false,
+            references: {
+                model: Usuario,
+                key: 'rut'
+            }
         },
         texto:{
             type: type.STRING,
