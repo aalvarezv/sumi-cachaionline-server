@@ -33,6 +33,11 @@ module.exports = (sequelize, type, Usuario) => {
                 key: 'rut'
             }
         },
+        privado: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
         inactivo: {
             type: type.BOOLEAN,
             allowNull: false,

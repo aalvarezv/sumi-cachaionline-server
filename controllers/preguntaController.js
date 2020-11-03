@@ -157,6 +157,7 @@ exports.crearPregunta = async(req, res) => {
         });
      
     } catch (error) {
+        console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
@@ -260,15 +261,16 @@ exports.listarPreguntas = async(req, res) => {
                         //sequelize.where(sequelize.col('materia.codigo'),'LIKE','%'+codigo_materia+'%'),
                         {'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } },
                         {'$pregunta_modulos.modulo.unidad.codigo$': { [Op.like]: `%${codigo_unidad}%` } },
-                    {[Op.or]:[
-                            {'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } },
-                            {'$pregunta_modulo_propiedad.codigo_modulo_propiedad$': { [Op.like]: `%${codigo_propiedad_modulo}%` } },
-                        ],
-                    }
+                    //{[Op.or]:[
+                        {'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } },
+                        {'$pregunta_modulo_propiedad.codigo_modulo_propiedad$': { [Op.like]: `%${codigo_propiedad_modulo}%` } },
+                        //],
+                    //}
                    
                 ],   
             },
             order:[
+                ['createdAt', 'DESC'],
                 [{ model: PreguntaAlternativa },
                     'numero',
                     'ASC',
@@ -371,7 +373,7 @@ exports.eliminarPregunta = async(req, res) => {
         });
 
     } catch (error) {
-        console.log("AL ELIMINAR REGISTROS",error);
+        console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
         })

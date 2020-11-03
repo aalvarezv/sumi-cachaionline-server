@@ -12,6 +12,7 @@ const MateriaModel = require('../models/Materia');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
 const ModuloPropiedadModel = require('../models/ModuloPropiedad');
+const ModuloPropiedadSubPropiedadModel = require('../models/ModuloPropiedadSubPropiedad');
 const CursoModuloModel = require('../models/CursoModulo');
 const CursoUsuarioRolModel = require('../models/CursoUsuarioRol');
 const PreguntaModel = require('../models/Pregunta');
@@ -57,6 +58,7 @@ const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad);
 const ModuloPropiedad = ModuloPropiedadModel(sequelize, Sequelize, Modulo);
+const ModuloPropiedadSubPropiedad = ModuloPropiedadSubPropiedadModel(sequelize, Sequelize, ModuloPropiedad);
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
@@ -68,6 +70,8 @@ const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
 const PreguntaModuloPropiedad = PreguntaModuloPropiedadModel(sequelize, Sequelize, Pregunta, ModuloPropiedad);
+
+
 
 //RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
@@ -99,7 +103,9 @@ Pregunta.hasMany(PreguntaModuloPropiedad, {foreignKey: 'codigo_pregunta', as: 'p
 PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 PreguntaModuloPropiedad.belongsTo(ModuloPropiedad, {foreignKey: 'codigo_modulo_propiedad'});
 
-sequelize.sync({ force: false })
+Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
+
+sequelize.sync({ force: true })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -112,7 +118,13 @@ sequelize.sync({ force: false })
                 seccion: 'PREGUNTAS',
                 clave: 'URL',
                 valor: 'http://192.168.64.2/cachaionline/preguntas/'
-            }]);
+            },
+            {
+                seccion: 'TEMP',
+                clave: 'DIR',
+                valor: '/Users/alanalvarez/Documents/TEMP/'
+            }
+            ]);
             console.log('CONFIGURACIONES INSERTADAS');
 
             const roles = await Rol.bulkCreate([{
@@ -223,92 +235,7 @@ sequelize.sync({ force: false })
                 imagen: 'http://localhost/materias/lenguaje_comunicacion.jpg'
             }]);
             console.log('MATERIAS INSERTADAS');
-
-            const unidades = await Unidad.bulkCreate([{
-                codigo: '1',
-                descripcion: 'NUMEROS',
-                codigo_materia: 'MAT'
-            }, {
-                codigo: '2',
-                descripcion: 'ALGEBRA',
-                codigo_materia: 'MAT'
-            }, {
-                codigo: '3',
-                descripcion: 'GEOMETRÍA',
-                codigo_materia: 'MAT'
-            }, {
-                codigo: '4',
-                descripcion: 'DATOS Y AZAR',
-                codigo_materia: 'MAT'
-            }]);
-            console.log('UNIDADES INSERTADAS');
-
-            const modulos = await Modulo.bulkCreate([{
-                codigo: '1',
-                descripcion: 'NUMEROS NATURALES',
-                codigo_unidad: '1',
-            }, {
-                codigo: '2',
-                descripcion: 'NUMEROS CARDINALES',
-                codigo_unidad: '1',
-            }, {
-                codigo: '3',
-                descripcion: 'NUMEROS ENTEROS',
-                codigo_unidad: '1',
-            }, {
-                codigo: '4',
-                descripcion: 'CUADRADO DE TRINOMIO',
-                codigo_unidad: '2',
-            }, {
-                codigo: '5',
-                descripcion: 'IDENTIDAD DE GAUSS',
-                codigo_unidad: '2',
-            }, {
-                codigo: '6',
-                descripcion: 'TEOREMA DE LAGRANGE 1',
-                codigo_unidad: '2',
-            }, {
-                codigo: '7',
-                descripcion: 'TEOREMA DE LAGRANGE 2',
-                codigo_unidad: '2',
-            }, {
-                codigo: '8',
-                descripcion: 'TEOREMA DE LAGRANGE 3',
-                codigo_unidad: '2',
-            }, {
-                codigo: '9',
-                descripcion: 'TEOREMA DE LAGRANGE 4',
-                codigo_unidad: '2',
-            }, {
-                codigo: '10',
-                descripcion: 'TEOREMA DE LAGRANGE 5',
-                codigo_unidad: '2',
-            }, {
-                codigo: '11',
-                descripcion: 'TEOREMA DE LAGRANGE 6',
-                codigo_unidad: '2',
-            }, {
-                codigo: '12',
-                descripcion: 'TEOREMA DE LAGRANGE 7',
-                codigo_unidad: '2',
-            }, {
-                codigo: '13',
-                descripcion: 'TEOREMA DE LAGRANGE 8',
-                codigo_unidad: '2',
-            }, {
-                codigo: '14',
-                descripcion: 'TEOREMA DE LAGRANGE 9',
-                codigo_unidad: '2',
-            }, {
-                codigo: '15',
-                descripcion: 'TEOREMA DE LAGRANGE 10',
-                codigo_unidad: '2',
-            }, {
-                codigo: '16',
-                descripcion: 'TEOREMA DE LAGRANGE 11',
-                codigo_unidad: '2',
-            }]);
-            console.log('MODULOS INSERTADOS');
+            
 
             const instituciones = await Institucion.bulkCreate([{
                 codigo: '1',
@@ -376,6 +303,7 @@ module.exports = {
     Unidad,
     Modulo,
     ModuloPropiedad,
+    ModuloPropiedadSubPropiedad,
     CursoModulo,
     CursoUsuarioRol,
     sequelize,

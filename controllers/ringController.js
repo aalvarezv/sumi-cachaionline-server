@@ -6,6 +6,8 @@ const { validationResult } = require('express-validator');
 exports.crearRing = async(req, res) => {
 
     //si hay errores de la validación
+    console.log(req.body);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -20,7 +22,8 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
-            inactivo
+            privado,
+            inactivo,
         } = req.body;
 
         //verifica que el ring no existe.
@@ -50,7 +53,8 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
-            inactivo
+            privado,
+            inactivo,
         });
 
         //envía la respuesta
@@ -66,10 +70,31 @@ exports.crearRing = async(req, res) => {
 
 }
 
-exports.listarRings = async(req, res, next) => {
+exports.listarRings = async(req, res) => {
 
     try {
-        const ring = await Ring.findAll();
+
+        let {fecha_desde, fecha_hasta, nombre_usuario_creador} = JSON.parse(req.query.filtros);
+        fecha_desde = fecha_desde.split('T')[0];
+        fecha_hasta = fecha_hasta.split('T')[0];
+
+        const ring = await Ring.findAll({
+            include: [{
+                model: Usuario,
+                attributes: ['rut','nombre'],
+            }],
+            where:{
+                [Op.and]:[
+                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_inicio')), '>=', fecha_desde ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_fin')), '<=', fecha_hasta ),
+                    sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
+                ]
+            },  
+            order:[
+                ['createdAt', 'DESC']
+            ]
+           
+        });
 
         res.json({
             ring
@@ -77,7 +102,7 @@ exports.listarRings = async(req, res, next) => {
 
     } catch (error) {
         console.log(error);
-        res.satus(500).send({
+        res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
         });
     }
@@ -99,6 +124,7 @@ exports.actualizarRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
+            privado,
             inactivo
         } = req.body;
 
@@ -111,7 +137,7 @@ exports.actualizarRing = async(req, res) => {
         }
 
         //verifica que el usuario del ring a actualizar existe.
-        let usuario = await Usuario.findByPk(rut);
+        let usuario = await Usuario.findByPk(rut_usuario_creador);
         if (!usuario) {
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
@@ -125,6 +151,7 @@ exports.actualizarRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
+            privado,
             inactivo
         }, {
             where: {
@@ -200,32 +227,5 @@ exports.datosRing = async(req, res) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
-
-}
-
-exports.busquedaRings = async(req, res) => {
-
-    try {
-        //obtiene el parametro desde la url
-        const { filtro } = req.params
-            //consulta por el ring
-        const ring = await Ring.findAll({
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
-                [Op.like]: `%${filtro}%`
-            })
-        });
-
-        //envia la información del ring
-        res.json({
-            ring
-        })
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            msg: 'Hubo un error, por favor vuelva a intentar'
-        })
-    }
-
 
 }

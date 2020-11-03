@@ -12,7 +12,7 @@ exports.crearModulo = async(req, res) => {
 
     try {
 
-        const { codigo, descripcion, codigo_unidad, codigo_nivel_academico, inactivo } = req.body;
+        const { codigo, descripcion, codigo_unidad, inactivo } = req.body;
 
 
         let modulo = await Modulo.findByPk(codigo);
@@ -35,7 +35,6 @@ exports.crearModulo = async(req, res) => {
             codigo,
             descripcion,
             codigo_unidad,
-            codigo_nivel_academico,
             inactivo
         });
 
@@ -146,7 +145,7 @@ exports.actualizarModulo = async(req, res) => {
 
     try {
 
-        const { codigo, descripcion, codigo_unidad, codigo_nivel_academico, inactivo } = req.body;
+        const { codigo, descripcion, codigo_unidad, inactivo } = req.body;
 
         let modulo = await Modulo.findByPk(codigo);
         if (!modulo) {
@@ -165,7 +164,6 @@ exports.actualizarModulo = async(req, res) => {
         modulo = await Modulo.update({
             descripcion,
             codigo_unidad,
-            codigo_nivel_academico,
             inactivo
         }, {
             where: {

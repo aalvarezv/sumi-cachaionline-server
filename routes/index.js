@@ -17,7 +17,6 @@ app.use('/api/cursos-modulos/', require('./cursoModulos'));
 app.use('/api/cursos-usuarios-roles/', require('./cursoUsuariosRol'));
 app.use('/api/usuario-instituciones-roles/', require('./usuarioInstitucionRol'));
 
-
 app.use('/api/rings/', require('./rings')); 
 app.use('/api/ring-usuarios/', require('./ringUsuarios'));
 app.use('/api/ring-preguntas/',require('./ringPreguntas'));
@@ -26,6 +25,7 @@ app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));
 app.use('/api/pregunta-modulos/', require('./preguntaModulos'));
 app.use('/api/pregunta-modulo-propiedades/', require('./preguntaModuloPropiedades'));
 
+app.use('/api/carga-masiva/', require('./cargaMasiva'));
 
 
 
