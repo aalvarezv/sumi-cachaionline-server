@@ -1,6 +1,6 @@
-module.exports = (sequelize, type, ModuloPropiedad) =>{
+module.exports = (sequelize, type, ModuloContenidoTema) =>{
 
-    return sequelize.define('modulo_propiedad_subpropiedad',{
+    return sequelize.define('modulo_contenido_tema_concepto',{
         codigo:{
             type: type.STRING(128),
             primaryKey: true,
@@ -10,11 +10,11 @@ module.exports = (sequelize, type, ModuloPropiedad) =>{
             type: type.STRING(),
             allownull: false
         },
-        codigo_modulo_propiedad:{
+        codigo_modulo_contenido_tema:{
             type: type.STRING(128),
             allownull: false,
             references:{
-                model: ModuloPropiedad,
+                model: ModuloContenidoTema,
                 key: 'codigo'
             }
         }
@@ -24,6 +24,6 @@ module.exports = (sequelize, type, ModuloPropiedad) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'modulo_propiedades_subpropiedades'
+        tableName: 'modulo_contenidos_temas_conceptos'
     })
 }

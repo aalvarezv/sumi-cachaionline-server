@@ -1,6 +1,6 @@
 module.exports = (sequelize, type, Modulo) =>{
 
-    return sequelize.define('modulo_propiedad',{
+    return sequelize.define('modulo_contenido',{
         codigo:{
             type: type.STRING(128),
             primaryKey: true,
@@ -24,6 +24,6 @@ module.exports = (sequelize, type, Modulo) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'modulo_propiedades'
+        tableName: 'modulo_contenidos'
     })
 }

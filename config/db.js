@@ -11,8 +11,9 @@ const CursoModel = require('../models/Curso');
 const MateriaModel = require('../models/Materia');
 const UnidadModel = require('../models/Unidad');
 const ModuloModel = require('../models/Modulo');
-const ModuloPropiedadModel = require('../models/ModuloPropiedad');
-const ModuloPropiedadSubPropiedadModel = require('../models/ModuloPropiedadSubPropiedad');
+const ModuloContenidoModel = require('../models/ModuloContenido');
+const ModuloContenidoTemaModel = require('../models/ModuloContenidoTema');
+const ModuloContenidoTemaConceptoModel = require('../models/ModuloContenidoTemaConcepto');
 const CursoModuloModel = require('../models/CursoModulo');
 const CursoUsuarioRolModel = require('../models/CursoUsuarioRol');
 const PreguntaModel = require('../models/Pregunta');
@@ -23,7 +24,7 @@ const RingPreguntaModel = require('../models/RingPregunta');
 const PreguntaPistaModel = require('../models/PreguntaPista');
 const PreguntaSolucionModel = require('../models/PreguntaSolucion');
 const PreguntaModuloModel = require('../models/PreguntaModulo');
-const PreguntaModuloPropiedadModel = require ('../models/PreguntaModuloPropiedad');
+const PreguntaModuloContenidoModel = require ('../models/PreguntaModuloContenido');
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
@@ -57,8 +58,10 @@ const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, U
 const Materia = MateriaModel(sequelize, Sequelize);
 const Unidad = UnidadModel(sequelize, Sequelize, Materia);
 const Modulo = ModuloModel(sequelize, Sequelize, Unidad);
-const ModuloPropiedad = ModuloPropiedadModel(sequelize, Sequelize, Modulo);
-const ModuloPropiedadSubPropiedad = ModuloPropiedadSubPropiedadModel(sequelize, Sequelize, ModuloPropiedad);
+const ModuloContenido = ModuloContenidoModel(sequelize, Sequelize, Modulo);
+const ModuloContenidoTema = ModuloContenidoTemaModel(sequelize, Sequelize, ModuloContenido);
+const ModuloContenidoTemaConcepto = ModuloContenidoTemaConceptoModel(sequelize, Sequelize, ModuloContenidoTema);
+
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
@@ -69,7 +72,7 @@ const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
-const PreguntaModuloPropiedad = PreguntaModuloPropiedadModel(sequelize, Sequelize, Pregunta, ModuloPropiedad);
+const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido);
 
 
 
@@ -91,21 +94,21 @@ Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' });
 
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' });
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' });
-ModuloPropiedad.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
+ModuloContenido.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 
 Pregunta.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 Pregunta.hasMany(PreguntaAlternativa, {foreignKey: 'codigo_pregunta', as : 'pregunta_alternativa'});
 Pregunta.hasMany(PreguntaSolucion, {foreignKey: 'codigo_pregunta', as: 'pregunta_solucion'});
 Pregunta.hasMany(PreguntaPista, {foreignKey: 'codigo_pregunta'});
 Pregunta.hasMany(PreguntaModulo, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModuloPropiedad, {foreignKey: 'codigo_pregunta', as: 'pregunta_modulo_propiedad'});
+Pregunta.hasMany(PreguntaModuloContenido, {foreignKey: 'codigo_pregunta', as: 'pregunta_modulo_contenido'});
 
 PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
-PreguntaModuloPropiedad.belongsTo(ModuloPropiedad, {foreignKey: 'codigo_modulo_propiedad'});
+PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'});
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -302,8 +305,9 @@ module.exports = {
     PreguntaAlternativa,
     Unidad,
     Modulo,
-    ModuloPropiedad,
-    ModuloPropiedadSubPropiedad,
+    ModuloContenido,
+    ModuloContenidoTema,
+    ModuloContenidoTemaConcepto,
     CursoModulo,
     CursoUsuarioRol,
     sequelize,
@@ -313,5 +317,5 @@ module.exports = {
     PreguntaPista,
     PreguntaSolucion,
     PreguntaModulo,
-    PreguntaModuloPropiedad
+    PreguntaModuloContenido,
 }

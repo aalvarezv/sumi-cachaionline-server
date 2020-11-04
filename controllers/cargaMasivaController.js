@@ -1,5 +1,6 @@
 const { Configuracion, Unidad, Materia, 
-        Modulo, ModuloPropiedad, ModuloPropiedadSubPropiedad } = require('../config/db');
+        Modulo, ModuloContenido, ModuloContenidoTema, 
+        ModuloContenidoTemaConcepto } = require('../config/db');
 const fsp = require('fs').promises;
 const ExcelJS = require('exceljs');
 
@@ -115,29 +116,31 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
 
         let codigo_unidad = '';
         let codigo_modulo = '';
-        let codigo_modulo_propiedad = '';
-        let codigo_modulo_propiedad_subpropiedad = '';
+        let codigo_modulo_contenido = '';
+        let codigo_modulo_contenido_tema = '';
+        let codigo_modulo_contenido_tema_concepto = '';
 
         let descripcion_unidad = '';
         let descripcion_modulo = '';
-        let descripcion_modulo_propiedad = '';
-        let descripcion_modulo_propiedad_subpropiedad = '';
+        let descripcion_modulo_contenido = '';
+        let descripcion_modulo_contenido_tema = '';
+        let descripcion_modulo_contenido_tema_concepto = '';
         
         for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
 
             let codigo_actual = hoja_excel.getCell(`${letra_columna_codigo}${i}`).text.trim();
-            
             //Separa el código actual en un arreglo para leer cada posición y verificar
             //si corresponde a una unidad, módulo, propiedad o sub-propiedad.
             let arr_codigo_actual = codigo_actual.split('.');
             let descripcion_actual =  hoja_excel.getCell(`${letra_columna_descripcion}${i}`).text.trim();
 
-            if(codigo_actual.trim() !== '' || descripcion_actual.trim() !== ''){
+            if(codigo_actual.trim() !== '' && descripcion_actual.trim() !== ''){
 
                 //Verifica a que corresponde el código posicionado actual.
-                //Los códigos se componen de 5 dígitos, si los últimos 3 son '0' ó el segundo valor del arreglo
-                //es igual a '0' entonces estamos parados en una unidad.
-                if(arr_codigo_actual[2] === '0'){
+                //Los códigos se componen de 5 dígitos, 
+                //Si el primer dígito es distinto de '0' y el segundo dígito es igual a '0' entonces estamos parados en una unidad.
+               
+                if(arr_codigo_actual[0] !== '0' && arr_codigo_actual[1] === '0'){
 
                     codigo_unidad = codigo_actual;
                     descripcion_unidad = descripcion_actual;
@@ -153,15 +156,18 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
                     }
 
                     codigo_modulo = '';
-                    codigo_modulo_propiedad = '';
-                    codigo_modulo_propiedad_subpropiedad = '';
-                    descripcion_modulo = '';
-                    descripcion_modulo_propiedad = '';
-                    descripcion_modulo_propiedad_subpropiedad = '';
+                    codigo_modulo_contenido = '';
+                    codigo_modulo_contenido_tema = '';
+                    codigo_modulo_contenido_tema_concepto
 
-                //Si el segundo valor del arreglo es distinto de '0' y el tercer valor del arreglo es igual a '0'
+                    descripcion_modulo = '';
+                    descripcion_modulo_contenido = '';
+                    descripcion_modulo_contenido_tema = '';
+                    descripcion_modulo_contenido_tema_concepto = '';
+                
+                //Si el segundo dígito es distinto de '0' y el tercer dígito es igual a '0'
                 //entonces estamos parados en un módulo.
-                }else if (arr_codigo_actual[2] !== '0' && arr_codigo_actual[3] === '0'){
+                }else if(arr_codigo_actual[1] !== '0' && arr_codigo_actual[2] === '0'){
 
                     codigo_modulo = codigo_actual;
                     descripcion_modulo = descripcion_actual;
@@ -169,6 +175,13 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
                     //Verifica que el módulo no existe antes de crearlo.
                     let modulo = await Modulo.findByPk(codigo_modulo);
                     if (!modulo) {
+
+                        if(codigo_unidad.trim() === ''){
+                            return res.status(400).send({
+                                msg: `No se ha capturado una unidad asociada al módulo ${codigo_modulo} ${descripcion_modulo}`,
+                            });
+                        }
+
                         await Modulo.create({
                             codigo: codigo_modulo,
                             descripcion: descripcion_modulo,
@@ -176,56 +189,103 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
                         });
                     }
 
-                    codigo_modulo_propiedad = '';
-                    codigo_modulo_propiedad_subpropiedad = '';
-                    descripcion_modulo_propiedad = '';
-                    descripcion_modulo_propiedad_subpropiedad = '';
-                //Si el tercer valor del arreglo es distinto de '0' y el cuarto valor del arreglo es igual a '0'
-                //entonces estamos parados en una propiedad del módulo.
-                }else if(arr_codigo_actual[3] !== '0' && arr_codigo_actual[4] === '0'){
+                    codigo_modulo_contenido = '';
+                    codigo_modulo_contenido_tema = '';
+                    codigo_modulo_contenido_tema_concepto = '';
 
-                    codigo_modulo_propiedad = codigo_actual;
-                    descripcion_modulo_propiedad = descripcion_actual;
+                    descripcion_modulo_contenido = '';
+                    descripcion_modulo_contenido_tema = '';
+                    descripcion_modulo_contenido_tema_concepto = '';
 
-                    //Verifica que la propiedad del módulo no existe antes de crearla.
-                    let modulo_propiedad = await ModuloPropiedad.findByPk(codigo_modulo_propiedad);
-                    if (!modulo_propiedad) {
-                        await ModuloPropiedad.create({
-                            codigo: codigo_modulo_propiedad,
-                            descripcion: descripcion_modulo_propiedad,
+                //si el tercer dígito es distinto de cero y el cuarto dígito es igual a '0'
+                //entonces estamos parados en el contenido de un módulo
+                }else if (arr_codigo_actual[2] !== '0' && arr_codigo_actual[3] === '0'){
+
+                    codigo_modulo_contenido = codigo_actual;
+                    descripcion_modulo_contenido = descripcion_actual;
+
+                    //Verifica que el contenido del módulo no existe antes de crearlo.
+                    let modulo_contenido = await ModuloContenido.findByPk(codigo_modulo_contenido);
+                    if (!modulo_contenido) {
+
+                        if(codigo_modulo.trim() === ''){
+                            return res.status(400).send({
+                                msg: `No se ha capturado un módulo asociada al contenido ${codigo_modulo_contenido} ${descripcion_modulo_contenido}`,
+                            });
+                        }
+
+                        await ModuloContenido.create({
+                            codigo: codigo_modulo_contenido,
+                            descripcion: descripcion_modulo_contenido,
                             codigo_modulo, 
                         });
                     }
+                    
+                    codigo_modulo_contenido_tema = '';
+                    codigo_modulo_contenido_tema_concepto = '';
 
-                    codigo_modulo_propiedad_subpropiedad = '';
-                    descripcion_modulo_propiedad_subpropiedad = '';
-                //Si el cuarto valor del arreglo es distinto de '0' entonces estamos parados en una sub-propiedad
-                //de la propiedad del módulo.
-                }else if(arr_codigo_actual[4] !== '0'){
+                    descripcion_modulo_contenido_tema = '';
+                    descripcion_modulo_contenido_tema_concepto = '';
+                
+                //si el cuarto dígito es distinto de '0' y el quinto dígito es igual a '0'
+                //entonces estamos parados en un tema del contenido de un módulo.
+                }else if(arr_codigo_actual[3] !== '0' && arr_codigo_actual[4] === '0'){
 
-                    codigo_modulo_propiedad_subpropiedad = codigo_actual;
-                    descripcion_modulo_propiedad_subpropiedad = descripcion_actual;
+                    codigo_modulo_contenido_tema = codigo_actual;
+                    descripcion_modulo_contenido_tema = descripcion_actual;
 
-                    //Verifica que la propiedad del módulo no existe antes de crearla.
-                    let modulo_propiedad_subpropiedad = await ModuloPropiedadSubPropiedad.findByPk(codigo_modulo_propiedad_subpropiedad);
-                    if (!modulo_propiedad_subpropiedad) {
-                        await ModuloPropiedadSubPropiedad.create({
-                            codigo: codigo_modulo_propiedad_subpropiedad,
-                            descripcion: descripcion_modulo_propiedad_subpropiedad,
-                            codigo_modulo_propiedad, 
+                    //Verifica que el tema del contenido no existe antes de crearlo.
+                    let modulo_contenido_tema = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema);
+                    if (!modulo_contenido_tema) {
+
+                        if(codigo_modulo_contenido.trim() === ''){
+                            return res.status(400).send({
+                                msg: `No se ha capturado una contenido asociada al tema ${codigo_modulo_contenido_tema} ${descripcion_modulo_contenido_tema}`,
+                            });
+                        }
+
+                        await ModuloContenidoTema.create({
+                            codigo: codigo_modulo_contenido_tema,
+                            descripcion: descripcion_modulo_contenido_tema,
+                            codigo_modulo_contenido, 
                         });
                     }
 
-                }
+                    codigo_modulo_contenido_tema_concepto = '';
 
-        
-                console.log(codigo_unidad, descripcion_unidad, codigo_modulo, descripcion_modulo, codigo_modulo_propiedad, descripcion_modulo_propiedad, codigo_modulo_propiedad_subpropiedad, descripcion_modulo_propiedad_subpropiedad);
-               
+                    descripcion_modulo_contenido_tema_concepto = '';
+                
+                //Si el quinto dígito es distinto de '0' entonces estamos parados sobre un concepto.
+                }else if(arr_codigo_actual[4] !== '0'){
+
+                    codigo_modulo_contenido_tema_concepto = codigo_actual;
+                    descripcion_modulo_contenido_tema_concepto = descripcion_actual;
+
+                    //Verificamos que el concepto del tema no existe antes de crearlo
+                    let modulo_contenido_tema_concepto = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema_concepto);
+
+                    if (!modulo_contenido_tema_concepto) {
+
+                        if(codigo_modulo_contenido_tema.trim() === ''){
+                            return res.status(400).send({
+                                msg: `No se ha capturado un tema asociado al concepto ${codigo_modulo_contenido_tema_concepto} ${descripcion_modulo_contenido_tema_concepto}`,
+                            });
+                        }
+
+                        await ModuloContenidoTemaConcepto.create({
+                            codigo: codigo_modulo_contenido_tema_concepto,
+                            descripcion: descripcion_modulo_contenido_tema_concepto,
+                            codigo_modulo_contenido_tema, 
+                        });
+
+                    }
+
+                }
+                
             }
-            
+            //console.log(codigo_unidad, descripcion_unidad, codigo_modulo, descripcion_modulo, codigo_modulo_contenido, descripcion_modulo_contenido, codigo_modulo_contenido_tema, descripcion_modulo_contenido_tema, codigo_modulo_contenido_tema_concepto, descripcion_modulo_contenido_tema_concepto);
            
         }
-    
 
         res.json({
             msg:"Todo OK",
@@ -241,7 +301,7 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
 }
 
 
-exports.cargaMateriasUnidadesModulos = async (req, res) => {
+exports.cargaPreguntas = async (req, res) => {
 
     /***
      * archivo_base64: Archivo excel en formato base64.

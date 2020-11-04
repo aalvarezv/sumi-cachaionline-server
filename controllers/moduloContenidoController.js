@@ -1,8 +1,8 @@
-const { ModuloPropiedad } = require('../config/db');
+const { ModuloContenido } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 
-exports.crearPropiedadModulo = async(req, res, next) => {
+exports.crearContenidoModulo = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -15,13 +15,13 @@ exports.crearPropiedadModulo = async(req, res, next) => {
         const { codigo, descripcion, codigo_modulo } = req.body;
 
         //Guarda la nueva relacion entre curso y modulo
-        modulo_propiedad = await ModuloPropiedad.create({
+        modulo_contenido = await ModuloContenido.create({
             codigo,
             descripcion,
             codigo_modulo
         });
 
-        //next para pasar a listarPropiedadesModulo 
+        //next para pasar a listarContenidosModulo 
         req.params.codigo_modulo = codigo_modulo;
         next();
 
@@ -35,20 +35,20 @@ exports.crearPropiedadModulo = async(req, res, next) => {
 
 }
 
-exports.listarPropiedadesModulo = async(req, res) => {
+exports.listarContenidosModulo = async(req, res) => {
 
     try {
        
         const { codigo_modulo } = req.params;
 
-        const modulo_propiedades = await ModuloPropiedad.findAll({
+        const modulo_contenidos = await ModuloContenido.findAll({
             where: {
                 codigo_modulo
             }
         });
 
         res.json({
-            modulo_propiedades
+            modulo_contenidos
         });
 
     } catch (error) {
@@ -59,7 +59,7 @@ exports.listarPropiedadesModulo = async(req, res) => {
     }
 }
 
-exports.eliminarPropiedadModulo = async(req, res, next) => {
+exports.eliminarContenidoModulo = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -74,7 +74,7 @@ exports.eliminarPropiedadModulo = async(req, res, next) => {
         const { codigo } = req.params;
 
         //elimino el registro.
-        await ModuloPropiedad.destroy({
+        await ModuloContenido.destroy({
             where: {
                 codigo
             }

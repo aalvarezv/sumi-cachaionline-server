@@ -1,6 +1,6 @@
 const { Pregunta, PreguntaAlternativa, PreguntaSolucion, 
-        PreguntaPista, PreguntaModulo, PreguntaModuloPropiedad, 
-        Usuario, Modulo, ModuloPropiedad, Unidad, Materia, Configuracion, sequelize } = require('../config/db');
+        PreguntaPista, PreguntaModulo, PreguntaModuloContenido, 
+        Usuario, Modulo, ModuloContenido, Unidad, Materia, Configuracion, sequelize } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
@@ -69,19 +69,19 @@ exports.crearPregunta = async(req, res) => {
             video,
         });
 
-        //*********MODULOS Y PROPIEDADES
+        //*********MODULOS Y CONTENIDOS
         //Recorre los modulos que pudieron ser asociados a la pregunta.
         for(let modulo of modulos){
             await PreguntaModulo.create({
                 codigo_pregunta: modulo.codigo_pregunta,
                 codigo_modulo: modulo.codigo,
             });
-            //Si el modulo tiene propiedades, también las asigna.
-            if(modulo.propiedades){
-                for(let propiedad of modulo.propiedades){
-                    await PreguntaModuloPropiedad.create({
+            //Si el modulo tiene contenidos, también las asigna.
+            if(modulo.contenidos){
+                for(let contenido of modulo.contenidos){
+                    await PreguntaModuloContenido.create({
                         codigo_pregunta: modulo.codigo_pregunta,
-                        codigo_modulo_propiedad: propiedad.codigo,
+                        codigo_modulo_contenido: contenido.codigo,
                     })
                 }
             }
@@ -163,27 +163,32 @@ exports.crearPregunta = async(req, res) => {
         })
     }
 }
-
+//aqui.
 exports.listarPreguntas = async(req, res) => {
 
     try {
 
-        const {  nombre_usuario_creador } = req.query;
-        let { fecha_desde, fecha_hasta, codigo_materia, codigo_unidad, 
-                codigo_modulo, codigo_propiedad_modulo } = req.query;
+        const { nombre_usuario_creador,
+                codigo_materia, codigo_unidad, 
+                codigo_modulo, codigo_contenido_modulo } = req.query;
+        let {fecha_desde, fecha_hasta} = req.query;
         //Estos campos son listas seleccionables, por lo que su valor por defecto es 0 = 'SELECCIONE'.
         //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
-        if(codigo_materia.trim() === '0'){
-            codigo_materia = '';
+
+        const filtros_dinamicos = []; 
+        
+        
+        if(codigo_materia.trim() !== '0'){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } });
         }
-        if(codigo_unidad.trim() === '0'){
-            codigo_unidad = '';
+        if(codigo_unidad.trim() !== '0'){
+           filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.codigo$': { [Op.like]: `%${codigo_unidad}%` } });
         }
-        if(codigo_modulo.trim() === '0'){
-            codigo_modulo = '';
+        if(codigo_modulo.trim() !== '0'){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } });
         }
-        if(codigo_propiedad_modulo.trim() === '0'){
-            codigo_propiedad_modulo = '';
+        if(codigo_contenido_modulo.trim() !== '0'){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido.codigo_modulo_contenido$': { [Op.like]: `%${codigo_contenido_modulo}%` } });
         }
 
         //La fecha llega con hora, por lo tanto la formatea.
@@ -206,7 +211,7 @@ exports.listarPreguntas = async(req, res) => {
                 model: Usuario,
                 attributes: ['rut', 'nombre'],
                 required: false,
-            },{
+            },/*,{
                 model: PreguntaAlternativa,
                 as: 'pregunta_alternativa',
                 attributes: ['codigo', 'letra', 'correcta', 'numero'],
@@ -221,7 +226,7 @@ exports.listarPreguntas = async(req, res) => {
                 attributes: ['codigo', 'numero', 'texto', 
                             [Sequelize.literal('CASE WHEN pregunta_pista.imagen <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta_pista.codigo_pregunta,"/","pistas","/",pregunta_pista.imagen)) ELSE pregunta_pista.imagen END'),'imagen']
                 ],
-            },{
+            },*/{
                 model: PreguntaModulo,
                 attributes: ['codigo_pregunta', 'codigo_modulo'],
                 include:[{
@@ -239,12 +244,11 @@ exports.listarPreguntas = async(req, res) => {
                     }],
                 }],
             },{
-                model: PreguntaModuloPropiedad,
-                as:'pregunta_modulo_propiedad',
-                attributes: ['codigo_pregunta', 'codigo_modulo_propiedad'],
-                as: 'pregunta_modulo_propiedad',
+                model: PreguntaModuloContenido,
+                attributes: ['codigo_pregunta', 'codigo_modulo_contenido'],
+                as: 'pregunta_modulo_contenido',
                 include:[{
-                    model: ModuloPropiedad,
+                    model: ModuloContenido,
                     attributes:['codigo', 'descripcion', 'codigo_modulo'],
                     include: [{
                         model: Modulo,
@@ -257,20 +261,12 @@ exports.listarPreguntas = async(req, res) => {
                     sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '>=', fecha_desde ),
                     sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '<=', fecha_hasta ),
                     { inactivo: false },
-                        sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
-                        //sequelize.where(sequelize.col('materia.codigo'),'LIKE','%'+codigo_materia+'%'),
-                        {'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } },
-                        {'$pregunta_modulos.modulo.unidad.codigo$': { [Op.like]: `%${codigo_unidad}%` } },
-                    //{[Op.or]:[
-                        {'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } },
-                        {'$pregunta_modulo_propiedad.codigo_modulo_propiedad$': { [Op.like]: `%${codigo_propiedad_modulo}%` } },
-                        //],
-                    //}
-                   
+                    sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
+                    filtros_dinamicos.map(filtro => filtro),    
                 ],   
             },
             order:[
-                ['createdAt', 'DESC'],
+                ['createdAt', 'DESC'],/*
                 [{ model: PreguntaAlternativa },
                     'numero',
                     'ASC',
@@ -280,7 +276,7 @@ exports.listarPreguntas = async(req, res) => {
                 ],[{ model: PreguntaPista },
                     'numero',
                     'ASC',
-                ],
+                ],*/
             ],
         });
 
@@ -351,8 +347,8 @@ exports.eliminarPregunta = async(req, res) => {
             }
         });
 
-        //******PROPIEDADES MODULO
-        await PreguntaModuloPropiedad.destroy({
+        //******CONTENIDOS MODULO
+        await PreguntaModuloContenido.destroy({
             where: {
                 codigo_pregunta: codigo
             }
@@ -419,11 +415,11 @@ exports.datosPreguntas = async(req, res) => {
                     attributes: ['codigo', 'descripcion'],
                 }]
             },{
-                model: PreguntaModuloPropiedad,
-                attributes: ['codigo_pregunta', 'codigo_modulo_propiedad'],
-                as: 'pregunta_modulo_propiedad',
+                model: PreguntaModuloContenido,
+                attributes: ['codigo_pregunta', 'codigo_modulo_contenido'],
+                as: 'pregunta_modulo_contenido',
                 include:[{
-                    model: ModuloPropiedad,
+                    model: ModuloContenido,
                     attributes:['codigo', 'descripcion', 'codigo_modulo'],
                     include: [{
                         model: Modulo,
