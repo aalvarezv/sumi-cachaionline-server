@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth')
-const { cargaMateriasUnidadesModulos } = require('../controllers/cargaMasivaController');
+const { cargaMateriasUnidadesModulos, cargaPreguntas } = require('../controllers/cargaMasivaController');
 
 
-router.post('/unidades-modulos-propiedades-subpropiedades', auth, cargaMateriasUnidadesModulos);
+router.post('/unidades-modulos-contenidos-temas-conceptos', auth, cargaMateriasUnidadesModulos);
+router.post('/preguntas', auth, cargaPreguntas);
+
 
 module.exports = router;

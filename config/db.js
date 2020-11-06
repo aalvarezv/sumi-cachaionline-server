@@ -32,7 +32,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log,
+    logging: false, //console.log,
     pool: {
         max: 5,
         min: 0,
@@ -108,7 +108,7 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 
-sequelize.sync({ force: false })
+sequelize.sync({ force: true })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -151,6 +151,14 @@ sequelize.sync({ force: false })
             console.log('ROLES INSERTADOS');
 
             const usuarios = await Usuario.bulkCreate([{
+                rut: 'SYSTEM',
+                clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
+                nombre: 'SYSTEM',
+                email: 'info@cachaionline.com',
+                telefono: '',
+                codigo_rol: '1',
+                imagen: ''
+            },{
                 rut: '93733991',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'Eduardo Patricio Alvarez Opazo',

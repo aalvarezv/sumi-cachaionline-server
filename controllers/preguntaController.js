@@ -43,12 +43,14 @@ exports.crearPregunta = async(req, res) => {
                 clave: 'DIR'
             }
         });
-        dir_pregunta = dir_pregunta.dataValues.valor;
+       
         if (!dir_pregunta) {
             return res.status(404).send({
                 msg: `No existe sección PREGUNTAS clave DIR en la configuración, verifique.`
             })
         }
+
+        dir_pregunta = dir_pregunta.dataValues.valor;
 
         //Crea el directorio (codigo pregunta) para almacenar los archivos de la pregunta.
         await fs.promises.mkdir(`${dir_pregunta}/${codigo}`, {recursive: true});
@@ -172,11 +174,15 @@ exports.listarPreguntas = async(req, res) => {
                 codigo_materia, codigo_unidad, 
                 codigo_modulo, codigo_contenido_modulo } = req.query;
         let {fecha_desde, fecha_hasta} = req.query;
+        
+
+        let fecha_desde_format = new Date(fecha_desde).toISOString().split('T')[0];
+        let fecha_hasta_format = new Date(fecha_hasta).toISOString().split('T')[0];
+
         //Estos campos son listas seleccionables, por lo que su valor por defecto es 0 = 'SELECCIONE'.
         //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
-
+       
         const filtros_dinamicos = []; 
-        
         
         if(codigo_materia.trim() !== '0'){
             filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } });
@@ -192,8 +198,9 @@ exports.listarPreguntas = async(req, res) => {
         }
 
         //La fecha llega con hora, por lo tanto la formatea.
-        fecha_desde = fecha_desde.split('T')[0];
-        fecha_hasta = fecha_hasta.split('T')[0];
+        
+        //fecha_desde = fecha_desde.split('T')[0];
+        //fecha_hasta = fecha_hasta.split('T')[0];
 
         const preguntas = await Pregunta.findAll({
 
@@ -258,8 +265,8 @@ exports.listarPreguntas = async(req, res) => {
             }],
             where: {
                 [Op.and]:[
-                    sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '>=', fecha_desde ),
-                    sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '<=', fecha_hasta ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '>=', fecha_desde_format ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('pregunta.createdAt')), '<=', fecha_hasta_format ),
                     { inactivo: false },
                     sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
                     filtros_dinamicos.map(filtro => filtro),    
@@ -279,7 +286,6 @@ exports.listarPreguntas = async(req, res) => {
                 ],*/
             ],
         });
-
 
         res.json({
             preguntas
