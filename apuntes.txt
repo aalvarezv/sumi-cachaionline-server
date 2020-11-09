@@ -1,2 +1,6 @@
 /*
 [Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*/
+
+
+Comandos Utiles:
+npx kill-port 3001 -> Termina lo que esta corriendo en el puerto 

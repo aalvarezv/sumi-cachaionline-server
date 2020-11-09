@@ -1,6 +1,4 @@
-const { text } = require("express")
-
-module.exports = (sequelize, type, Usuario) => {
+module.exports = (sequelize, type, Usuario, TipoJuego) => {
 
     return sequelize.define('ring', {
 
@@ -31,6 +29,21 @@ module.exports = (sequelize, type, Usuario) => {
             references: {
                 model: Usuario,
                 key: 'rut'
+            }
+        },
+        cantidad_usuarios: {
+            type: type.INTEGER,
+            allowNull: false,
+        },
+        duracion_pregunta: {
+            type: type.INTEGER,
+        },
+        codigo_tipo_juego: {
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: TipoJuego,
+                key: 'codigo'
             }
         },
         privado: {

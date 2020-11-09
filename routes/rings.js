@@ -12,6 +12,8 @@ router.post('/crear', auth, [
     check('fecha_hora_inicio').not().isEmpty().withMessage('La fecha y hora de inicio son obligatorias.'),
     check('fecha_hora_fin').not().isEmpty().withMessage('La fecha y hora de termino son obligatorias.'),
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
+    check('codigo_tipo_juego').not().isEmpty().withMessage('El codigo del tipo de juego es obligatorio, verifique'),
+    check('cantidad_usuarios').not().isEmpty().withMessage('La cantidad de usuarios es obligatoria.'),
 ], crearRing);
 
 router.get('/listar', auth, listarRings);
@@ -23,6 +25,8 @@ router.put('/actualizar', auth, [
     check('fecha_hora_inicio').not().isEmpty().withMessage('La fecha y hora de inicio son obligatorias.'),
     check('fecha_hora_fin').not().isEmpty().withMessage('La fecha y hora de termino son obligatorias.'),
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
+    check('codigo_tipo_juego').not().isEmpty().withMessage('El codigo del tipo de juego es obligatorio, verifique'),
+    check('cantidad_usuarios').not().isEmpty().withMessage('La cantidad de usuarios es obligatoria.'),
 ], actualizarRing);
 
 router.delete('/eliminar/:codigo', auth, eliminarRing);

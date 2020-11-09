@@ -12,7 +12,7 @@ exports.crearRing = async(req, res) => {
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-
+ 
     try {
 
         const {
@@ -22,8 +22,11 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
+            cantidad_usuarios,
+            duracion_pregunta,
+            codigo_tipo_juego,
             privado,
-            inactivo,
+            inactivo
         } = req.body;
 
         //verifica que el ring no existe.
@@ -53,6 +56,9 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
+            codigo_tipo_juego,
+            cantidad_usuarios,
+            duracion_pregunta,
             privado,
             inactivo,
         });
@@ -74,9 +80,10 @@ exports.listarRings = async(req, res) => {
 
     try {
 
-        let {fecha_desde, fecha_hasta, nombre_usuario_creador} = JSON.parse(req.query.filtros);
-        fecha_desde = fecha_desde.split('T')[0];
-        fecha_hasta = fecha_hasta.split('T')[0];
+        const {fecha_desde, fecha_hasta, nombre_usuario_creador} = req.query;
+        
+        let fecha_desde_format = new Date(fecha_desde).toISOString().split('T')[0];
+        let fecha_hasta_format = new Date(fecha_hasta).toISOString().split('T')[0];
 
         const ring = await Ring.findAll({
             include: [{
@@ -85,8 +92,8 @@ exports.listarRings = async(req, res) => {
             }],
             where:{
                 [Op.and]:[
-                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_inicio')), '>=', fecha_desde ),
-                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_fin')), '<=', fecha_hasta ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_inicio')), '>=', fecha_desde_format ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_fin')), '<=', fecha_hasta_format ),
                     sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
                 ]
             },  
@@ -125,6 +132,9 @@ exports.actualizarRing = async(req, res) => {
             fecha_hora_fin,
             rut_usuario_creador,
             privado,
+            codigo_tipo_juego,
+            cantidad_usuarios,
+            duracion_pregunta,            
             inactivo
         } = req.body;
 
@@ -152,6 +162,9 @@ exports.actualizarRing = async(req, res) => {
             fecha_hora_fin,
             rut_usuario_creador,
             privado,
+            codigo_tipo_juego,
+            cantidad_usuarios,
+            duracion_pregunta,
             inactivo
         }, {
             where: {

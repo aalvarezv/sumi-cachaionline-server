@@ -1,8 +1,8 @@
-const { ModuloContenido } = require('../config/db');
+const { ModuloContenidoTema } = require('../config/db');
 const { validationResult } = require('express-validator');
+const { Sequelize, Op } = require('sequelize');
 
-
-exports.crearModuloContenido = async(req, res, next) => {
+exports.crearModuloContenidoTema = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -12,17 +12,17 @@ exports.crearModuloContenido = async(req, res, next) => {
 
     try {
       
-        const { codigo, descripcion, codigo_modulo } = req.body;
+        const { codigo, descripcion, codigo_modulo_contenido } = req.body;
 
-        //Guarda la nueva relacion entre contenido y modulo
-        modulo_contenido = await ModuloContenido.create({
+        
+        modulo_contenido_tema = await ModuloContenidoTema.create({
             codigo,
             descripcion,
-            codigo_modulo
+            codigo_modulo_contenido
         });
 
-        //next para pasar a listarModuloContenidos 
-        req.params.codigo_modulo = codigo_modulo;
+        //next para pasar a listarContenidosModuloContenidos 
+        req.params.codigo_modulo_contenido = codigo_modulo_contenido;
         next();
 
 
@@ -35,20 +35,22 @@ exports.crearModuloContenido = async(req, res, next) => {
 
 }
 
-exports.listarModuloContenidos = async(req, res) => {
+exports.listarModuloContenidoTemas = async(req, res) => {
 
     try {
        
-        const { codigo_modulo } = req.params;
+        const { codigo_modulo_contenido } = req.params;
 
-        const modulo_contenidos = await ModuloContenido.findAll({
+        const modulo_contenido_temas = await ModuloContenidoTema.findAll({
             where: {
-                codigo_modulo
-            }
+                codigo_modulo_contenido
+            },order:[
+                ['descripcion', 'ASC'],
+            ]
         });
 
         res.json({
-            modulo_contenidos
+            modulo_contenido_temas
         });
 
     } catch (error) {
@@ -59,7 +61,7 @@ exports.listarModuloContenidos = async(req, res) => {
     }
 }
 
-exports.eliminarModuloContenido = async(req, res, next) => {
+exports.eliminarModuloContenidoTema = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -70,18 +72,18 @@ exports.eliminarModuloContenido = async(req, res, next) => {
     try {
         
         //obtengo el codigo del request
-        const {codigo_modulo} = req.query;
+        const {codigo_modulo_contenido} = req.query;
         const { codigo } = req.params;
 
         //elimino el registro.
-        await ModuloContenido.destroy({
+        await ModuloContenidoTema.destroy({
             where: {
                 codigo
             }
         });
 
-        //next para pasar a listarModuloContenidos
-        req.params.codigo_modulo = codigo_modulo;
+        //next para pasar a listarModuloContenidoTemas
+        req.params.codigo_modulo_contenido = codigo_modulo_contenido;
         next();
 
     } catch (error) {

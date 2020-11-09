@@ -4,6 +4,7 @@ require('dotenv').config({ path: './variables.env' });
 const ConfiguracionModel = require('../models/Configuracion');
 const RolModel = require('../models/Rol');
 const UsuarioModel = require('../models/Usuario');
+const TipoJuegoModel = require ('../models/TipoJuego');
 const InstitucionModel = require('../models/Institucion');
 const UsuarioInstitucionRolModel = require('../models/UsuarioInstitucionRol');
 const NivelAcademicoModel = require('../models/NivelAcademico');
@@ -51,6 +52,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
 const Configuracion = ConfiguracionModel(sequelize, Sequelize);
 const Rol = RolModel(sequelize, Sequelize);
 const Usuario = UsuarioModel(sequelize, Sequelize);
+const TipoJuego = TipoJuegoModel(sequelize, Sequelize);
 const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
 const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
 const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
@@ -66,13 +68,15 @@ const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
-const Ring = RingModel(sequelize, Sequelize, Usuario);
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego);
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
 const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido);
+
+
 
 
 
@@ -108,7 +112,7 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 
-sequelize.sync({ force: true })
+sequelize.sync({ force: false })
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
@@ -155,7 +159,7 @@ sequelize.sync({ force: true })
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'SYSTEM',
                 email: 'info@cachaionline.com',
-                telefono: '',
+                telefono: '12345678',
                 codigo_rol: '1',
                 imagen: ''
             },{
@@ -326,4 +330,5 @@ module.exports = {
     PreguntaSolucion,
     PreguntaModulo,
     PreguntaModuloContenido,
+    TipoJuego,  
 }

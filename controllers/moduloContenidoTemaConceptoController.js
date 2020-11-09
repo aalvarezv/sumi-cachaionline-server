@@ -1,8 +1,8 @@
-const { ModuloContenido } = require('../config/db');
+const { ModuloContenidoTemaConcepto } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 
-exports.crearModuloContenido = async(req, res, next) => {
+exports.crearModuloContenidoTemaConepto = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -12,17 +12,17 @@ exports.crearModuloContenido = async(req, res, next) => {
 
     try {
       
-        const { codigo, descripcion, codigo_modulo } = req.body;
+        const { codigo, descripcion, codigo_modulo_contenido_tema } = req.body;
 
-        //Guarda la nueva relacion entre contenido y modulo
-        modulo_contenido = await ModuloContenido.create({
+        
+        modulo_contenido_tema_concepto = await ModuloContenidoTemaConcepto.create({
             codigo,
             descripcion,
-            codigo_modulo
+            codigo_modulo_contenido_tema
         });
 
-        //next para pasar a listarModuloContenidos 
-        req.params.codigo_modulo = codigo_modulo;
+        //next para pasar a listarContenidosModuloContenidoTemas 
+        req.params.codigo_modulo_contenido_tema = codigo_modulo_contenido_tema;
         next();
 
 
@@ -35,20 +35,20 @@ exports.crearModuloContenido = async(req, res, next) => {
 
 }
 
-exports.listarModuloContenidos = async(req, res) => {
+exports.listarModuloContenidoTemaConceptos = async(req, res) => {
 
     try {
        
-        const { codigo_modulo } = req.params;
+        const { codigo_modulo_contenido_tema } = req.params;
 
-        const modulo_contenidos = await ModuloContenido.findAll({
+        const modulo_contenido_tema_conceptos = await ModuloContenidoTemaConcepto.findAll({
             where: {
-                codigo_modulo
+                codigo_modulo_contenido_tema
             }
         });
 
         res.json({
-            modulo_contenidos
+            modulo_contenido_tema_conceptos
         });
 
     } catch (error) {
@@ -59,7 +59,7 @@ exports.listarModuloContenidos = async(req, res) => {
     }
 }
 
-exports.eliminarModuloContenido = async(req, res, next) => {
+exports.eliminarModuloContenidoTemaConcepto = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -70,18 +70,18 @@ exports.eliminarModuloContenido = async(req, res, next) => {
     try {
         
         //obtengo el codigo del request
-        const {codigo_modulo} = req.query;
+        const {codigo_modulo_contenido_tema} = req.query;
         const { codigo } = req.params;
 
         //elimino el registro.
-        await ModuloContenido.destroy({
+        await ModuloContenidoTemaConcepto.destroy({
             where: {
                 codigo
             }
         });
 
-        //next para pasar a listarModuloContenidos
-        req.params.codigo_modulo = codigo_modulo;
+        //next para pasar a listarModuloContenidoTemas
+        req.params.codigo_modulo_contenido_tema = codigo_modulo_contenido_tema;
         next();
 
     } catch (error) {

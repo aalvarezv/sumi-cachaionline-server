@@ -172,7 +172,7 @@ exports.listarPreguntas = async(req, res) => {
 
         const { nombre_usuario_creador,
                 codigo_materia, codigo_unidad, 
-                codigo_modulo, codigo_contenido_modulo } = req.query;
+                codigo_modulo, codigo_modulo_contenido } = req.query;
         let {fecha_desde, fecha_hasta} = req.query;
         
 
@@ -193,8 +193,8 @@ exports.listarPreguntas = async(req, res) => {
         if(codigo_modulo.trim() !== '0'){
             filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } });
         }
-        if(codigo_contenido_modulo.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenido.codigo_modulo_contenido$': { [Op.like]: `%${codigo_contenido_modulo}%` } });
+        if(codigo_modulo_contenido.trim() !== '0'){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido.codigo_modulo_contenido$': { [Op.like]: `%${codigo_modulo_contenido}%` } });
         }
 
         //La fecha llega con hora, por lo tanto la formatea.
