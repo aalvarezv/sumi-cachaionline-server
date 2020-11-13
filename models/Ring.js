@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Usuario, TipoJuego) => {
+module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia) => {
 
     return sequelize.define('ring', {
 
@@ -34,6 +34,25 @@ module.exports = (sequelize, type, Usuario, TipoJuego) => {
         cantidad_usuarios: {
             type: type.INTEGER,
             allowNull: false,
+        },
+        codigo_nivel_academico: {
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: NivelAcademico,
+                key: 'codigo'
+            }
+        },
+        codigo_materia: {
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: Materia,
+                key: 'codigo'
+            }
+        },
+        tipo_duracion_pregunta: {
+            type: type.INTEGER,
         },
         duracion_pregunta: {
             type: type.INTEGER,

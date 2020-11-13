@@ -68,7 +68,7 @@ const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
-const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego);
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia);
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
@@ -112,7 +112,7 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 
-sequelize.sync({ force: false })
+sequelize.sync({ force: true }) 
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');

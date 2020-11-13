@@ -63,7 +63,7 @@ exports.listarUsuarios = async(req, res, next) => {
             const { filtro } = req.query;
 
             const usuarios = await Usuario.findAll({
-                where: {
+                  where: {
                     nombre: {
                         [Op.like]: '%' + filtro + '%',
                     },
@@ -72,11 +72,12 @@ exports.listarUsuarios = async(req, res, next) => {
                 order: [
                     ['nombre', 'ASC'],
                 ]
-            });
-
+                
+            }); 
+            
             res.model_name = "usuarios";
             res.model_data = usuarios;
-
+            
             next();
 
         }, 500);
@@ -89,6 +90,25 @@ exports.listarUsuarios = async(req, res, next) => {
         })
     }
 }
+
+exports.listarUsuariosNivelAcademico = async(req, res, next) => {
+
+    try {
+            const { filtro } = req.query;
+
+            const usuarios = await Usuario.findAll();
+
+                res.json({usuarios})   
+
+    }catch (error) {
+        console.log(error);
+        res.satus(500).send({
+            msg: "Hubo un error, por favor vuelva a intentar"
+        });
+    }
+    
+}
+
 
 exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 

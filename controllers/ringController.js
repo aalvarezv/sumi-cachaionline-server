@@ -23,6 +23,9 @@ exports.crearRing = async(req, res) => {
             fecha_hora_fin,
             rut_usuario_creador,
             cantidad_usuarios,
+            codigo_nivel_academico,
+            codigo_materia,
+            tipo_duracion_pregunta,
             duracion_pregunta,
             codigo_tipo_juego,
             privado,
@@ -58,6 +61,9 @@ exports.crearRing = async(req, res) => {
             rut_usuario_creador,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_nivel_academico,
+            codigo_materia,
+            tipo_duracion_pregunta,
             duracion_pregunta,
             privado,
             inactivo,
@@ -134,6 +140,9 @@ exports.actualizarRing = async(req, res) => {
             privado,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_nivel_academico,
+            codigo_materia,
+            tipo_duracion_pregunta,
             duracion_pregunta,            
             inactivo
         } = req.body;
@@ -164,6 +173,9 @@ exports.actualizarRing = async(req, res) => {
             privado,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_nivel_academico,
+            codigo_materia,
+            tipo_duracion_pregunta,
             duracion_pregunta,
             inactivo
         }, {

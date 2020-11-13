@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 const paginateResults = require('../middleware/paginateResults');
 const { body, check, query } = require('express-validator');
 
-const {crearUsuario, listarUsuarios, actualizarUsuario, 
+const {crearUsuario, listarUsuarios, actualizarUsuario, listarUsuariosNivelAcademico,
        eliminarUsuario, datosUsuario, busquedaUsuarios, listarUsuariosInscritosDisponiblesCurso} = require('../controllers/usuarioController');
 
 router.post('/crear', 
@@ -18,6 +18,8 @@ router.post('/crear',
 ], crearUsuario);
 
 router.get('/listar', auth, listarUsuarios, paginateResults);
+
+router.get('/listar-por-nivel-academico', auth, listarUsuariosNivelAcademico);
 //lista todos los usuarios inscritos en un curso y aquellos que están disponibles para inscribir
 //corresponden a los que no se encuentran en un curso dentro de la misma institución.
 router.get('/listar-inscritos-disponibles-curso', auth, 
