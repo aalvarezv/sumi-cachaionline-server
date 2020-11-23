@@ -67,7 +67,7 @@ exports.crearRing = async(req, res) => {
             duracion_pregunta,
             privado,
             inactivo,
-        });
+        }); 
 
         //envía la respuesta
         res.json(ring);
