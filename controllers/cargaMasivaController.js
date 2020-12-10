@@ -1,17 +1,22 @@
 const { Configuracion, Unidad, Materia, 
         Modulo, ModuloContenido, ModuloContenidoTema, 
         ModuloContenidoTemaConcepto, Pregunta, PreguntaAlternativa,
+        PreguntaSolucion, PreguntaPista,
         sequelize} = require('../config/db');
 const { letras } = require('../helpers');
-const { exec } = require("child_process");
 const uuidv4 = require('uuid').v4;
 const { PDFDocument } = require('pdf-lib');
-const libreoffice = require('libreoffice-convert');
-var mv = require('mv');
-const fs = require('fs');
 const findRemoveSync = require('find-remove');
+const fs = require('fs');
 const ExcelJS = require('exceljs');
 
+const { creaPreguntaModulo, 
+        creaPreguntaModuloContenido, 
+        creaPreguntaModuloContenidoTema, 
+        creaPreguntaModuloContenidoTemaConcepto,
+        powerPointToPDF,
+        pdfToImage,
+        moverArchivo, } = require('../helpers');
 
 exports.cargaMateriasUnidadesModulos = async (req, res) => {
 
@@ -317,6 +322,12 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
 exports.cargaPreguntas = async (req, res) => {
 
     /***
+     * Todas las preguntas a procesar se encuentran en un directorio que contiene archivos power point.
+     * Estos archivos se componen de: 
+     * Primer slice: Tiene logo de cachaiOnline.
+     * Segundo slice: Tiene la pregunta.
+     * Tercer slice a N slice: Tiene la solución de la pregunta.
+     * También existe un directorio que contiene video de la pregunta y su solución y otro directorio que contiene power point con pistas de la pregunta. Tanto los videos como pistas no son obligatorios por lo tanto algunas preguntas tendrán o no videos y pistas.
      * nombre_carpeta_archivos: Es el nombre de la carpeta que se copiará en el directorio temporal DIR TMP y que contendrá las carpetas con los power point, pistas y videos de las preguntas a subir.
      * nombre_archivo_carga: Es nombre del archivo excel que se encontrará en la carpeta nombre_carpeta_archivos y que contiene todo el mapa de las preguntas y sus propiedades a cargar.
      * nombre_carpeta_archivo_pregunta: Es el nombre de la carpeta que se encontrará en la nombre_carpeta_archivos y que contendrá los archivos power point que contienen la pregunta y solución y se deben transformar a imagen.
@@ -325,6 +336,10 @@ exports.cargaPreguntas = async (req, res) => {
      * letra_columna_nombre_archivo_pregunta: Columna donde se encuentra el nombre del archivo de la pregunta.
      * letra_columna_codigo(_1,_2,_3,_4,_5,_6): Columna donde se encuentra el codigo de modulo|contenido|tema|concepto asociado a la pregunta.
      * letra_columna_alternativa_correcta: Columna donde se encuentra la letra de la alternativa correcta de la pregunta.
+     * letra_columna_cantidad_alternativas: Columna donde se encuentra la cantidad de alternativas de la pregunta.
+     * letra_columna_duracion_pregunta: Columna donde se encuentra los segundos que duran una pregunta.
+     * letra_columna_tipos_archivos_solucion: Columna que indica los tipos de archivo de solución que tiene la pregunta ejemplo: 0: No tiene archivos, 1: Imagen, 2: Video y 3: Imagen y Video. 
+     * letra_columna_pregunta_numero_pistas: Columna donde se indica la cantidad de pistas que tiene una pregunta.
      * fila_inicio: Fila donde se inicia de la lectura de los datos.
      * fila_fin: Fila donde termina la lectura de los datos.
      * 
@@ -338,7 +353,6 @@ exports.cargaPreguntas = async (req, res) => {
      */
 
     const {   
-
             nombre_carpeta_archivos, nombre_archivo_carga, nombre_carpeta_archivo_pregunta,
             nombre_carpeta_archivo_videos, nombre_carpeta_archivo_pistas,
             letra_columna_nombre_archivo_pregunta,
@@ -346,6 +360,10 @@ exports.cargaPreguntas = async (req, res) => {
             letra_columna_codigo_3, letra_columna_codigo_4,
             letra_columna_codigo_5, letra_columna_codigo_6,
             letra_columna_alternativa_correcta,
+            letra_columna_cantidad_alternativas,
+            letra_columna_duracion_pregunta,
+            letra_columna_tipos_archivos_solucion,
+            letra_columna_pregunta_numero_pistas,
             fila_inicio, fila_fin,
 
         } = req.body;
@@ -429,6 +447,31 @@ exports.cargaPreguntas = async (req, res) => {
                 msg: `Parámetro letra_columna_alternativa_correcta no puede ser vacío, verifique.`,
             });
         }
+
+        if(!letra_columna_cantidad_alternativas || letra_columna_cantidad_alternativas.trim() === '' ){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_cantidad_alternativas no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_duracion_pregunta || letra_columna_duracion_pregunta.trim() === '' ){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_duracion_pregunta no puede ser vacío, verifique.`,
+            });
+        }
+
+
+        if(!letra_columna_tipos_archivos_solucion || letra_columna_tipos_archivos_solucion.trim() === '' ){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_tipos_archivos_solucion no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_pregunta_numero_pistas || letra_columna_pregunta_numero_pistas.trim() === '' ){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_pregunta_numero_pistas no puede ser vacío, verifique.`,
+            });
+        }
         
         if(!fila_inicio || isNaN(fila_inicio)){
             return res.status(404).send({
@@ -492,41 +535,28 @@ exports.cargaPreguntas = async (req, res) => {
             });
         }
 
-        let nombre_archivo_pregunta = '';
-        let alternativa_correcta = '';
-
-        let archivo_pregunta_ppt = '';
-        //Se usa para generar el archivo de salida cuando el PPT se convierte PDF
-        let archivo_pregunta_pdf = '';
-        //Se usa para generar los archivos de salida cuando el PDF se convierte a Imagen
-        let archivo_pregunta_imagen = '';
-
-        //Para cargar tabla.
-        let codigo_pregunta = '';
-
-        //Temario definido en archivo excel.
-        
-
+        //Lee filas del archivo excel y comienza el proceso.
         for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
             
-            nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text.trim();
-            alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
+            let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text.trim();
+            let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
+            let duracion_pregunta = hoja_excel.getCell(`${letra_columna_duracion_pregunta}${i}`).text.trim();
 
-            archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
-            archivo_pregunta_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pdf`;
-            archivo_pregunta_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_%d.jpg`;
+            let archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
+            let archivo_pregunta_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pdf`;
+            let archivo_pregunta_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_%d.jpg`;
             
-            let resp = await PowerPointToPDF(archivo_pregunta_ppt, archivo_pregunta_pdf);
+            let resp = await powerPointToPDF(archivo_pregunta_ppt, archivo_pregunta_pdf);
             console.log(resp.msg);
 
-            resp = await PDFToImage(archivo_pregunta_pdf, archivo_pregunta_imagen);
+            resp = await pdfToImage(archivo_pregunta_pdf, archivo_pregunta_imagen);
             console.log(resp.msg);
 
             const pdf_doc = await PDFDocument.load(fs.readFileSync(archivo_pregunta_pdf));
             const pdf_doc_pages = pdf_doc.getPageCount();
             console.log(`PDF ${archivo_pregunta_pdf} Total Páginas: ${pdf_doc_pages}`);
             
-            codigo_pregunta = uuidv4();
+            let codigo_pregunta = uuidv4();
 
             //Crea el directorio (codigo pregunta) para almacenar los archivos de la pregunta.
             //await fs.promises.mkdir(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
@@ -545,10 +575,13 @@ exports.cargaPreguntas = async (req, res) => {
                 imagen: 'img-pregunta.jpg',
                 audio: '',
                 video: '',
+                duracion: duracion_pregunta,
             });
 
+            //*********ALTERNATIVAS.
             //Crea las 5 alternativas a indica cual es la correcta de acuerdo a lo que diga el archivo excel.
-            const alternativas = [...letras].splice(0, 5).map( (letra, index) => {
+            const cantidad_alternativas = Number(hoja_excel.getCell(`${letra_columna_cantidad_alternativas}${i}`).text.trim());
+            const alternativas = [...letras].splice(0, cantidad_alternativas).map( (letra, index) => {
 
                 let correcta = false;
                 if(letra === alternativa_correcta) {
@@ -564,7 +597,6 @@ exports.cargaPreguntas = async (req, res) => {
                 }
             });
 
-            //*********ALTERNATIVAS.
             //Graba las alternativas de la pregunta.
             await PreguntaAlternativa.bulkCreate(alternativas);
            
@@ -591,16 +623,116 @@ exports.cargaPreguntas = async (req, res) => {
                     //entonces estamos parados en un Modulo.
                     if(arr_codigo_actual[1] !== '0' && arr_codigo_actual[2] === '0'){
 
+                        //Verifica que el módulo existe antes de asociarlo a la pregunta.
+                        const modulo = await Modulo.findByPk(codigo_actual);
+                        if (!modulo){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo ${codigo_actual} no existe, verifique`,
+                            });
+                        }
+                        await creaPreguntaModulo(codigo_pregunta, codigo_actual);
+
                     //si el tercer dígito es distinto de cero y el cuarto dígito es igual a '0'
                     //entonces estamos parados en el contenido de un módulo
                     }else if (arr_codigo_actual[2] !== '0' && arr_codigo_actual[3] === '0'){
+
+                        //Obtiene el modulo al cual corresponde el contenido.
+                        const modulo_contenido = await ModuloContenido.findByPk(codigo_actual);
+                        //Verifica que el modulo contenido existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido ${codigo_actual} no existe, verifique`,
+                            });
+                        }
+                        const codigo_modulo = modulo_contenido.dataValues.codigo_modulo;
+                        //Asocia la pregunta al módulo
+                        await creaPreguntaModulo(codigo_pregunta, codigo_modulo);
+                        //Asocia la pregunta al módulo contenido
+                        await creaPreguntaModuloContenido(codigo_pregunta, codigo_actual);
+
 
                     //si el cuarto dígito es distinto de '0' y el quinto dígito es igual a '0'
                     //entonces estamos parados en un tema del contenido de un módulo.
                     }else if(arr_codigo_actual[3] !== '0' && arr_codigo_actual[4] === '0'){
 
+                        //Obtiene el contenido al cual corresponde el tema
+                        const modulo_contenido_tema = await ModuloContenidoTema.findByPk(codigo_actual);
+                        //Verifica que el módulo contenido tema existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido_tema){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido tema ${codigo_actual} no existe, verifique`,
+                            });
+                        }
+                        //Obtiene el codigo modulo contenido.
+                        const codigo_modulo_contenido = modulo_contenido_tema.dataValues.codigo_modulo_contenido;
+                        
+                        //Obtiene el modulo al cual corresponde el contenido.
+                        const modulo_contenido = await ModuloContenido.findByPk(codigo_modulo_contenido);
+                        //Verifica que el modulo contenido existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido ${codigo_modulo_contenido} no existe, verifique`,
+                            });
+                        }
+                        const codigo_modulo = modulo_contenido.dataValues.codigo_modulo;
+
+                        //Asocia la pregunta al módulo
+                        await creaPreguntaModulo(codigo_pregunta, codigo_modulo);
+                        //Asocia la pregunta al módulo contenido
+                        await creaPreguntaModuloContenido(codigo_pregunta, codigo_modulo_contenido);
+                        //Asocia la pregunta al módulo contenido tema
+                        await creaPreguntaModuloContenidoTema(codigo_pregunta, codigo_actual);
+
                     //Si el quinto dígito es distinto de '0' entonces estamos parados sobre un concepto.
                     }else if(arr_codigo_actual[4] !== '0'){
+
+                        //Obtiene el tema al cual corresponde el concepto.
+                        const modulo_contenido_tema_concepto = await ModuloContenidoTemaConcepto.findByPk(codigo_actual)
+                        //Verifica que el modulo contenido tema concepto existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido_tema_concepto){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido ${codigo_modulo_contenido} no existe, verifique`,
+                            });
+                        }
+                        //Obtiene el codigo modulo contenido tema.
+                        const codigo_modulo_contenido_tema = modulo_contenido_tema_concepto.dataValues.codigo_modulo_contenido_tema;
+
+                        //Obtiene el contenido al cual corresponde el tema
+                        const modulo_contenido_tema = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema);
+                        //Verifica que el módulo contenido tema existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido_tema){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido tema ${codigo_actual} no existe, verifique`,
+                            });
+                        }
+                        //Obtiene el codigo modulo contenido.
+                        const codigo_modulo_contenido = modulo_contenido_tema.dataValues.codigo_modulo_contenido;
+                        
+                        //Obtiene el modulo al cual corresponde el contenido.
+                        const modulo_contenido = await ModuloContenido.findByPk(codigo_modulo_contenido);
+                        //Verifica que el modulo contenido existe antes de asociarlo a la pregunta.
+                        if(!modulo_contenido){
+                            return res.status(404).send({
+                                error: 100,
+                                msg: `Código módulo contenido ${codigo_modulo_contenido} no existe, verifique`,
+                            });
+                        }
+                        const codigo_modulo = modulo_contenido.dataValues.codigo_modulo;
+
+                        //Asocia la pregunta al módulo
+                        await creaPreguntaModulo(codigo_pregunta, codigo_modulo);
+                        //Asocia la pregunta al módulo contenido
+                        await creaPreguntaModuloContenido(codigo_pregunta, codigo_modulo_contenido);
+                        //Asocia la pregunta al módulo contenido tema
+                        await creaPreguntaModuloContenidoTema(codigo_pregunta, codigo_modulo_contenido_tema);
+                        //Asocia la pregunta al modulo contenido tema concepto.
+                        await creaPreguntaModuloContenidoTemaConcepto(codigo_pregunta, codigo_actual);
 
                     }
                     
@@ -608,10 +740,134 @@ exports.cargaPreguntas = async (req, res) => {
 
             }
 
-            const result = findRemoveSync(`${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/`, {extensions: ['.pdf', '.jpg']})
+            let numero_solucion = 0;
+            //SOLUCIONES IMG.
+            for(let i = 2; i < pdf_doc_pages; i++){
+                //Genera el path donde se encuentra la solución de la imagen. 
+                //Corresponde al directorio donde se convierte el ppt a pdf y luego el pdf a imagen.
+                //La imagen 2 en adelante son soluciones.
+                let archivo_solucion_jpg = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_${i}.jpg`;
+                //Genera el número de la solución.
+                numero_solucion = i - 1;
+                //Mueve el archivo de imagen de la solución hasta el directorio de los archivos de la pregunta.
+                await moverArchivo(archivo_solucion_jpg, `${dir_pregunta}${codigo_pregunta}/soluciones/img-solucion-${numero_solucion}.jpg`);
 
+                //crea el registro en la bd donde se asocia la solución a la pregunta.
+                await PreguntaSolucion.create({
+                    codigo: uuidv4(),
+                    codigo_pregunta,
+                    numero: numero_solucion,
+                    texto: '',
+                    imagen:`img-solucion-${numero_solucion}.jpg`, 
+                    audio: '',
+                    video: '',
+                });
+
+            }
+
+            //La pregunta también puede contener archivos adicionales de solución. Como videos o imagenes.
+            const tipo_solucion = Number(hoja_excel.getCell(`${letra_columna_tipos_archivos_solucion}${i}`).text.trim());
+            
+            let archivo_solucion_mp4 = '';
+
+            switch (tipo_solucion) {
+                case 0: //No tiene ningún archivo de solución adicional.
+                    break;
+                case 1: //imagen (No se considera ya que las soluciones de imagen están incluidas en el power point de la pregunta)
+                    break;
+                case 2: //video
+                    numero_solucion+1
+                    //genera el path del video.
+                    archivo_solucion_mp4 = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_videos}/${nombre_archivo_pregunta}-VD.mp4`;
+                    //Verifica que el archivo existe.
+                    if(!fs.existsSync(archivo_solucion_mp4)){
+                        return res.status(404).send({
+                            error: 100,
+                            msg: `Archivo ${archivo_solucion_mp4} no existe.`,
+                        });
+                    }
+                    
+                    //Mueve el archivo de video de la solución hasta el directorio de los archivos de la pregunta.
+                    fs.copyFileSync(archivo_solucion_mp4, `${dir_pregunta}${codigo_pregunta}/soluciones/vd-solucion-${numero_solucion}.mp4`);
+
+                    //crea el registro en la bd donde se asocia la solución a la pregunta.
+                    await PreguntaSolucion.create({
+                        codigo: uuidv4(),
+                        codigo_pregunta,
+                        numero: numero_solucion,
+                        texto: '',
+                        imagen: '',
+                        audio: '',
+                        video: `vd-solucion-${numero_solucion}.mp4`,
+                    });
+
+                case 3: //imagen y video
+                    break
+                
+            }
+
+
+            //PISTAS
+            const pregunta_numero_pistas = Number(hoja_excel.getCell(`${letra_columna_pregunta_numero_pistas}${i}`).text.trim());
+            //Si el archivo tiene pistas.
+            if(pregunta_numero_pistas > 0){
+
+                let archivo_pista_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pptx`;
+                let archivo_pista_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pdf`;
+                let archivo_pista_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}_%d.jpg`;
+                //Convierte el archivo ppt de pistas a pdf.
+                let resp = await powerPointToPDF(archivo_pista_ppt, archivo_pista_pdf);
+                console.log(resp.msg);
+                //Convierte el archivo pdf de pistas a imagen.
+                resp = await pdfToImage(archivo_pista_pdf, archivo_pista_imagen);
+                console.log(resp.msg);
+                //Obtiene el número de páginas del archivo PDF.
+                const pdf_doc = await PDFDocument.load(fs.readFileSync(archivo_pista_pdf));
+                const pdf_doc_pages = pdf_doc.getPageCount();
+                console.log(`PDF pistas ${archivo_pista_pdf} Total Páginas: ${pdf_doc_pages}`);
+                
+                //PISTAS IMG.
+                for(let i = 0; i < pdf_doc_pages; i++){
+                    //Genera el path donde se encuentra la imagen de la pista. 
+                    let archivo_pista_jpg = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}_${i}.jpg`;
+                    //Genera el número de la solución.
+                    let numero_pista = i + 1;
+                    //Mueve el archivo de imagen de la solución hasta el directorio de los archivos de la pregunta.
+                    await moverArchivo(archivo_pista_jpg, `${dir_pregunta}${codigo_pregunta}/pistas/img-pista-${numero_pista}.jpg`);
+
+                    //crea el registro en la bd donde se asocia la pista a la pregunta.
+                    await PreguntaPista.create({
+                        codigo: uuidv4(),
+                        codigo_pregunta,
+                        numero: numero_pista,
+                        texto: '',
+                        imagen:`img-pista-${numero_pista}.jpg`, 
+                        audio: '',
+                        video: '',
+                    });
+
+                }
+
+                //ELIMINA TODOS LOS ARCHIVOS PDF y JPG que no son utilizados.
+                const res_rm_pista = findRemoveSync(`${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/`, {extensions: ['.pdf', '.jpg']})
+
+                //Listado de archivos elimandos.
+                console.log(res_rm_pista);
+
+                //Archivo ppt pista que se debe eliminar al finalizar el proceso.
+                console.log(archivo_pista_ppt);
+                
+            }
+
+            //Archivo ppt pregunta que se debe eliminar al finalizar el proceso.
+            console.log(archivo_pregunta_ppt);
+            //Archivo mp4 video que se debe eliminar al finalizar el proceso.
+            console.log(archivo_solucion_mp4);
+
+            //ELIMINA TODOS LOS ARCHIVOS PDF y JPG que no son utilizados.
+            const res_rm_pregunta = findRemoveSync(`${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/`, {extensions: ['.pdf', '.jpg']})
             //Listado de archivos elimandos.
-            console.log(result);
+            console.log(res_rm_pregunta);
 
         }
     
@@ -628,102 +884,3 @@ exports.cargaPreguntas = async (req, res) => {
 
 }
 
-const PowerPointToPDF = async (archivo_ppt, archivo_pdf) => {
-
-    return new Promise((resolve, reject) => {
-
-        //verificar que el archivo PPT existe.
-        if(!fs.existsSync(archivo_ppt)){
-            reject({
-                error: 100,
-                msg: `Archivo ${archivo_ppt} no existe.`,
-            });
-        }
-
-        //Lee el archivo
-        const file = fs.readFileSync(archivo_ppt);
-        // Convert it to pdf format with undefined filter (see Libreoffice doc about filter)
-        libreoffice.convert(file, '.pdf', undefined, (err, done) => {
-            if (err) {
-                reject({
-                    error: 100,
-                    msg: `Error al convertir el archivo PPT a PDF: ${err}`,
-                })
-            }
-            // Done contiene el stream del archivo PDF de salida y archivo_pdf sería la ruta donde se guardará.
-            fs.writeFileSync(archivo_pdf, done);
-            resolve({
-                error: 0,
-                msg: `PPT a PDF correcto ${archivo_pdf}`,
-            })
-        });
-
-    });
-
-}
-
-const PDFToImage = (archivo_pdf, archivo_imagen) => {
-
-    return new Promise((resolve, reject) => {
-
-        //verificar que el archivo PDF existe.
-        if(!fs.existsSync(archivo_pdf)){
-            reject({
-                error: 100,
-                msg: `Archivo ${archivo_pdf} no existe.`,
-            });
-        }
-        //Comando para convertir PDF a IMAGEN.
-        let comando = `convert -density 100 "${archivo_pdf}" -resize 2000x2500 "${archivo_imagen}"`;
-        console.log(comando);
-        exec(comando, (error, stdout, stderr) => {
-            if (error) {
-                reject({
-                    error: 100,
-                    msg: error.message,
-                });
-            }
-            if (stderr) {
-                reject({
-                    error: 100,
-                    msg: `PDF a IMAGEN correcto ${stderr}`,
-                });
-            }
-            resolve({
-                error: 0,
-                msg: stdout
-            });
-        });
-
-    });
-
-}
-
-const moverArchivo = (archivo_origen, archivo_destino) => {
-    return new Promise((resolve, reject) => {
-
-        //verificar que el archivo PDF existe.
-        if(!fs.existsSync(archivo_origen)){
-            reject({
-                error: 100,
-                msg: `Archivo ${archivo_origen} no existe.`,
-            });
-        }
-
-        mv(archivo_origen, archivo_destino, {mkdirp: true}, function(err) {
-            if(err){
-                reject({
-                    error: 100,
-                    msg: err,
-                });
-            }else{
-                resolve({
-                    error: 0,
-                    msg: `Archivo ${archivo_origen} enviado correctamente a ${archivo_destino}`,
-                });
-            }
-        });
-       
-    });
-   
-}

@@ -11,7 +11,7 @@ app.use(cors())
 const PORT = process.env.PORT || 3001
 
 //Habilitar express.json.
-app.use(express.json({ extended: true, limit: '30mb' }))
+app.use(express.json({ extended: true, limit: '150mb' }))
 
 //Import de rutas.
 app.use(require('./routes/index'))

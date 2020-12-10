@@ -1,6 +1,8 @@
-const { Curso, NivelAcademico, Institucion } = require('../config/db');
+const { Curso, Usuario, NivelAcademico, 
+        Institucion, CursoUsuarioRol, RingUsuario } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
+
 
 exports.crearCurso = async(req, res) => {
 
@@ -69,7 +71,7 @@ exports.crearCurso = async(req, res) => {
 
 
 }
-
+/*
 exports.listarCursos = async(req, res, next) => {
 
     try {
@@ -87,6 +89,7 @@ exports.listarCursos = async(req, res, next) => {
         })
     }
 }
+*/
 
 exports.actualizarCurso = async(req, res) => {
 
@@ -250,4 +253,92 @@ exports.busquedaCursos = async(req, res) => {
     }
 
 
+}
+
+exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
+    
+    try{
+
+        const {codigo_nivel_academico, rut_usuario, codigo_institucion} = req.query;
+
+        const cursos_usuario_nivel_academico_institucion = await CursoUsuarioRol.findAll({
+            attributes: [],
+            include: [{
+                attributes: ['codigo', 'letra'],
+                model: Curso,
+                include: [{
+                    attributes: ['descripcion'],
+                    model: NivelAcademico
+                }],
+            }],
+            where: {
+                [Op.and]:[
+                    {rut_usuario: rut_usuario},
+                    {'$curso.codigo_institucion$': { [Op.eq]: codigo_institucion } },
+                    {'$curso.nivel_academico.codigo$': { [Op.eq]: codigo_nivel_academico } },
+                ]
+            },
+            raw: true,
+            group: ['curso.codigo']
+        });
+
+       
+        res.json({cursos_usuario_nivel_academico_institucion});
+       
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+    
+
+}
+
+//Obtiene los alumnos de un curso y consulta si están asociados a un ring.
+exports.listarUsuariosRingCurso = async(req, res) => {
+
+    try{
+
+        const {codigo_curso, codigo_ring} = req.query;
+
+        const usuarios_ring_curso = await CursoUsuarioRol.findAll({
+            attributes: ['rut_usuario', 'codigo_rol', 'codigo_curso'],
+            include:[{
+                attributes: ['rut', 'nombre', 'email'],
+                model: Usuario,
+                include:[{
+                    attributes: {exclude: ['createdAt', 'updatedAt']},
+                    model: RingUsuario,
+                    where:{
+                        codigo_ring,
+                    },
+                    required: false,
+                }]
+            },{
+                attributes: ['codigo', 'letra'],
+                model: Curso,
+            }],
+            
+            where: {
+                [Op.and]:[
+                    {'$curso_usuario_rol.codigo_curso$': { [Op.eq]: codigo_curso } },
+                    {'$curso_usuario_rol.codigo_rol$': { [Op.eq]: '2' } },
+                    {'$usuario.inactivo$': { [Op.eq]: 0 } },
+                ]
+            },
+            order: [
+                [{ model: Usuario }, 'nombre', 'ASC']
+            ]
+        });
+
+        res.json({usuarios_ring_curso});
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
 }

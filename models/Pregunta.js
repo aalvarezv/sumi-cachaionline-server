@@ -31,6 +31,11 @@ module.exports = (sequelize, type, Usuario) =>{
             type: type.STRING,
             allownull: false
         },
+        duracion:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         inactivo:{
             type: type.BOOLEAN,
             allownull: false,

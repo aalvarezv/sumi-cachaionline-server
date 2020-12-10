@@ -1,4 +1,4 @@
-const {Usuario} = require('../config/db');
+const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -64,9 +64,26 @@ const datosUsuarioAutenticado = async (req, res) => {
         //obtiene el parametro desde la url
         const {rut} = req.usuario
         //consulta por el usuario
-        const usuario = await Usuario.findByPk(rut, 
-            { attributes: { exclude: ['clave'] }}
-            );
+        const usuario = await Usuario.findByPk(rut, {
+            attributes: { exclude: ['clave', 'createdAt', 'updatedAt'] },
+            include: [{
+                attributes: ['codigo_institucion', 'codigo_rol'],
+                model: UsuarioInstitucionRol,
+                include: [{
+                    attributes: ['codigo', 'descripcion'],
+                    model: Institucion,
+                },{
+                    attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    model: Rol,
+                }],
+                
+            }],
+            order: [
+                [UsuarioInstitucionRol, Institucion, 'descripcion', 'ASC'],
+                [UsuarioInstitucionRol, Rol, 'descripcion', 'ASC'],
+            ]
+
+        });
         //si el usuario no existe
         if(!usuario){
             return res.status(404).send({

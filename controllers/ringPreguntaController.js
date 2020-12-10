@@ -46,6 +46,51 @@ exports.crearRingPregunta = async(req, res) => {
 
 }
 
+exports.crearRingPreguntaMasivo = async(req, res) => {
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+
+        const { ring_preguntas_add } = req.body;
+
+        for(let ring_pregunta_add of ring_preguntas_add){
+   
+            const {codigo_pregunta, codigo_ring} = ring_pregunta_add;
+           
+            //verifica si existe la combinación ring vs pregunta.
+            let ring_pregunta = await RingPregunta.findAll({
+                where: {
+                    codigo_ring,
+                    codigo_pregunta
+                }
+            });
+            
+            if (ring_pregunta.length === 0) {
+                await RingPregunta.create({
+                    codigo_ring,
+                    codigo_pregunta
+                });
+            }
+
+        }
+
+        res.json({
+            msg: 'Preguntas correctamente agregadas al ring en forma masiva'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+}
+
 
 exports.eliminarRingPregunta = async(req, res) => {
 
@@ -57,10 +102,9 @@ exports.eliminarRingPregunta = async(req, res) => {
 
     try {
         //obtengo el codigo del request
-        const { codigo_ring } = req.params;
-        const { codigo_pregunta } = req.query;
-
-        //verifica si existe la combinación ring vs usuario.
+        const { codigo_ring, codigo_pregunta } = req.params;
+     
+        //verifica si existe la combinación ring vs pregunta.
         let ring_pregunta = await RingPregunta.findAll({
             where: {
                 codigo_ring,
@@ -97,3 +141,51 @@ exports.eliminarRingPregunta = async(req, res) => {
 
 }
 
+exports.eliminarRingPreguntaMasivo = async(req, res) => {
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+
+        let { ring_preguntas_del } = req.query;
+
+        for(let ring_pregunta_del of ring_preguntas_del){
+            
+            const {codigo_pregunta, codigo_ring} = JSON.parse(ring_pregunta_del);
+            
+            //verifica si existe la combinación ring vs pregunta.
+            let ring_pregunta = await RingPregunta.findAll({
+                where: {
+                    codigo_ring,
+                    codigo_pregunta
+                }
+            });
+
+            if (ring_pregunta.length > 0) {
+                await RingPregunta.destroy({
+                    where: {
+                        codigo_ring,
+                        codigo_pregunta
+                    }
+                });
+            }
+
+        }
+
+        res.json({
+            msg: 'Preguntas correctamente eliminadas del ring en forma masiva'
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+
+
+}

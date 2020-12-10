@@ -1,4 +1,4 @@
-const { Ring, Usuario, sequelize } = require('../config/db');
+const { Ring, Usuario, NivelAcademico, sequelize } = require('../config/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
@@ -23,6 +23,7 @@ exports.crearRing = async(req, res) => {
             fecha_hora_fin,
             rut_usuario_creador,
             cantidad_usuarios,
+            codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
@@ -61,6 +62,7 @@ exports.crearRing = async(req, res) => {
             rut_usuario_creador,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
@@ -86,21 +88,51 @@ exports.listarRings = async(req, res) => {
 
     try {
 
-        const {fecha_desde, fecha_hasta, nombre_usuario_creador} = req.query;
+        let { fecha_desde, fecha_hasta, codigo_institucion, 
+                codigo_materia, codigo_nivel_academico, nombre_ring, 
+                nombre_usuario_creador, privado} = req.query;
         
         let fecha_desde_format = new Date(fecha_desde).toISOString().split('T')[0];
         let fecha_hasta_format = new Date(fecha_hasta).toISOString().split('T')[0];
+
+        //Estos campos son listas seleccionables, por lo que su valor por defecto es 0 = 'SELECCIONE'.
+        //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
+        const filtros_dinamicos = []; 
+        
+        if(codigo_materia.trim() !== '0'){
+            filtros_dinamicos.push({'$ring.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } });
+        }
+        if(codigo_nivel_academico.trim() !== '0'){
+            filtros_dinamicos.push({'$ring.codigo_nivel_academico$': { [Op.like]: `%${codigo_nivel_academico}%` } });
+        }
+        if(nombre_ring.trim() !== '0'){
+            filtros_dinamicos.push({'$ring.nombre$': { [Op.like]: `%${nombre_ring}%` } });
+        }
+        if(nombre_usuario_creador.trim() !== '0'){
+            filtros_dinamicos.push({'$usuario.nombre$': { [Op.like]: `%${nombre_usuario_creador}%` } });
+        }
+
+        if(privado === 'true'){
+            privado = 1
+        }else{
+            privado = 0
+        }
 
         const ring = await Ring.findAll({
             include: [{
                 model: Usuario,
                 attributes: ['rut','nombre'],
+            },{
+                model: NivelAcademico,
+                attributes: ['descripcion'],
             }],
             where:{
                 [Op.and]:[
                     sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_inicio')), '>=', fecha_desde_format ),
                     sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_fin')), '<=', fecha_hasta_format ),
-                    sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
+                    {codigo_institucion},
+                    filtros_dinamicos.map(filtro => filtro),
+                    {privado: privado},
                 ]
             },  
             order:[
@@ -140,6 +172,7 @@ exports.actualizarRing = async(req, res) => {
             privado,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
@@ -173,6 +206,7 @@ exports.actualizarRing = async(req, res) => {
             privado,
             codigo_tipo_juego,
             cantidad_usuarios,
+            codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
