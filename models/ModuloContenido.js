@@ -17,6 +17,11 @@ module.exports = (sequelize, type, Modulo) =>{
                 model: Modulo,
                 key: 'codigo'
             }
+        },
+        inactivo:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
         }
     },{
         //agrega atributos timestamp (updatedAt, createdAt).

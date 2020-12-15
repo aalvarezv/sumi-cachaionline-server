@@ -215,6 +215,7 @@ exports.busquedaInstituciones = async(req, res) => {
     try {
         //obtiene el parametro desde la url
         const { filtro } = req.params
+        console.log(filtro)
             //consulta por la institucion
         const instituciones = await Institucion.findAll({
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {

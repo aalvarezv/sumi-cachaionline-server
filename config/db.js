@@ -112,7 +112,7 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
  
-sequelize.sync({ force: false }) 
+sequelize.sync({ force: true }) 
     .then(async() => {
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');

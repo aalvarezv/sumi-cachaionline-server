@@ -1,4 +1,4 @@
-const { ModuloContenido } = require('../config/db');
+const { ModuloContenido, Modulo } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 
@@ -12,18 +12,17 @@ exports.crearModuloContenido = async(req, res, next) => {
 
     try {
       
-        const { codigo, descripcion, codigo_modulo } = req.body;
+        const { codigo, descripcion, codigo_modulo, inactivo } = req.body;
 
         //Guarda la nueva relacion entre contenido y modulo
         modulo_contenido = await ModuloContenido.create({
             codigo,
             descripcion,
-            codigo_modulo
+            codigo_modulo,
+            inactivo
         });
 
-        //next para pasar a listarModuloContenidos 
-        req.params.codigo_modulo = codigo_modulo;
-        next();
+        res.json(modulo_contenido)
 
 
     } catch (error) {
@@ -92,3 +91,4 @@ exports.eliminarModuloContenido = async(req, res, next) => {
     }
 
 }
+
