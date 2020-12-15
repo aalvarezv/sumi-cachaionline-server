@@ -1,4 +1,4 @@
-const { RingPregunta } = require('../config/db');
+const { RingPregunta, Pregunta } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 exports.crearRingPregunta = async(req, res) => {
@@ -91,6 +91,42 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
     }
 }
 
+exports.listarRingPreguntas = async(req, res) => {
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
+    try {
+
+        const { codigo_ring } = req.params;
+    
+        //verifica si existe la combinación ring vs pregunta.
+        let ring_preguntas = await RingPregunta.findAll({
+            include:[{
+                model: Pregunta,
+            }],
+            where: {
+                codigo_ring
+            }
+        });
+
+        res.json({
+            ring_preguntas
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+     
+
+
+}
 
 exports.eliminarRingPregunta = async(req, res) => {
 

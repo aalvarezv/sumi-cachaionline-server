@@ -3,7 +3,9 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check, query } = require('express-validator');
 
-const { crearRingPregunta, eliminarRingPregunta, crearRingPreguntaMasivo, eliminarRingPreguntaMasivo } = require('../controllers/ringPreguntaController');
+const { crearRingPregunta, eliminarRingPregunta, 
+        crearRingPreguntaMasivo, eliminarRingPreguntaMasivo,
+        listarRingPreguntas } = require('../controllers/ringPreguntaController');
 
 router.post('/crear', auth, [
     check('codigo_ring').not().isEmpty().withMessage('El codigo del ring es obligatorio.'),
@@ -13,6 +15,7 @@ router.post('/crear/masivo', auth,[
     check('ring_preguntas_add').not().isEmpty().withMessage('Es requerido un arreglo con al menos un objeto que contenga el código pregunta y código ring para agregar.')
 ], crearRingPreguntaMasivo);
 
+router.get('/listar/ring-preguntas/:codigo_ring', auth, listarRingPreguntas);
 
 router.delete('/eliminar/:codigo_ring/:codigo_pregunta', auth, eliminarRingPregunta);
 

@@ -126,6 +126,8 @@ Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 Ring.belongsTo(NivelAcademico,  {foreignKey: 'codigo_nivel_academico'});
 Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'});
 
+RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'});
+RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'});
 
 CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'});
 CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
