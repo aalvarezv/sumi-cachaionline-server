@@ -4,11 +4,76 @@ module.exports = (sequelize, type) =>{
         codigo:{
             type: type.STRING(128),
             primaryKey: true,
-            allownull: false
+            allownull: false,
         },
         descripcion:{
             type: type.STRING(),
-            allownull: false
+            allownull: false,
+        },
+        ver_menu_administrar:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_instituciones:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_niveles_academicos:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_roles:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_usuarios:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_menu_asignaturas:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_materias:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_unidades:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_modulos:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_temas:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_conceptos:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_menu_preguntas:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_menu_rings:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
         },
         inactivo:{
             type: type.BOOLEAN,

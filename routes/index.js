@@ -23,6 +23,7 @@ app.use('/api/usuario-instituciones-roles/', require('./usuarioInstitucionRol'))
 app.use('/api/rings/', require('./rings')); 
 app.use('/api/ring-usuarios/', require('./ringUsuarios'));
 app.use('/api/ring-preguntas/',require('./ringPreguntas'));
+
 app.use('/api/pregunta-pistas/', require('./preguntaPistas'));
 app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));
 app.use('/api/pregunta-modulos/', require('./preguntaModulos'));

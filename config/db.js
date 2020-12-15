@@ -25,7 +25,10 @@ const RingPreguntaModel = require('../models/RingPregunta');
 const PreguntaPistaModel = require('../models/PreguntaPista');
 const PreguntaSolucionModel = require('../models/PreguntaSolucion');
 const PreguntaModuloModel = require('../models/PreguntaModulo');
-const PreguntaModuloContenidoModel = require ('../models/PreguntaModuloContenido');
+const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido');
+const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema');
+const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto');
+
 
 //conexión a la bd
 const sequelize = new Sequelize(process.env.DB_URI, {
@@ -33,7 +36,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: false, //console.log,
+    logging: console.log,
     pool: {
         max: 5,
         min: 0,
@@ -68,15 +71,15 @@ const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
-const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia);
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion);
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
 const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido);
-
-
+const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema);
+const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto);
 
 
 
@@ -93,27 +96,43 @@ Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
 Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'});
 
 Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' });
-Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_usuario' });
+Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'rut_usuario' });
 Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' });
 
 Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' });
 Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' });
 ModuloContenido.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
+ModuloContenidoTema.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'});
+ModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'});
 
 Pregunta.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
 Pregunta.hasMany(PreguntaAlternativa, {foreignKey: 'codigo_pregunta', as : 'pregunta_alternativa'});
 Pregunta.hasMany(PreguntaSolucion, {foreignKey: 'codigo_pregunta', as: 'pregunta_solucion'});
 Pregunta.hasMany(PreguntaPista, {foreignKey: 'codigo_pregunta'});
 Pregunta.hasMany(PreguntaModulo, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModuloContenido, {foreignKey: 'codigo_pregunta', as: 'pregunta_modulo_contenido'});
+Pregunta.hasMany(PreguntaModuloContenido, {foreignKey: 'codigo_pregunta'});
+Pregunta.hasMany(PreguntaModuloContenidoTema, {foreignKey: 'codigo_pregunta'});
+Pregunta.hasMany(PreguntaModuloContenidoTemaConcepto, {foreignKey: 'codigo_pregunta'});
+Pregunta.hasMany(RingPregunta, {foreignKey: 'codigo_pregunta'});
 
 PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
 PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'});
+PreguntaModuloContenidoTema.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'});
+PreguntaModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTemaConcepto, {foreignKey: 'codigo_modulo_contenido_tema_concepto'});
+
 
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
- 
-sequelize.sync({ force: true }) 
-    .then(async() => {
+
+Ring.belongsTo(NivelAcademico,  {foreignKey: 'codigo_nivel_academico'});
+Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'});
+
+
+CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'});
+CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
+
+
+sequelize.sync({ force: false }).then(async() => {
+
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****');
             const configuraciones = await Configuracion.bulkCreate([{
@@ -298,6 +317,14 @@ sequelize.sync({ force: true })
             }]);
             console.log('CURSOS INSERTADOS');
 
+            const tipo_juego = await TipoJuego.bulkCreate([{
+                codigo: '1',
+                descripcion: 'SINGLE',
+            },{
+                codigo: '2',
+                descripcion: 'MULTIJUGADOR',
+            }]);
+
         } catch (error) {
             console.log(error);
         }
@@ -331,4 +358,6 @@ module.exports = {
     PreguntaModulo,
     PreguntaModuloContenido,
     TipoJuego,  
+    PreguntaModuloContenidoTema,
+    PreguntaModuloContenidoTemaConcepto,
 }

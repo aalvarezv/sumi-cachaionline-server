@@ -1,46 +1,54 @@
-module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia) => {
+module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia, Institucion) => {
 
     return sequelize.define('ring', {
 
         codigo: {
             type: type.STRING(128),
             primaryKey: true,
-            allowNull: false
+            allowNull: false,
         },
         nombre: {
             type: type.STRING,
-            allowNull: false
+            allowNull: false,
         },
         descripcion: {
             type: type.TEXT('long'),
-            allowNull: false
+            allowNull: false,
         },
         fecha_hora_inicio: {
             type: type.DATE,
-            allowNull: false
+            allowNull: false,
         },
         fecha_hora_fin: {
             type: type.DATE,
-            allowNull: false
+            allowNull: false,
         },
         rut_usuario_creador: {
             type: type.STRING(12),
             allowNull: false,
             references: {
                 model: Usuario,
-                key: 'rut'
+                key: 'rut',
             }
         },
         cantidad_usuarios: {
             type: type.INTEGER,
             allowNull: false,
         },
+        codigo_institucion:{
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: Institucion,
+                key: 'codigo',
+            }
+        },
         codigo_nivel_academico: {
             type: type.STRING(128),
             allowNull: false,
             references: {
                 model: NivelAcademico,
-                key: 'codigo'
+                key: 'codigo',
             }
         },
         codigo_materia: {
@@ -48,32 +56,35 @@ module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia) 
             allowNull: false,
             references: {
                 model: Materia,
-                key: 'codigo'
+                key: 'codigo',
             }
         },
         tipo_duracion_pregunta: {
             type: type.INTEGER,
+            allowNull: false,
         },
         duracion_pregunta: {
             type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
         },
         codigo_tipo_juego: {
             type: type.STRING(128),
             allowNull: false,
             references: {
                 model: TipoJuego,
-                key: 'codigo'
+                key: 'codigo',
             }
         },
         privado: {
             type: type.BOOLEAN,
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
         },
         inactivo: {
             type: type.BOOLEAN,
             allowNull: false,
-            defaultValue: false
+            defaultValue: false,
         }
     }, {
         //agrega atributos timestamp (updatedAt, createdAt).
@@ -81,6 +92,6 @@ module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia) 
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true,
         //agrega el nombre de la tabla.
-        tableName: 'rings'
+        tableName: 'rings',
     })
 }

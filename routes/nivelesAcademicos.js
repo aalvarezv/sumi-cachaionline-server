@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
-const { crearNivelAcademico, listarNivelesAcademicos, actualizarNivelAcademico, eliminarNivelAcademico, datosNivelAcademico, busquedaNivelesAcademicos } = require('../controllers/nivelAcademicoController');
+const { crearNivelAcademico, listarNivelesAcademicos, actualizarNivelAcademico, eliminarNivelAcademico, datosNivelAcademico, busquedaNivelesAcademicos, listarNivelesAcademicosUsuarioInstitucion } = require('../controllers/nivelAcademicoController');
 
 router.post('/crear', auth, [
         check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
@@ -19,6 +19,6 @@ router.put('/actualizar', auth, [
 router.delete('/eliminar/:codigo', auth, eliminarNivelAcademico);
 router.get('/datos/:codigo', auth, datosNivelAcademico);
 router.get('/busqueda/:filtro', auth, busquedaNivelesAcademicos);
-
+router.get('/usuario-institucion', auth, listarNivelesAcademicosUsuarioInstitucion);
 
 module.exports = router;

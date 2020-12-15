@@ -59,7 +59,13 @@ exports.actualizarRoles = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion, inactivo } = req.body;
+        const { codigo, descripcion, ver_menu_administrar,
+            ver_submenu_instituciones, ver_submenu_niveles_academicos,
+            ver_submenu_roles, ver_submenu_usuarios,
+            ver_menu_asignaturas, ver_submenu_materias,
+            ver_submenu_unidades, ver_submenu_modulos,
+            ver_submenu_temas, ver_submenu_conceptos,
+            ver_menu_preguntas, ver_menu_rings, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
         if (!rol) {
@@ -70,6 +76,19 @@ exports.actualizarRoles = async(req, res) => {
 
         rol = await Rol.update({
             descripcion,
+            ver_menu_administrar,
+            ver_submenu_instituciones,
+            ver_submenu_niveles_academicos,
+            ver_submenu_roles,
+            ver_submenu_usuarios,
+            ver_menu_asignaturas,
+            ver_submenu_materias,
+            ver_submenu_unidades,
+            ver_submenu_modulos,
+            ver_submenu_temas,
+            ver_submenu_conceptos,
+            ver_menu_preguntas,
+            ver_menu_rings,
             inactivo
         }, {
             where: {
