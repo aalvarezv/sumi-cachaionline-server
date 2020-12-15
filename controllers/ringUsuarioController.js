@@ -1,4 +1,4 @@
-const { RingUsuario } = require('../config/db');
+const { RingUsuario, Ring } = require('../config/db');
 const { validationResult } = require('express-validator');
 
 exports.crearRingUsuario = async(req, res) => {
@@ -90,6 +90,40 @@ exports.crearRingUsuarioMasivo = async(req, res) => {
     }
 }
 
+exports.listarRingsUsuario = async (req,res) => {
+
+     //si hay errores de la validación
+     const errors = validationResult(req);
+     if (!errors.isEmpty()) {
+         return res.status(400).json({ errors: errors.array() });
+     }
+
+     const { rut_usuario } = req.params;
+
+     try {
+
+         //verifica si existe la combinación ring vs pregunta.
+         let rings_usuario = await RingUsuario.findAll({
+            include:[{
+                model: Ring,
+            }],
+            where: {
+                rut_usuario
+            }
+        });
+
+        res.json({
+            rings_usuario
+        });
+
+     } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+     }
+
+}
 
 exports.eliminarRingUsuario = async(req, res) => {
 
