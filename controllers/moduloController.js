@@ -1,4 +1,4 @@
-const { Modulo, Unidad, NivelAcademico } = require('../config/db');
+const { Modulo, Unidad, NivelAcademico, ModuloContenido } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -197,6 +197,18 @@ exports.eliminarModulo = async(req, res) => {
                 msg: `El módulo ${codigo} no existe`
             })
         }
+
+        let contenidos_modulo = await ModuloContenido.findAll({
+            where:{
+                codigo_modulo : codigo
+            }
+        })
+        if (contenidos_modulo){
+            return res.status(404).send({
+                msg: `El modulo ${codigo} tiene contenidos asociados, no se puede eliminar`
+            });
+        }
+
         modulo = await Modulo.destroy({
             where: {
                 codigo
@@ -276,6 +288,60 @@ exports.modulosUnidad = async(req, res) => {
         });
     }
 }
+
+
+exports.modulosUnidadMateria = async(req, res) => {
+
+    try {
+
+        let { codigo_unidad, codigo_materia } = req.params;
+
+        if(codigo_unidad.trim() === '0'){
+            codigo_unidad = ''
+        }
+
+        if(codigo_materia.trim() === '0'){
+            codigo_materia = ''
+        }
+    
+
+        const modulos = await Modulo.findAll({
+            include:[{
+                attributes: ['codigo', 'descripcion', 'codigo_materia'],
+                model: Unidad,
+            }],
+            where: {
+                [Op.and]:[
+                    { codigo_unidad: { [Op.like] : `%${codigo_unidad}%`} },
+                    {'$unidad.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } },
+                    {inactivo: false}
+                ]
+            },
+
+            order: [
+                ['descripcion', 'ASC']
+            ]
+        });
+
+        if (!modulos) {
+            return res.status(404).send({
+                msg: `La unidad ${codigo_unidad} no tiene módulos asociados`
+            });
+        }
+
+        res.json({
+            modulos
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+}
+
+
 
 exports.busquedaModulos = async(req, res) => {
 

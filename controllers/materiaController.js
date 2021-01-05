@@ -1,4 +1,4 @@
-const { Materia } = require('../config/db');
+const { Materia, Unidad } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -114,6 +114,17 @@ exports.eliminarMaterias = async(req, res) => {
         if (!materia) {
             return res.status(404).send({
                 msg: `La materia ${codigo} no existe`
+            });
+        }
+
+        let unidades_materia = await Unidad.findAll({
+            where: {
+                codigo_materia : codigo
+            }
+        })
+        if (unidades_materia){
+            return res.status(404).send({
+                msg: `La materia ${codigo} tiene unidades asociadas, no se puede eliminar`
             });
         }
 

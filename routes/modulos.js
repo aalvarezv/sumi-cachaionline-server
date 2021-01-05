@@ -5,7 +5,7 @@ const paginateResults = require('../middleware/paginateResults');
 const { check, query } = require('express-validator');
 
 const {crearModulo,listarModulos, listarModulosDisponiblesCurso,  actualizarModulo, 
-       eliminarModulo, datosModulo, busquedaModulos, modulosUnidad} = require('../controllers/moduloController');
+       eliminarModulo, datosModulo, busquedaModulos, modulosUnidad, modulosUnidadMateria} = require('../controllers/moduloController');
 
 
 router.post('/crear', auth, 
@@ -54,6 +54,7 @@ actualizarModulo);
 router.delete('/eliminar/:codigo', auth, eliminarModulo);
 router.get('/datos/:codigo', auth, datosModulo);
 router.get('/unidad/:codigo_unidad', modulosUnidad);
+router.get('/unidad-materia/:codigo_unidad/:codigo_materia', modulosUnidadMateria)
 router.get('/busqueda/:filtro', auth, busquedaModulos);
 
 module.exports = router;

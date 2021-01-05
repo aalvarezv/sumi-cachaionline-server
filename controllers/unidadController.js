@@ -120,6 +120,18 @@ exports.eliminarUnidades = async(req, res) => {
                 msg: `La unidad ${codigo} no existe`
             });
         }
+
+        let modulos_unidad = await Modulo.findAll({
+            where:{
+                codigo_unidad : codigo
+            }
+        })
+        if (modulos_unidad){
+            return res.status(404).send({
+                msg: `La unidad ${codigo} tiene modulos asociados, no se puede eliminar`
+            });
+        }
+
         unidad = await Unidad.destroy({
             where: {
                 codigo
@@ -166,11 +178,17 @@ exports.unidadesMateria = async(req, res) => {
 
     try {
 
-        const { codigo_materia } = req.params;
+        let { codigo_materia } = req.params;
+
+        if(codigo_materia.trim() === '0'){
+            codigo_materia = ''
+        }
 
         const unidades = await Unidad.findAll({
             where: {
-                codigo_materia,
+                codigo_materia: {
+                    [Op.like] : `%${codigo_materia}%`
+                },
                 inactivo: false
             },
             order: [
