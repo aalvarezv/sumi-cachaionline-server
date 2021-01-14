@@ -31,7 +31,4 @@ app.use('/api/pregunta-modulo-contenidos/', require('./preguntaModuloContenidos'
 
 app.use('/api/carga-masiva/', require('./cargaMasiva'));
 
-
-
-
 module.exports = app;

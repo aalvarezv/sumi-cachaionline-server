@@ -140,12 +140,7 @@ sequelize.sync({ force: false }).then(async() => {
             const configuraciones = await Configuracion.bulkCreate([{
                 seccion: 'PREGUNTAS',
                 clave: 'DIR',
-                valor: '/Users/alanalvarez/.bitnami/stackman/machines/xampp/volumes/root/htdocs/cachaionline/preguntas/'
-            },
-            {
-                seccion: 'PREGUNTAS',
-                clave: 'URL',
-                valor: 'http://192.168.64.2/cachaionline/preguntas/'
+                valor: '/Users/alanalvarez/Documents/cachaionline/preguntas/'
             },
             {
                 seccion: 'TEMP',
@@ -157,19 +152,84 @@ sequelize.sync({ force: false }).then(async() => {
 
             const roles = await Rol.bulkCreate([{
                     codigo: '1',
-                    descripcion: 'ADMINISTRADOR SISTEMA'
+                    descripcion: 'ADMINISTRADOR SISTEMA',
+                    ver_menu_administrar: true,
+                    ver_submenu_instituciones: true,
+                    ver_submenu_niveles_academicos: true,
+                    ver_submenu_roles: true,
+                    ver_submenu_usuarios: true,
+                    ver_menu_asignaturas: true,
+                    ver_submenu_materias: true,
+                    ver_submenu_unidades: true,
+                    ver_submenu_modulos: true,
+                    ver_submenu_temas: true,
+                    ver_submenu_conceptos: true,
+                    ver_menu_preguntas: true,
+                    ver_menu_rings: true,
                 }, {
                     codigo: '2',
-                    descripcion: 'ALUMNO'
+                    descripcion: 'ALUMNO',
+                    ver_menu_administrar: false,
+                    ver_submenu_instituciones: false,
+                    ver_submenu_niveles_academicos: false,
+                    ver_submenu_roles: false,
+                    ver_submenu_usuarios: false,
+                    ver_menu_asignaturas: false,
+                    ver_submenu_materias: false,
+                    ver_submenu_unidades: false,
+                    ver_submenu_modulos: false,
+                    ver_submenu_temas: false,
+                    ver_submenu_conceptos: false,
+                    ver_menu_preguntas: false,
+                    ver_menu_rings: false,
                 }, {
                     codigo: '3',
-                    descripcion: 'PROFESOR'
+                    descripcion: 'PROFESOR',
+                    ver_menu_administrar: false,
+                    ver_submenu_instituciones: false,
+                    ver_submenu_niveles_academicos: false,
+                    ver_submenu_roles: false,
+                    ver_submenu_usuarios: false,
+                    ver_menu_asignaturas: false,
+                    ver_submenu_materias: false,
+                    ver_submenu_unidades: false,
+                    ver_submenu_modulos: false,
+                    ver_submenu_temas: false,
+                    ver_submenu_conceptos: false,
+                    ver_menu_preguntas: true,
+                    ver_menu_rings: true,
                 }, {
                     codigo: '4',
-                    descripcion: 'RECTOR'
+                    descripcion: 'RECTOR',
+                    ver_menu_administrar: false,
+                    ver_submenu_instituciones: false,
+                    ver_submenu_niveles_academicos: false,
+                    ver_submenu_roles: false,
+                    ver_submenu_usuarios: false,
+                    ver_menu_asignaturas: false,
+                    ver_submenu_materias: false,
+                    ver_submenu_unidades: false,
+                    ver_submenu_modulos: false,
+                    ver_submenu_temas: false,
+                    ver_submenu_conceptos: false,
+                    ver_menu_preguntas: false,
+                    ver_menu_rings: false,
                 }, {
                     codigo: '5',
-                    descripcion: 'ADMINISTRADOR INSTITUCIÓN'
+                    descripcion: 'ADMINISTRADOR INSTITUCIÓN',
+                    ver_menu_administrar: true,
+                    ver_submenu_instituciones: true,
+                    ver_submenu_niveles_academicos: true,
+                    ver_submenu_roles: true,
+                    ver_submenu_usuarios: true,
+                    ver_menu_asignaturas: true,
+                    ver_submenu_materias: true,
+                    ver_submenu_unidades: true,
+                    ver_submenu_modulos: true,
+                    ver_submenu_temas: true,
+                    ver_submenu_conceptos: true,
+                    ver_menu_preguntas: true,
+                    ver_menu_rings: true,
                 }
 
             ]);

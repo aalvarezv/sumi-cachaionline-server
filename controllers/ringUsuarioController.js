@@ -1,4 +1,5 @@
-const { RingUsuario, Ring } = require('../config/db');
+const { RingUsuario, Ring, sequelize } = require('../config/db');
+const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
 exports.crearRingUsuario = async(req, res) => {
@@ -90,7 +91,7 @@ exports.crearRingUsuarioMasivo = async(req, res) => {
     }
 }
 
-exports.listarRingsUsuario = async (req,res) => {
+exports.listarRingsUsuarioInstitucion = async (req,res) => {
 
      //si hay errores de la validación
      const errors = validationResult(req);
@@ -98,18 +99,27 @@ exports.listarRingsUsuario = async (req,res) => {
          return res.status(400).json({ errors: errors.array() });
      }
 
-     const { rut_usuario } = req.params;
+     const { rut_usuario, codigo_institucion } = req.params;
 
      try {
 
          //verifica si existe la combinación ring vs pregunta.
          let rings_usuario = await RingUsuario.findAll({
             include:[{
+                attributes: { exclude: ['createdAt', 'updatedAt'] },
                 model: Ring,
             }],
             where: {
-                rut_usuario
-            }
+                [Op.and]:[
+                    {rut_usuario},
+                    {'$ring.codigo_institucion$': { [Op.eq]: codigo_institucion } },
+                    sequelize.where( sequelize.col('fecha_hora_inicio'), '<=', new Date() ),
+                    sequelize.where( sequelize.col('fecha_hora_fin'), '>=', new Date() ),
+                ]
+            },
+            order: [
+                [Ring, 'fecha_hora_fin', 'ASC'],
+            ]
         });
 
         res.json({
