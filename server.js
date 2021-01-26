@@ -1,8 +1,12 @@
 const express = require('express')
 const cors = require('cors')
+const timeout = require('connect-timeout')
 
 //Creamos el servidor.
 const app = express()
+
+//Time out
+app.use(timeout('1d'))
 
 //habilitar cors.
 app.use(cors())

@@ -1,5 +1,5 @@
 const { Ring, Usuario, NivelAcademico, sequelize } = require('../config/db');
-const { Sequelize, Op, QueryTypes } = require('sequelize');
+const { Op } = require('sequelize');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
 
@@ -144,8 +144,8 @@ exports.listarRings = async(req, res) => {
             }],
             where:{
                 [Op.and]:[
-                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_inicio')), '>=', fecha_desde_format ),
-                    sequelize.where( sequelize.fn('date', sequelize.col('fecha_hora_fin')), '<=', fecha_hasta_format ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('ring.createdAt')), '>=', fecha_desde_format ),
+                    sequelize.where( sequelize.fn('date', sequelize.col('ring.createdAt')), '<=', fecha_hasta_format ),
                     {codigo_institucion},
                     filtros_dinamicos.map(filtro => filtro),
                     {privado: privado},

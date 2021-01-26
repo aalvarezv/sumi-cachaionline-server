@@ -33,7 +33,4 @@ app.use('/api/tipo-juego-modalidades/', require('./tipoJuegoModalidades'));
 
 app.use('/api/carga-masiva/', require('./cargaMasiva'));
 
-
-
-
 module.exports = app;

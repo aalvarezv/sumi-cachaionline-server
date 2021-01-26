@@ -29,6 +29,19 @@ const autenticarUsuario = async (req, res) => {
                 msg: 'El password es incorrecto'
             })
         }
+
+        //revisa que el usuario tenga al menos un rol asignado.
+        const usuario_institucion_rol = await UsuarioInstitucionRol.findAll({
+            where:{
+                rut_usuario: rut,
+            }
+        });
+       
+        if(usuario_institucion_rol.length === 0){
+            return res.status(401).json({
+                msg: 'El usuario no se encuentra asociado a una institución con un perfil asignado, comuniquese con un administrador.'
+            })
+        }
         
         //si el usuario es válido crear y firmar el jsonwebtoken
         const payload = {

@@ -320,7 +320,7 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
 }
 
 exports.cargaPreguntas = async (req, res) => {
-
+   
     /***
      * Todas las preguntas a procesar se encuentran en un directorio que contiene archivos power point.
      * Estos archivos se componen de: 
@@ -352,6 +352,8 @@ exports.cargaPreguntas = async (req, res) => {
      *         |- nombre_carpeta_archivo_pistas 
      */
 
+    
+
     const {   
             nombre_carpeta_archivos, nombre_archivo_carga, nombre_carpeta_archivo_pregunta,
             nombre_carpeta_archivo_videos, nombre_carpeta_archivo_pistas,
@@ -369,6 +371,7 @@ exports.cargaPreguntas = async (req, res) => {
         } = req.body;
 
     try{
+        
 
         if(!nombre_carpeta_archivos || nombre_carpeta_archivos.trim() === ''){
             return res.status(404).send({
@@ -526,19 +529,219 @@ exports.cargaPreguntas = async (req, res) => {
         let hoja_excel = null
         const libro_excel = await workbook.xlsx.readFile(archivo_carga);
         
-        //Se ubica en la hoja TEMARIO
-        hoja_excel  = libro_excel.getWorksheet('VIDEO');
+        //Se ubica en la hoja CARGA
+        hoja_excel  = libro_excel.getWorksheet('CARGA');
 
         if (!hoja_excel) {
             return res.status(404).send({
-                msg: `No existe la hoja VIDEO en el archivo de carga recibido, verifique.`,
+                msg: `No existe la hoja CARGA en el archivo excel para procesar y cargar las preguntas, verifique.`,
+            });
+        }
+
+        //Valida información del archivo.
+        let errores = [];
+        for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
+
+            try {
+                 
+                let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text;
+                let archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
+
+                //Verifica que existe el archivo de pregunta.
+                if(!fs.existsSync(archivo_pregunta_ppt)){
+                    errores = [
+                        ...errores,
+                        { 
+                            fila: i,
+                            error: `Archivo pregunta ${archivo_pregunta_ppt} no existe`,  
+                        }
+                    ]
+                }
+
+                let alternativas = ['A','B','C','D','E'];
+                let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
+                if(alternativas.filter(alternativa => alternativa === alternativa_correcta.trim()).length === 0){
+                    errores = [
+                        ...errores,
+                        { 
+                        fila: i,
+                        error: `Alternativa pregunta ${alternativa_correcta} no se encuentra dentro de las posibilidades, Letras A, B, C, D y E`,  
+                        }
+                    ]
+                }
+
+                let duracion_pregunta = hoja_excel.getCell(`${letra_columna_duracion_pregunta}${i}`).text.trim();
+                if(Number(duracion_pregunta) <= 0){
+                    errores = [
+                        ...errores,
+                        { 
+                        fila: i,
+                        error: `Duración pregunta ${duracion_pregunta} no es un número válido`,  
+                        }
+                    ]
+                }
+
+                let cantidad_alternativas = hoja_excel.getCell(`${letra_columna_cantidad_alternativas}${i}`).text.trim();
+                if(Number(cantidad_alternativas) <= 0){
+                    errores = [
+                        ...errores,
+                        { 
+                        fila: i,
+                        error: `Cantidad alternativas pregunta ${cantidad_alternativas} no es un número válido`,  
+                        }
+                    ]
+                }
+
+                //Validación de codigos de las propiedaes asociadas a la pregunta que pueden ser: Modulo|Contenido|Tema|Concepto.
+                let codigos_propiedades_pregunta = [
+                    hoja_excel.getCell(`${letra_columna_codigo_1}${i}`).text.trim(),
+                    hoja_excel.getCell(`${letra_columna_codigo_2}${i}`).text.trim(),
+                    hoja_excel.getCell(`${letra_columna_codigo_3}${i}`).text.trim(),
+                    hoja_excel.getCell(`${letra_columna_codigo_4}${i}`).text.trim(),
+                    hoja_excel.getCell(`${letra_columna_codigo_5}${i}`).text.trim(),
+                    hoja_excel.getCell(`${letra_columna_codigo_6}${i}`).text.trim(),
+                ];
+
+                for(let codigo_actual of codigos_propiedades_pregunta){
+                    //Identifica que tipo de dato corresponde el codigo. Modulo|Contenido|Tema|Concepto.
+                    let arr_codigo_actual = codigo_actual.split('.');
+                    
+                    if(codigo_actual.trim() !== ''){
+                        //Verifica a que corresponde el código posicionado actual.
+                        //Los códigos se componen de 5 dígitos, 
+                        //Si el segundo dígito es distinto de '0' y el tercer dígito es igual a '0'
+                        //entonces estamos parados en un Modulo.
+                        if(arr_codigo_actual[1] !== '0' && arr_codigo_actual[2] === '0'){
+                            //Verifica que el módulo existe.
+                            const modulo = await Modulo.findByPk(codigo_actual);
+                            if (!modulo){
+                                errores = [
+                                    ...errores,
+                                    { 
+                                    fila: i,
+                                    error: `Código módulo ${codigo_actual} no existe`,  
+                                    }
+                                ]
+                            }
+                        //si el tercer dígito es distinto de cero y el cuarto dígito es igual a '0'
+                        //entonces estamos parados en el contenido de un módulo
+                        }else if (arr_codigo_actual[2] !== '0' && arr_codigo_actual[3] === '0'){
+
+                            const modulo_contenido = await ModuloContenido.findByPk(codigo_actual);
+                            //Verifica que el modulo contenido existe.
+                            if(!modulo_contenido){        
+                                errores = [
+                                    ...errores,
+                                    { 
+                                    fila: i,
+                                    error: `Código módulo contenido ${codigo_actual} no existe.`,  
+                                    }
+                                ]
+                            }
+                        
+                        //si el cuarto dígito es distinto de '0' y el quinto dígito es igual a '0'
+                        //entonces estamos parados en un tema del contenido de un módulo.
+                        }else if(arr_codigo_actual[3] !== '0' && arr_codigo_actual[4] === '0'){
+                        
+                            const modulo_contenido_tema = await ModuloContenidoTema.findByPk(codigo_actual);
+                            //Verifica que el módulo contenido tema existe.
+                            if(!modulo_contenido_tema){
+                                errores = [
+                                    ...errores,
+                                    { 
+                                    fila: i,
+                                    error: `Código módulo contenido tema ${codigo_actual} no existe.`,  
+                                    }
+                                ]
+                            }
+                        //Si el quinto dígito es distinto de '0' entonces estamos parados sobre un concepto.
+                        }else if(arr_codigo_actual[4] !== '0'){
+    
+                            const modulo_contenido_tema_concepto = await ModuloContenidoTemaConcepto.findByPk(codigo_actual)
+                            //Verifica que el modulo contenido tema concepto existe.
+                            if(!modulo_contenido_tema_concepto){
+                                errores = [
+                                    ...errores,
+                                    { 
+                                    fila: i,
+                                    error: `Código módulo contenido tema concepto ${codigo_actual} no existe.`,  
+                                    }
+                                ]
+                            }
+                            
+                        }
+                        
+                    }
+    
+                }
+
+                //VALIDAR SOLUCIONES La pregunta también puede contener archivos adicionales de solución. Como videos o imagenes.
+                const tipo_solucion = Number(hoja_excel.getCell(`${letra_columna_tipos_archivos_solucion}${i}`).text.trim());
+            
+                let archivo_solucion_mp4 = '';
+
+                switch (tipo_solucion) {
+                    case 0: //No tiene ningún archivo de solución adicional.
+                        break;
+                    case 1: //imagen (No se considera ya que las soluciones de imagen están incluidas en el power point de la pregunta)
+                        break;
+                    case 2: //video
+                        //genera el path del video.
+                        archivo_solucion_mp4 = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_videos}/${nombre_archivo_pregunta}-VD.mp4`;
+                        //Verifica que el archivo existe.
+                        if(!fs.existsSync(archivo_solucion_mp4)){
+                            errores = [
+                                ...errores,
+                                { 
+                                fila: i,
+                                error: `Archivo video solución  ${archivo_solucion_mp4} no existe.`,  
+                                }
+                            ]
+                        }
+                    case 3: //imagen y video
+                        break
+                    
+                }
+
+                const pregunta_numero_pistas = Number(hoja_excel.getCell(`${letra_columna_pregunta_numero_pistas}${i}`).text.trim());
+                //Si el archivo tiene pistas.
+                if(pregunta_numero_pistas > 0){
+    
+                    let archivo_pista_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pptx`;
+                    
+                    if(!fs.existsSync(archivo_pista_ppt)){
+                        errores = [
+                            ...errores,
+                            { 
+                            fila: i,
+                            error: `Archivo power point pista ${archivo_pista_ppt} no existe.`,  
+                            }
+                        ]
+                    }
+                
+                }
+
+            } catch (error) {
+                errores = [
+                    ...errores,
+                    { 
+                    fila: i,
+                    error: `Error genérico: ${error}`,  
+                    }
+                ]
+            }
+        }
+
+        if(errores.length > 0){
+            return res.json({
+                errores,
             });
         }
 
         //Lee filas del archivo excel y comienza el proceso.
         for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
             
-            let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text.trim();
+            let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text;
             let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
             let duracion_pregunta = hoja_excel.getCell(`${letra_columna_duracion_pregunta}${i}`).text.trim();
 
@@ -696,7 +899,7 @@ exports.cargaPreguntas = async (req, res) => {
                         if(!modulo_contenido_tema_concepto){
                             return res.status(404).send({
                                 error: 100,
-                                msg: `Código módulo contenido ${codigo_modulo_contenido} no existe, verifique`,
+                                msg: `Código módulo contenido tema concepto ${codigo_actual} no existe, verifique`,
                             });
                         }
                         //Obtiene el codigo modulo contenido tema.
@@ -708,7 +911,7 @@ exports.cargaPreguntas = async (req, res) => {
                         if(!modulo_contenido_tema){
                             return res.status(404).send({
                                 error: 100,
-                                msg: `Código módulo contenido tema ${codigo_actual} no existe, verifique`,
+                                msg: `Código módulo contenido tema ${codigo_modulo_contenido_tema} no existe, verifique`,
                             });
                         }
                         //Obtiene el codigo modulo contenido.
@@ -878,7 +1081,7 @@ exports.cargaPreguntas = async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send({
-            msg: error,
+            msg: error.toString(),
         });
     }
 
