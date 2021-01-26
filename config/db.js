@@ -4,6 +4,7 @@ require('dotenv').config({ path: './variables.env' });
 const ConfiguracionModel = require('../models/Configuracion');
 const RolModel = require('../models/Rol');
 const UsuarioModel = require('../models/Usuario');
+const ModalidadModel = require('../models/Modalidad');
 const TipoJuegoModel = require ('../models/TipoJuego');
 const InstitucionModel = require('../models/Institucion');
 const UsuarioInstitucionRolModel = require('../models/UsuarioInstitucionRol');
@@ -28,6 +29,9 @@ const PreguntaModuloModel = require('../models/PreguntaModulo');
 const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido');
 const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema');
 const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto');
+const RingUsuarioPreguntaModel = require('../models/RingUsuarioRespuesta');
+const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad');
+
 
 
 //conexión a la bd
@@ -36,7 +40,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log,
+    logging: console.log, 
     pool: {
         max: 5,
         min: 0,
@@ -67,11 +71,13 @@ const ModuloContenido = ModuloContenidoModel(sequelize, Sequelize, Modulo);
 const ModuloContenidoTema = ModuloContenidoTemaModel(sequelize, Sequelize, ModuloContenido);
 const ModuloContenidoTemaConcepto = ModuloContenidoTemaConceptoModel(sequelize, Sequelize, ModuloContenidoTema);
 
+const Modalidad = ModalidadModel(sequelize, Sequelize);
+const TipoJuegoModalidad = TipoJuegoModalidadModel(sequelize, Sequelize, TipoJuego, Modalidad);
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
-const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion);
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion, Modalidad);
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
@@ -80,8 +86,7 @@ const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modul
 const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido);
 const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema);
 const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto);
-
-
+const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta);
 
 //RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
@@ -131,6 +136,9 @@ RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'});
 
 CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'});
 CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
+
+TipoJuegoModalidad.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego'});
+TipoJuegoModalidad.belongsTo(Modalidad, {foreignKey: 'codigo_modalidad'});
 
 
 sequelize.sync({ force: false }).then(async() => {
@@ -326,6 +334,22 @@ sequelize.sync({ force: false }).then(async() => {
                 codigo: '2',
                 descripcion: 'MULTIJUGADOR',
             }]);
+            console.log('TIPOS DE JUEGOS INSERTADOS');
+
+            const modalidades = await Modalidad.bulkCreate([{
+                codigo: '1',
+                descripcion: 'USUARIO VS SISTEMA',
+            }, {
+                codigo: '2',
+                descripcion: 'USUARIO VS USUARIO',
+            }, {
+                codigo: '3',
+                descripcion: 'GRUPO VS SISTEMA',
+            }, {
+                codigo: '4',
+                descripcion: 'GRUPO VS GRUPO',
+            }])
+            console.log('MODALIDADES INSERTADAS');
 
         } catch (error) {
             console.log(error);
@@ -362,4 +386,7 @@ module.exports = {
     TipoJuego,  
     PreguntaModuloContenidoTema,
     PreguntaModuloContenidoTemaConcepto,
+    RingUsuarioRespuesta,
+    Modalidad,
+    TipoJuegoModalidad,
 }

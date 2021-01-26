@@ -22,15 +22,23 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
-            cantidad_usuarios,
+            privado,
+            codigo_tipo_juego,
+            cantidad_usuarios_minimo,
+            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            codigo_tipo_juego,
-            privado,
-            inactivo
+            codigo_modalidad, 
+            revancha,
+            revancha_cantidad,
+            tiempo_ring,
+            cantidad_preguntas,
+            retroceder,
+            pistas,           
+            inactivo,
         } = req.body;
 
         //verifica que el ring no existe.
@@ -60,14 +68,22 @@ exports.crearRing = async(req, res) => {
             fecha_hora_inicio,
             fecha_hora_fin,
             rut_usuario_creador,
+            privado,
             codigo_tipo_juego,
-            cantidad_usuarios,
+            cantidad_usuarios_minimo,
+            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            privado,
+            codigo_modalidad, 
+            revancha,
+            revancha_cantidad,
+            tiempo_ring,
+            cantidad_preguntas,
+            retroceder,
+            pistas,           
             inactivo,
         }); 
 
@@ -171,13 +187,21 @@ exports.actualizarRing = async(req, res) => {
             rut_usuario_creador,
             privado,
             codigo_tipo_juego,
-            cantidad_usuarios,
+            cantidad_usuarios_minimo,
+            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
-            duracion_pregunta,            
-            inactivo
+            duracion_pregunta,
+            codigo_modalidad, 
+            revancha,
+            revancha_cantidad,
+            tiempo_ring,
+            cantidad_preguntas,
+            retroceder,
+            pistas,           
+            inactivo,
         } = req.body;
 
         //verifica que el ring a actualizar existe.
@@ -198,6 +222,7 @@ exports.actualizarRing = async(req, res) => {
 
         //actualiza los datos.
         ring = await Ring.update({
+            codigo,
             nombre,
             descripcion,
             fecha_hora_inicio,
@@ -205,12 +230,20 @@ exports.actualizarRing = async(req, res) => {
             rut_usuario_creador,
             privado,
             codigo_tipo_juego,
-            cantidad_usuarios,
+            cantidad_usuarios_minimo,
+            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
             tipo_duracion_pregunta,
             duracion_pregunta,
+            codigo_modalidad,
+            revancha,
+            revancha_cantidad,
+            tiempo_ring,
+            cantidad_preguntas,
+            retroceder,
+            pistas,           
             inactivo
         }, {
             where: {

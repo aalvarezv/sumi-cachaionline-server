@@ -13,7 +13,8 @@ router.post('/crear', auth, [
     check('fecha_hora_fin').not().isEmpty().withMessage('La fecha y hora de termino son obligatorias.'),
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
     check('codigo_tipo_juego').not().isEmpty().withMessage('El tipo de juego es obligatorio, verifique'),
-    check('cantidad_usuarios').not().isEmpty().withMessage('La cantidad de usuarios es obligatoria.'),
+    check('cantidad_usuarios_minimo').not().isEmpty().withMessage('La cantidad mínima de usuarios es obligatoria.'),
+    check('cantidad_usuarios_maximo').not().isEmpty().withMessage('La cantidad máxima de usuarios es obligatoria.'),
     check('codigo_nivel_academico').not().isEmpty().withMessage('El nivel academico es obligatorio, verifique'),
     check('codigo_materia').not().isEmpty().withMessage('La materia es obligatoria, verifique'),
 ], crearRing);
@@ -28,7 +29,8 @@ router.put('/actualizar', auth, [
     check('fecha_hora_fin').not().isEmpty().withMessage('La fecha y hora de termino son obligatorias.'),
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
     check('codigo_tipo_juego').not().isEmpty().withMessage('El tipo de juego es obligatorio, verifique'),
-    check('cantidad_usuarios').not().isEmpty().withMessage('La cantidad de usuarios es obligatoria.'),
+    check('cantidad_usuarios_minimo').not().isEmpty().withMessage('La cantidad mínima de usuarios es obligatoria.'),
+    check('cantidad_usuarios_maximo').not().isEmpty().withMessage('La cantidad máxima de usuarios es obligatoria.'),
     check('codigo_nivel_academico').not().isEmpty().withMessage('El nivel academico es obligatorio, verifique'),
     check('codigo_materia').not().isEmpty().withMessage('La materia es obligatoria, verifique'),
 ], actualizarRing);

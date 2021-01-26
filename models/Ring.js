@@ -1,4 +1,5 @@
-module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia, Institucion) => {
+module.exports = (sequelize, type, Usuario, TipoJuego, 
+                NivelAcademico, Materia, Institucion, Modalidad, TipoPartida) => {
 
     return sequelize.define('ring', {
 
@@ -31,7 +32,11 @@ module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia, 
                 key: 'rut',
             }
         },
-        cantidad_usuarios: {
+        cantidad_usuarios_minimo: {
+            type: type.INTEGER,
+            allowNull: false,
+        },
+        cantidad_usuarios_maximo: {
             type: type.INTEGER,
             allowNull: false,
         },
@@ -76,7 +81,45 @@ module.exports = (sequelize, type, Usuario, TipoJuego, NivelAcademico, Materia, 
                 key: 'codigo',
             }
         },
+        codigo_modalidad:{
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: Modalidad,
+                key: 'codigo',
+            }
+        },
         privado: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        revancha: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        revancha_cantidad: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: false,
+        },
+        tiempo_ring: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: false,
+        },
+        cantidad_preguntas: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: false,
+        },
+        retroceder: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        pistas: {
             type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false,
