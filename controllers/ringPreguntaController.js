@@ -22,7 +22,6 @@ exports.crearRingPregunta = async(req, res) => {
         });
 
         if (ring_pregunta.length > 0) {
-            console.log('La pregunta ya está asignada al ring');
             return res.status(400).json({
                 msg: 'La pregunta ya está asignada al ring'
             });
@@ -149,7 +148,6 @@ exports.eliminarRingPregunta = async(req, res) => {
         });
 
         if (ring_pregunta.length === 0) {
-            console.log('La pregunta no se encuentra asignada al ring');
             return res.status(400).json({
                 msg: 'La pregunta no se encuentra asignada al ring'
             });

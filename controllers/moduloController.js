@@ -1,4 +1,4 @@
-const { Modulo, Unidad, NivelAcademico, ModuloContenido } = require('../config/db');
+const { Modulo, Unidad, PreguntaModulo, ModuloContenido } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -7,7 +7,7 @@ exports.crearModulo = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -17,7 +17,6 @@ exports.crearModulo = async(req, res) => {
 
         let modulo = await Modulo.findByPk(codigo);
         if (modulo) {
-            console.log('El modulo ya existe');
             return res.status(400).json({
                 msg: 'El modulo ya existe'
             });
@@ -25,7 +24,6 @@ exports.crearModulo = async(req, res) => {
 
         let unidad = await Unidad.findByPk(codigo_unidad);
         if (!unidad) {
-            console.log('El codigo unidad ingresado no es válido');
             return res.status(400).json({
                 msg: 'El codigo unidad ingresado no es válido'
             });
@@ -46,7 +44,6 @@ exports.crearModulo = async(req, res) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
-
 
 }
 
@@ -82,7 +79,6 @@ exports.listarModulos = async(req, res, next) => {
 
 exports.listarModulosDisponiblesCurso = async(req, res, next) => {
 
-    console.log('listarModulosDisponiblesCurso');
     try {
 
         setTimeout( async() => {
@@ -143,6 +139,11 @@ exports.listarModulosDisponiblesCurso = async(req, res, next) => {
 
 exports.actualizarModulo = async(req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try {
 
         const { codigo, descripcion, codigo_unidad, inactivo } = req.body;
@@ -198,14 +199,29 @@ exports.eliminarModulo = async(req, res) => {
             })
         }
 
-        let contenidos_modulo = await ModuloContenido.findAll({
+        //revisa si tiene contenidos asociados
+        let contenidos_modulo = await ModuloContenido.findOne({
             where:{
                 codigo_modulo : codigo
             }
         })
+        
         if (contenidos_modulo){
             return res.status(404).send({
                 msg: `El modulo ${codigo} tiene contenidos asociados, no se puede eliminar`
+            });
+        }
+
+        //revisa si tiene preguntas asociadas
+        let preguntas_modulo = await PreguntaModulo.findOne({
+            where:{
+                codigo_modulo : codigo
+            }
+        })
+
+        if (preguntas_modulo){
+            return res.status(404).send({
+                msg: `El módulo ${codigo} tiene preguntas asociadas, no se puede eliminar`
             });
         }
 
@@ -289,12 +305,11 @@ exports.modulosUnidad = async(req, res) => {
     }
 }
 
-
-exports.modulosUnidadMateria = async(req, res) => {
+exports.modulosPorDescripcionUnidadyMateria = async(req, res) => {
 
     try {
 
-        let { codigo_unidad, codigo_materia } = req.params;
+        let { codigo_unidad, codigo_materia, descripcion } = req.query;
 
         if(codigo_unidad.trim() === '0'){
             codigo_unidad = ''
@@ -304,7 +319,6 @@ exports.modulosUnidadMateria = async(req, res) => {
             codigo_materia = ''
         }
     
-
         const modulos = await Modulo.findAll({
             include:[{
                 attributes: ['codigo', 'descripcion', 'codigo_materia'],
@@ -312,12 +326,11 @@ exports.modulosUnidadMateria = async(req, res) => {
             }],
             where: {
                 [Op.and]:[
+                    { descripcion: { [Op.like] : `%${descripcion}%`} },
                     { codigo_unidad: { [Op.like] : `%${codigo_unidad}%`} },
-                    {'$unidad.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } },
-                    {inactivo: false}
+                    {'$unidad.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } },                    
                 ]
             },
-
             order: [
                 ['descripcion', 'ASC']
             ]
@@ -340,8 +353,6 @@ exports.modulosUnidadMateria = async(req, res) => {
         });
     }
 }
-
-
 
 exports.busquedaModulos = async(req, res) => {
 

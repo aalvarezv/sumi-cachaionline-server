@@ -26,7 +26,6 @@ exports.crearCurso = async(req, res) => {
         });
 
         if (curso.length > 0) {
-            console.log('El curso ya existe ', curso);
             return res.status(400).json({
                 msg: 'El curso ya existe'
             });
@@ -35,7 +34,6 @@ exports.crearCurso = async(req, res) => {
         //verifica que la institución sea valida.
         let institucion = await Institucion.findByPk(codigo_institucion);
         if (!institucion) {
-            console.log('La institución ingresada no es válida');
             return res.status(400).json({
                 msg: 'La institución ingresada no es válida'
             });
@@ -44,7 +42,6 @@ exports.crearCurso = async(req, res) => {
         //verifica que el nivel academico sea válido.
         let nivel_academico = await NivelAcademico.findByPk(codigo_nivel_academico);
         if (!nivel_academico) {
-            console.log('El nivel academico ingresado no es válido');
             return res.status(400).json({
                 msg: 'El nivel academico ingresado no es válido'
             });
@@ -113,7 +110,6 @@ exports.actualizarCurso = async(req, res) => {
         //verifica que la institución sea valida.
         let institucion = await Institucion.findByPk(codigo_institucion);
         if (!institucion) {
-            console.log('La institución ingresada no es válida');
             return res.status(400).json({
                 msg: 'La institución ingresada no es válida'
             });

@@ -22,7 +22,6 @@ exports.crearPreguntaModulo = async(req, res) => {
         });
 
         if (pregunta_modulo.length > 0) {
-            console.log('La pregunta ya está asignada al modulo');
             return res.status(400).json({
                 msg: 'La pregunta ya está asignada al modulo'
             });
@@ -87,7 +86,6 @@ exports.eliminarPreguntaModulo = async(req, res) => {
         });
 
         if (pregunta_modulo.length === 0) {
-            console.log('El módulo no se encuentra asignado a la pregunta');
             return res.status(400).json({
                 msg: 'El módulo no se encuentra asignado a la pregunta'
             });

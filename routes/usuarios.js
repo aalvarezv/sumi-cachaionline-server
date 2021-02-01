@@ -7,14 +7,11 @@ const { body, check, query } = require('express-validator');
 const {crearUsuario, listarUsuarios, actualizarUsuario, listarUsuariosNivelAcademico,
        eliminarUsuario, datosUsuario, busquedaUsuarios, listarUsuariosInscritosDisponiblesCurso} = require('../controllers/usuarioController');
 
-router.post('/crear', 
-[
-    check('rut').not().isEmpty().withMessage('El rut es obligatorio.'),
-    body('rut').if(body('rut').exists()).isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
+router.post('/crear', [
+    check('rut', 'El rut es obligatorio.').notEmpty().isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
+    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),
+    check('email', 'El email es obligatorio.').notEmpty().isEmail().withMessage('No es un email válido.'),
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
-    check('email').not().isEmpty().withMessage('El email es obligatorio.'),
-    body('email').if(body('email').exists()).isEmail().withMessage('No es un email válido.'),
-    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.')
 ], crearUsuario);
 
 router.get('/listar', auth, listarUsuarios, paginateResults);
@@ -55,18 +52,15 @@ router.get('/listar-inscritos-disponibles-curso', auth,
 
 ], listarUsuariosInscritosDisponiblesCurso, paginateResults);
 
-router.put('/actualizar', auth, 
-[
-    check('rut').not().isEmpty().withMessage('El rut es obligatorio.'),
-    body('rut').if(body('rut').exists()).isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
+router.put('/actualizar', auth, [
+    check('rut', 'El rut es obligatorio.').notEmpty().isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
+    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),
+    check('email', 'El email es obligatorio.').notEmpty().isEmail().withMessage('No es un email válido.'),
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
-    check('email').not().isEmpty().withMessage('El email es obligatorio.'),
-    body('email').if(body('email').exists()).isEmail().withMessage('No es un email válido.'),
-    check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.')
 ], actualizarUsuario);
 
 router.delete('/eliminar/:rut', auth, eliminarUsuario);
 router.get('/datos/:rut', auth, datosUsuario);
-router.get('/busqueda/:filtro', auth, busquedaUsuarios);
+router.get('/busqueda', auth, busquedaUsuarios);
 
 module.exports = router;

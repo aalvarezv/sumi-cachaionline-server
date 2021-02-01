@@ -24,7 +24,6 @@ exports.crearUsuarioInstitucionRol = async(req, res, next) => {
         });
 
         if (usuario_instituciones_roles.length > 0) {
-            console.log('El usuario ya está asignado a la institución y rol.');
             return res.status(400).json({
                 msg: 'El usuario ya está asignado a la institución y rol.'
             });

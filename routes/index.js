@@ -3,14 +3,15 @@ const app = express();
  
 app.use('/api/auth/', require('./auth'));
 app.use('/api/usuarios/', require('./usuarios'));
+
 app.use('/api/tipo-juegos', require('./tipoJuegos'));
 app.use('/api/materias/', require('./materias'));
 app.use('/api/unidades/', require('./unidades'));
 app.use('/api/modulos/', require('./modulos'));
-app.use('/api/modulo-contenidos/', require('./moduloContenidos'));
-app.use('/api/modulo-contenido-temas/', require('./moduloContenidoTemas'));
-app.use('/api/modulo-contenido-tema-conceptos', require('./moduloContenidoTemaConceptos'));
-app.use('/api/alternativas/', require('./alternativas'));
+app.use('/api/contenidos/', require('./moduloContenidos'));
+app.use('/api/temas/', require('./moduloContenidoTemas'));
+app.use('/api/conceptos', require('./moduloContenidoTemaConceptos'));
+
 app.use('/api/nivel-academico/', require('./nivelesAcademicos'));
 app.use('/api/preguntas/', require('./preguntas'))
 app.use('/api/roles/', require('./roles'));

@@ -23,7 +23,6 @@ exports.crearModuloCurso = async(req, res) => {
         });
 
         if (curso_modulo.length > 0) {
-            console.log('El módulo ya está asignado al curso');
             return res.status(400).json({
                 msg: 'El módulo ya está asignado al curso'
             });
@@ -69,7 +68,6 @@ exports.eliminarModuloCurso = async(req, res) => {
         });
 
         if (curso_modulo.length === 0) {
-            console.log('El módulo no se encuentra asignado al curso');
             return res.status(400).json({
                 msg: 'El módulo no se encuentra asignado al curso'
             });

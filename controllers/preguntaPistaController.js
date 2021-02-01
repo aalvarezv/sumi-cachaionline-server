@@ -22,7 +22,6 @@ exports.crearPreguntaPista= async(req, res) => {
         });
 
         if (pregunta_pista.length > 0) {
-            console.log('La pregunta ya está asignada a la pista');
             return res.status(400).json({
                 msg: 'La pregunta ya está asignada a la pista'
             });

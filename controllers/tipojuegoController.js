@@ -15,7 +15,6 @@ exports.crearTipoJuego = async(req, res) => {
 
         let tipo_juego = await TipoJuego.findByPk(codigo);
         if (tipo_juego) {
-            console.log('El tipo de juego ya existe');
             return res.status(400).json({
                 msg: 'El tipo de juego ya existe'
             });

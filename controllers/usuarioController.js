@@ -1,4 +1,4 @@
-const { Usuario, Rol, sequelize, Institucion, Curso } = require('../config/db');
+const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol } = require('../config/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
@@ -10,7 +10,7 @@ exports.crearUsuario = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -20,7 +20,6 @@ exports.crearUsuario = async(req, res) => {
         //verifica que el usuario no existe.
         let usuario = await Usuario.findByPk(rut);
         if (usuario) {
-            console.log('El usuario ya existe');
             return res.status(400).json({
                 msg: 'El usuario ya existe'
             });
@@ -94,11 +93,9 @@ exports.listarUsuarios = async(req, res, next) => {
 exports.listarUsuariosNivelAcademico = async(req, res, next) => {
 
     try {
-            const { filtro } = req.query;
 
-            const usuarios = await Usuario.findAll();
-
-                res.json({usuarios})   
+        const usuarios = await Usuario.findAll();
+        res.json({usuarios})   
 
     }catch (error) {
         console.log(error);
@@ -109,16 +106,13 @@ exports.listarUsuariosNivelAcademico = async(req, res, next) => {
     
 }
 
-
 exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
-
-    console.log('listarUsuariosInscritosDisponiblesCurso');
 
     try {
 
@@ -204,7 +198,7 @@ exports.actualizarUsuario = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -222,8 +216,7 @@ exports.actualizarUsuario = async(req, res) => {
         //compara la clave recibida con la almacenada en la base de datos
         //si son distintas entonces el usuario la actualizó y aplica el salt a la nueva clave
         if (clave !== usuario.clave) {
-            console.log('Actualiza la clave')
-                //genero un hash para el password
+            //genero un hash para el password
             let salt = bcrypt.genSaltSync(10);
             clave = bcrypt.hashSync(clave, salt);
         }
@@ -266,6 +259,32 @@ exports.eliminarUsuario = async(req, res) => {
                 msg: `El usuario ${rut} no existe`
             })
         }
+
+        //verifica que el usuario no esté asociado a un curso.
+        let usuario_rol_curso = await CursoUsuarioRol.findOne({
+            where: {
+                rut_usuario: rut,
+            }
+        })
+
+        if (usuario_rol_curso) {
+            return res.status(404).send({
+                msg: `El usuario está inscrito en un curso, no se puede eliminar`
+            })
+        }
+
+        let usuario_institucion_rol = await UsuarioInstitucionRol.findOne({
+            where: {
+                rut_usuario: rut,
+            }
+        })
+
+        if (usuario_institucion_rol) {
+            return res.status(404).send({
+                msg: `El usuario tiene roles asignados, no se puede eliminar`
+            })
+        }
+
         //elimino el registro.
         usuario = await Usuario.destroy({
             where: {
@@ -320,12 +339,15 @@ exports.busquedaUsuarios = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.params
+        const { filtro } = req.query
         //consulta por el usuario
         const usuarios = await Usuario.findAll({
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
                 [Op.like]: `%${filtro}%`
-            })
+            }),
+            order: [
+                ['nombre', 'ASC'],
+            ] 
         });
 
         //envia la información del usuario

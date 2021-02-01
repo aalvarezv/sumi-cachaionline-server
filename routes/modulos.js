@@ -5,16 +5,14 @@ const paginateResults = require('../middleware/paginateResults');
 const { check, query } = require('express-validator');
 
 const {crearModulo,listarModulos, listarModulosDisponiblesCurso,  actualizarModulo, 
-       eliminarModulo, datosModulo, busquedaModulos, modulosUnidad, modulosUnidadMateria} = require('../controllers/moduloController');
+       eliminarModulo, datosModulo, busquedaModulos, modulosUnidad, modulosPorDescripcionUnidadyMateria} = require('../controllers/moduloController');
 
 
-router.post('/crear', auth, 
-[
-    check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
-    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatoria, verifique'),
-    check('codigo_unidad').not().isEmpty().withMessage('El codigo unidad es obligatorio, verifique'),
-]
-,crearModulo);
+router.post('/crear', auth, [
+    check('codigo').not().isEmpty().withMessage('El código es obligatorio.'),
+    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'),
+    check('codigo_unidad').not().isEmpty().withMessage('El código unidad es obligatorio.').not().equals("0").withMessage('El código unidad es obligatorio.'),
+],crearModulo);
 
 router.get('/listar', auth, listarModulos, paginateResults);
 
@@ -44,17 +42,16 @@ router.get('/listar-disponibles-curso', auth,
     })
 ], listarModulosDisponiblesCurso, paginateResults);
 
-router.put('/actualizar', auth,
-[
-    check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
-    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatoria, verifique'),
-    check('codigo_unidad').not().isEmpty().withMessage('El codigo unidad es obligatorio, verifique'),
-],
-actualizarModulo);
+router.put('/actualizar', auth, [
+    check('codigo').not().isEmpty().withMessage('El código es obligatorio.'),
+    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'),
+    check('codigo_unidad').not().isEmpty().withMessage('El código unidad es obligatorio.'),
+    check('codigo_unidad').not().isEmpty().withMessage('El código unidad es obligatorio.').not().equals("0").withMessage('El código unidad es obligatorio.'),
+], actualizarModulo);
 router.delete('/eliminar/:codigo', auth, eliminarModulo);
 router.get('/datos/:codigo', auth, datosModulo);
 router.get('/unidad/:codigo_unidad', modulosUnidad);
-router.get('/unidad-materia/:codigo_unidad/:codigo_materia', modulosUnidadMateria)
+router.get('/busqueda/descripcion-unidad-materia/', modulosPorDescripcionUnidadyMateria)
 router.get('/busqueda/:filtro', auth, busquedaModulos);
 
 module.exports = router;

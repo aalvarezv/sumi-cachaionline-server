@@ -9,7 +9,6 @@ const autenticarUsuario = async (req, res) => {
         //revisa que el usuario existe
         let usuario = await Usuario.findByPk(rut);
         if (!usuario) {
-            console.log('El usuario no existe')
             return res.status(400).json({
                 msg: 'El usuario no existe'
             })

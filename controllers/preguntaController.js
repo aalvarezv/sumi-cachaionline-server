@@ -592,7 +592,6 @@ exports.datosPreguntas = async(req, res) => {
 
     try {
         const { codigo } = req.params
-        console.log(new Date());
         let pregunta = await Pregunta.findOne({
             attributes:[
                 'codigo',

@@ -1,4 +1,4 @@
-const { Modalidad, } = require ('../config/db');
+const { Modalidad, TipoJuegoModalidad } = require ('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -36,20 +36,30 @@ exports.crearModalidad = async(req, res) => {
     }
 }
 
-exports.listarModalidades = async(req, res) => {
+exports.listarModalidadesTipoJuego = async(req, res) => {
 
     try {
-        const modalidades = await Modalidad.findAll({
-            where: {
-                inactivo: false
+        console.log('LLAMA AQUI')
+        const {codigo_tipo_juego} = req.params;
+
+        const modalidadesTipoJuego = await TipoJuegoModalidad.findAll({
+            include:[{
+                attributes: ['codigo', 'descripcion'],
+                model: Modalidad,
+            }],
+            where:{
+                [Op.and]:[
+                    {codigo_tipo_juego: codigo_tipo_juego,},
+                    {'$modalidad.inactivo$': { [Op.eq]: false } },
+                ]
             },
             order: [
-                ['codigo', 'ASC'],
+                ['modalidad','descripcion', 'ASC'],
             ]
-        }); 
+        })
 
         res.json({
-            modalidades
+            modalidadesTipoJuego
         });
 
     } catch (error) {

@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Usuario) =>{
+module.exports = (sequelize, type) =>{
 
     return sequelize.define('institucion', {
         
@@ -10,24 +10,6 @@ module.exports = (sequelize, type, Usuario) =>{
         descripcion:{
             type: type.STRING,
             allowNull: false
-        },
-        rut_usuario_rector: {
-            type: type.STRING(12),
-            primaryKey: true,
-            allowNull: false,
-            references: {
-                model: Usuario,
-                key: 'rut'
-            }
-        },
-        rut_usuario_administrador: {
-            type: type.STRING(12),
-            primaryKey: true,
-            allowNull: false,
-            references: {
-                model: Usuario,
-                key: 'rut'
-            }
         },
         direccion:{
             type: type.STRING,

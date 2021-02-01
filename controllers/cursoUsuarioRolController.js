@@ -23,7 +23,6 @@ exports.crearUsuarioCursoRol = async(req, res) => {
         });
 
         if (curso_usuario.length > 0) {
-            console.log('El usuario ya está asignado al curso');
             return res.status(400).json({
                 msg: 'El usuario ya está asignado al curos'
             });
@@ -63,7 +62,6 @@ exports.eliminarUsuarioCursoRol = async(req, res) => {
         });
 
         if (curso_usuario.length === 0) {
-            console.log('El usuario no se encuentra asignado al curso');
             return res.status(400).json({
                 msg: 'El usuario no se encuentra asignado al curso'
             });

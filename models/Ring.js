@@ -16,14 +16,6 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             type: type.TEXT('long'),
             allowNull: false,
         },
-        fecha_hora_inicio: {
-            type: type.DATE,
-            allowNull: false,
-        },
-        fecha_hora_fin: {
-            type: type.DATE,
-            allowNull: false,
-        },
         rut_usuario_creador: {
             type: type.STRING(12),
             allowNull: false,
@@ -31,14 +23,6 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
                 model: Usuario,
                 key: 'rut',
             }
-        },
-        cantidad_usuarios_minimo: {
-            type: type.INTEGER,
-            allowNull: false,
-        },
-        cantidad_usuarios_maximo: {
-            type: type.INTEGER,
-            allowNull: false,
         },
         codigo_institucion:{
             type: type.STRING(128),
@@ -64,15 +48,6 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
                 key: 'codigo',
             }
         },
-        tipo_duracion_pregunta: {
-            type: type.INTEGER,
-            allowNull: false,
-        },
-        duracion_pregunta: {
-            type: type.INTEGER,
-            allowNull: false,
-            defaultValue: 0,
-        },
         codigo_tipo_juego: {
             type: type.STRING(128),
             allowNull: false,
@@ -89,10 +64,22 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
                 key: 'codigo',
             }
         },
-        privado: {
-            type: type.BOOLEAN,
+        fecha_hora_inicio: {
+            type: type.DATE,
             allowNull: false,
-            defaultValue: false,
+        },
+        fecha_hora_fin: {
+            type: type.DATE,
+            allowNull: false,
+        },
+        tipo_duracion_pregunta: {
+            type: type.INTEGER,
+            allowNull: false,
+        },
+        duracion_pregunta: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
         },
         revancha: {
             type: type.BOOLEAN,
@@ -102,17 +89,7 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
         revancha_cantidad: {
             type: type.INTEGER,
             allowNull: false,
-            defaultValue: false,
-        },
-        tiempo_ring: {
-            type: type.INTEGER,
-            allowNull: false,
-            defaultValue: false,
-        },
-        cantidad_preguntas: {
-            type: type.INTEGER,
-            allowNull: false,
-            defaultValue: false,
+            defaultValue: 0,
         },
         retroceder: {
             type: type.BOOLEAN,
@@ -120,6 +97,11 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             defaultValue: false,
         },
         pistas: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        privado: {
             type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false,

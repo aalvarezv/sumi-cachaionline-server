@@ -1,4 +1,4 @@
-const { Ring, Usuario, NivelAcademico, sequelize } = require('../config/db');
+const { Ring, Usuario, NivelAcademico, sequelize, RingPregunta, RingUsuario, RingUsuarioRespuesta } = require('../config/db');
 const { Op } = require('sequelize');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
@@ -6,45 +6,38 @@ const { validationResult } = require('express-validator');
 exports.crearRing = async(req, res) => {
 
     //si hay errores de la validación
-    console.log(req.body);
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
  
     try {
-
+        
         const {
             codigo,
             nombre,
             descripcion,
-            fecha_hora_inicio,
-            fecha_hora_fin,
             rut_usuario_creador,
-            privado,
-            codigo_tipo_juego,
-            cantidad_usuarios_minimo,
-            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
+            codigo_tipo_juego,
+            codigo_modalidad,
+            fecha_hora_inicio,
+            fecha_hora_fin,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            codigo_modalidad, 
             revancha,
             revancha_cantidad,
-            tiempo_ring,
-            cantidad_preguntas,
             retroceder,
-            pistas,           
+            pistas,
+            privado,
             inactivo,
         } = req.body;
 
         //verifica que el ring no existe.
         let ring = await Ring.findByPk(codigo);
         if (ring) {
-            console.log('El ring ya existe');
             return res.status(400).json({
                 msg: 'El ring ya existe'
             });
@@ -53,42 +46,38 @@ exports.crearRing = async(req, res) => {
         //verifica que el usuario sea válido.
         let usuario = await Usuario.findByPk(rut_usuario_creador);
         if (!usuario) {
-            console.log('El usuario ingresado no es válido');
             return res.status(400).json({
                 msg: 'El usuario ingresado no es válido'
             });
         }
-
 
         //Guarda el nuevo ring
         ring = await Ring.create({
             codigo,
             nombre,
             descripcion,
-            fecha_hora_inicio,
-            fecha_hora_fin,
             rut_usuario_creador,
-            privado,
-            codigo_tipo_juego,
-            cantidad_usuarios_minimo,
-            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
+            codigo_tipo_juego,
+            codigo_modalidad,
+            fecha_hora_inicio,
+            fecha_hora_fin,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            codigo_modalidad, 
             revancha,
             revancha_cantidad,
-            tiempo_ring,
-            cantidad_preguntas,
             retroceder,
-            pistas,           
+            pistas,
+            privado,
             inactivo,
         }); 
 
         //envía la respuesta
-        res.json(ring);
+        res.json({
+            ring
+        });
 
     } catch (error) {
         console.log(error);
@@ -96,7 +85,6 @@ exports.crearRing = async(req, res) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
-
 
 }
 
@@ -173,7 +161,7 @@ exports.actualizarRing = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -182,25 +170,21 @@ exports.actualizarRing = async(req, res) => {
             codigo,
             nombre,
             descripcion,
-            fecha_hora_inicio,
-            fecha_hora_fin,
             rut_usuario_creador,
-            privado,
-            codigo_tipo_juego,
-            cantidad_usuarios_minimo,
-            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
+            codigo_tipo_juego,
+            codigo_modalidad,
+            fecha_hora_inicio,
+            fecha_hora_fin,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            codigo_modalidad, 
             revancha,
             revancha_cantidad,
-            tiempo_ring,
-            cantidad_preguntas,
             retroceder,
-            pistas,           
+            pistas,
+            privado,
             inactivo,
         } = req.body;
 
@@ -225,33 +209,31 @@ exports.actualizarRing = async(req, res) => {
             codigo,
             nombre,
             descripcion,
-            fecha_hora_inicio,
-            fecha_hora_fin,
             rut_usuario_creador,
-            privado,
-            codigo_tipo_juego,
-            cantidad_usuarios_minimo,
-            cantidad_usuarios_maximo,
             codigo_institucion,
             codigo_nivel_academico,
             codigo_materia,
+            codigo_tipo_juego,
+            codigo_modalidad,
+            fecha_hora_inicio,
+            fecha_hora_fin,
             tipo_duracion_pregunta,
             duracion_pregunta,
-            codigo_modalidad,
             revancha,
             revancha_cantidad,
-            tiempo_ring,
-            cantidad_preguntas,
             retroceder,
-            pistas,           
-            inactivo
+            pistas,
+            privado,
+            inactivo,
         }, {
             where: {
                 codigo
             }
         })
 
-        res.json(ring);
+        res.json({
+            ring
+        });
 
     } catch (error) {
         console.log(error);
@@ -268,13 +250,52 @@ exports.eliminarRing = async(req, res) => {
     try {
         //obtengo el codigo del request
         const { codigo } = req.params;
-        //verifica que el ring a actualizar existe.
+        //verifica que el ring a eliminar existe.
         let ring = await Ring.findByPk(codigo);
         if (!ring) {
             return res.status(404).send({
                 msg: `El ring ${codigo} no existe`
             })
         }
+
+        //revisa si tiene preguntas asociadas.
+        const ringPregunta = await RingPregunta.findOne({
+            where:{
+                codigo_ring: codigo
+            }
+        })
+
+        if(ringPregunta){
+            return res.status(404).send({
+                msg: `El ring ${codigo} tiene preguntas asociadas, no se puede eliminar`
+            })
+        }
+        //revisa si tiene usuarios asociados.
+        const ringUsuario = await RingUsuario.findOne({
+            where: {
+                codigo_ring: codigo
+            }
+        })
+
+        if(ringUsuario){
+            return res.status(404).send({
+                msg: `El ring ${codigo} tiene usuarios asociados, no se puede eliminar`
+            })
+        }
+
+        //revisa si tiene respuestas de la competencia registradas.
+        const ringResultados = await RingUsuarioRespuesta.findOne({
+            where: {
+                codigo_ring: codigo
+            }
+        })
+
+        if(ringResultados){
+            return res.status(404).send({
+                msg: `El ring ${codigo} tiene resultados registrados, no se puede eliminar`
+            })
+        }
+
         //elimino el registro.
         ring = await Ring.destroy({
             where: {

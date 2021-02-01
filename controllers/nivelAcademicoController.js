@@ -3,12 +3,11 @@ const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
 
-
 exports.crearNivelAcademico = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -17,7 +16,6 @@ exports.crearNivelAcademico = async(req, res) => {
 
         let nivelAcademico = await NivelAcademico.findByPk(codigo);
         if (nivelAcademico) {
-            console.log('El nivel academico ya existe');
             return res.status(400).json({
                 msg: 'El nivel academico ya existe'
             });
@@ -70,7 +68,7 @@ exports.actualizarNivelAcademico = async(req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -116,6 +114,19 @@ exports.eliminarNivelAcademico = async(req, res) => {
         if (!nivelAcademico) {
             return res.status(404).send({
                 msg: `El nivel academico ${codigo} no existe`
+            });
+        }
+
+        //verifica que no se encuentre asociado a un curso.
+        let nivel_academico_cursos = await Curso.findOne({
+            where: {
+                codigo_nivel_academico: codigo
+            }
+        })
+
+        if (nivel_academico_cursos) {
+            return res.status(404).send({
+                msg: 'El nivel academico tiene cursos asociados, no se puede eliminar'
             });
         }
 
@@ -166,12 +177,14 @@ exports.busquedaNivelesAcademicos = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.params;
+        const { filtro } = req.query;
             //consulta por el usuario
         const nivelesAcademicos = await NivelAcademico.findAll({
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
-                [Op.like]: `%${filtro}%`
-            })
+            where: 
+                Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {[Op.like]: `%${filtro}%`}),
+                order: [
+                    ['nivel', 'ASC'],
+                ]
         });
 
         //envia la información del usuario

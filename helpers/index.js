@@ -228,7 +228,7 @@ const pdfToImage = (archivo_pdf, archivo_imagen) => {
         }
         //Comando para convertir PDF a IMAGEN.
         let comando = `convert -density 100 "${archivo_pdf}" -resize 2000x2500 "${archivo_imagen}"`;
-        console.log(comando);
+
         exec(comando, (error, stdout, stderr) => {
             if (error) {
                 reject({

@@ -15,7 +15,6 @@ exports.crearMateria = async(req, res) => {
 
         let materia = await Materia.findByPk(codigo);
         if (materia) {
-            console.log('La materia ya existe');
             return res.status(400).json({
                 msg: 'La materia ya existe'
             });
@@ -117,11 +116,12 @@ exports.eliminarMaterias = async(req, res) => {
             });
         }
 
-        let unidades_materia = await Unidad.findAll({
+        let unidades_materia = await Unidad.findOne({
             where: {
                 codigo_materia : codigo
             }
         })
+      
         if (unidades_materia){
             return res.status(404).send({
                 msg: `La materia ${codigo} tiene unidades asociadas, no se puede eliminar`
@@ -174,12 +174,15 @@ exports.busquedaMaterias = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.params
+        const { filtro } = req.query
             //consulta por la materia
         const materias = await Materia.findAll({
             where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("nombre")), {
                 [Op.like]: `%${filtro}%`
-            })
+            }),
+            order: [
+                ['nombre', 'ASC'],
+            ] 
         });
 
         //envia la información de la materia

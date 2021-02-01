@@ -1,30 +1,26 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { check, query } = require('express-validator');
-const { crearModuloContenidoTemaConepto, listarModuloContenidoTemaConceptos, 
-    actualizarModuloContenidoTemaConcepto,eliminarModuloContenidoTemaConcepto, conceptosTemaContenidoModuloUnidadMateria }
+const { check } = require('express-validator');
+const { crearModuloContenidoTemaConcepto, listarModuloContenidoTemaConceptos,  actualizarModuloContenidoTemaConcepto, eliminarModuloContenidoTemaConcepto, conceptosPorDescripcionTemaContenidoModuloUnidadyMateria }
        = require('../controllers/moduloContenidoTemaConceptoController');
-const { listarPreguntaModulos } = require('../controllers/preguntaModuloController');
-
-router.post('/crear', auth, 
-[
+       
+router.post('/crear', auth, [
     check('codigo').not().isEmpty().withMessage('El código es obligatorio.'),
-    check('codigo_modulo_contenido_tema').not().isEmpty().withMessage('El código tema es obligatorio.')
-], crearModuloContenidoTemaConepto, listarPreguntaModulos);
+    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'),
+    check('codigo_modulo_contenido_tema').not().isEmpty().withMessage('El código tema es obligatorio.').not().equals("0").withMessage('El código tema es obligatorio.'),
+], crearModuloContenidoTemaConcepto);
 
 router.get('/listar/:codigo_modulo_contenido_tema', auth, listarModuloContenidoTemaConceptos);
 
-router.put('/actualizar', auth, 
-[
-    check('codigo').not().isEmpty().withMessage('El codigo es obligatorio, verifique'),
-    check('descripcion').not().isEmpty().withMessage('La descripcion es obligatoria, verifique'),
-    check('codigo_modulo_contenido_tema').not().isEmpty().withMessage('El codigo modulo es obligatorio, verifique'),
-]
-,actualizarModuloContenidoTemaConcepto);
+router.put('/actualizar', auth, [
+    check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
+    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'),
+    check('codigo_modulo_contenido_tema').not().isEmpty().withMessage('El código tema es obligatorio.').not().equals("0").withMessage('El código tema es obligatorio.'),
+], actualizarModuloContenidoTemaConcepto);
 
 router.delete('/eliminar/:codigo', auth, eliminarModuloContenidoTemaConcepto);
 
-router.get('/conceptos/:codigo_modulo_contenido_tema/:codigo_modulo_contenido/:codigo_modulo/:codigo_unidad/:codigo_materia', conceptosTemaContenidoModuloUnidadMateria)
+router.get('/busqueda/descripcion-tema-contenido-modulo-unidad-materia/', conceptosPorDescripcionTemaContenidoModuloUnidadyMateria)
 
 module.exports = router;

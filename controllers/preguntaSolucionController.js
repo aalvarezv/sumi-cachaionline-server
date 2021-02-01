@@ -22,7 +22,6 @@ exports.crearPreguntaSolucion= async(req, res) => {
         });
 
         if (pregunta_solucion.length > 0) {
-            console.log('La pregunta ya está asignada a la solución');
             return res.status(400).json({
                 msg: 'La pregunta ya está asignada a la solución'
             });

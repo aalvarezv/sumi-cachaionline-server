@@ -113,14 +113,16 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                 [Op.and]:[
                     {rut_usuario},
                     {'$ring.codigo_institucion$': { [Op.eq]: codigo_institucion } },
-                    sequelize.where( sequelize.col('fecha_hora_inicio'), '<=', new Date() ),
-                    sequelize.where( sequelize.col('fecha_hora_fin'), '>=', new Date() ),
+                    //sequelize.where( sequelize.col('fecha_hora_inicio'), '<=', new Date() ),
+                    //sequelize.where( sequelize.col('fecha_hora_fin'), '>=', new Date() ),
                 ]
             },
             order: [
                 [Ring, 'fecha_hora_fin', 'ASC'],
             ]
         });
+
+        console.log('ENTRA AQUI', rings_usuario)
 
         res.json({
             rings_usuario
@@ -156,7 +158,6 @@ exports.eliminarRingUsuario = async(req, res) => {
         });
 
         if (ring_usuario.length === 0) {
-            console.log('El usuario no se encuentra asignado al ring');
             return res.status(400).json({
                 msg: 'El usuario no se encuentra asignado al ring'
             });

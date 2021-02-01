@@ -1,36 +1,36 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config({ path: './variables.env' });
+const { Sequelize } = require('sequelize')
+require('dotenv').config({ path: './variables.env' })
 
-const ConfiguracionModel = require('../models/Configuracion');
-const RolModel = require('../models/Rol');
-const UsuarioModel = require('../models/Usuario');
-const ModalidadModel = require('../models/Modalidad');
-const TipoJuegoModel = require ('../models/TipoJuego');
-const InstitucionModel = require('../models/Institucion');
-const UsuarioInstitucionRolModel = require('../models/UsuarioInstitucionRol');
-const NivelAcademicoModel = require('../models/NivelAcademico');
-const CursoModel = require('../models/Curso');
-const MateriaModel = require('../models/Materia');
-const UnidadModel = require('../models/Unidad');
-const ModuloModel = require('../models/Modulo');
-const ModuloContenidoModel = require('../models/ModuloContenido');
-const ModuloContenidoTemaModel = require('../models/ModuloContenidoTema');
-const ModuloContenidoTemaConceptoModel = require('../models/ModuloContenidoTemaConcepto');
-const CursoModuloModel = require('../models/CursoModulo');
-const CursoUsuarioRolModel = require('../models/CursoUsuarioRol');
-const PreguntaModel = require('../models/Pregunta');
-const PreguntaAlternativaModel = require('../models/PreguntaAlternativa');
-const RingModel = require('../models/Ring');
-const RingUsuarioModel = require('../models/RingUsuario');
-const RingPreguntaModel = require('../models/RingPregunta');
-const PreguntaPistaModel = require('../models/PreguntaPista');
-const PreguntaSolucionModel = require('../models/PreguntaSolucion');
-const PreguntaModuloModel = require('../models/PreguntaModulo');
-const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido');
-const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema');
-const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto');
-const RingUsuarioPreguntaModel = require('../models/RingUsuarioRespuesta');
-const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad');
+const ConfiguracionModel = require('../models/Configuracion')
+const RolModel = require('../models/Rol')
+const UsuarioModel = require('../models/Usuario')
+const ModalidadModel = require('../models/Modalidad')
+const TipoJuegoModel = require ('../models/TipoJuego')
+const InstitucionModel = require('../models/Institucion')
+const UsuarioInstitucionRolModel = require('../models/UsuarioInstitucionRol')
+const NivelAcademicoModel = require('../models/NivelAcademico')
+const CursoModel = require('../models/Curso')
+const MateriaModel = require('../models/Materia')
+const UnidadModel = require('../models/Unidad')
+const ModuloModel = require('../models/Modulo')
+const ModuloContenidoModel = require('../models/ModuloContenido')
+const ModuloContenidoTemaModel = require('../models/ModuloContenidoTema')
+const ModuloContenidoTemaConceptoModel = require('../models/ModuloContenidoTemaConcepto')
+const CursoModuloModel = require('../models/CursoModulo')
+const CursoUsuarioRolModel = require('../models/CursoUsuarioRol')
+const PreguntaModel = require('../models/Pregunta')
+const PreguntaAlternativaModel = require('../models/PreguntaAlternativa')
+const RingModel = require('../models/Ring')
+const RingUsuarioModel = require('../models/RingUsuario')
+const RingPreguntaModel = require('../models/RingPregunta')
+const PreguntaPistaModel = require('../models/PreguntaPista')
+const PreguntaSolucionModel = require('../models/PreguntaSolucion')
+const PreguntaModuloModel = require('../models/PreguntaModulo')
+const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido')
+const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema')
+const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto')
+const RingUsuarioPreguntaModel = require('../models/RingUsuarioRespuesta')
+const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad')
 
 
 
@@ -53,99 +53,99 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         typeCast: true
     },
     timezone: '-03:00'
-});
+})
 
 //Crea el modelo
-const Configuracion = ConfiguracionModel(sequelize, Sequelize);
-const Rol = RolModel(sequelize, Sequelize);
-const Usuario = UsuarioModel(sequelize, Sequelize);
-const TipoJuego = TipoJuegoModel(sequelize, Sequelize);
-const Institucion = InstitucionModel(sequelize, Sequelize, Usuario);
-const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize);
-const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico);
-const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, Usuario, Institucion, Rol);
-const Materia = MateriaModel(sequelize, Sequelize);
-const Unidad = UnidadModel(sequelize, Sequelize, Materia);
-const Modulo = ModuloModel(sequelize, Sequelize, Unidad);
-const ModuloContenido = ModuloContenidoModel(sequelize, Sequelize, Modulo);
-const ModuloContenidoTema = ModuloContenidoTemaModel(sequelize, Sequelize, ModuloContenido);
-const ModuloContenidoTemaConcepto = ModuloContenidoTemaConceptoModel(sequelize, Sequelize, ModuloContenidoTema);
+const Configuracion = ConfiguracionModel(sequelize, Sequelize)
+const Rol = RolModel(sequelize, Sequelize)
+const Usuario = UsuarioModel(sequelize, Sequelize)
+const TipoJuego = TipoJuegoModel(sequelize, Sequelize)
+const Institucion = InstitucionModel(sequelize, Sequelize, Usuario)
+const NivelAcademico = NivelAcademicoModel(sequelize, Sequelize)
+const Curso = CursoModel(sequelize, Sequelize, Institucion, NivelAcademico)
+const UsuarioInstitucionRol = UsuarioInstitucionRolModel(sequelize, Sequelize, Usuario, Institucion, Rol)
+const Materia = MateriaModel(sequelize, Sequelize)
+const Unidad = UnidadModel(sequelize, Sequelize, Materia)
+const Modulo = ModuloModel(sequelize, Sequelize, Unidad)
+const ModuloContenido = ModuloContenidoModel(sequelize, Sequelize, Modulo)
+const ModuloContenidoTema = ModuloContenidoTemaModel(sequelize, Sequelize, ModuloContenido)
+const ModuloContenidoTemaConcepto = ModuloContenidoTemaConceptoModel(sequelize, Sequelize, ModuloContenidoTema)
 
-const Modalidad = ModalidadModel(sequelize, Sequelize);
-const TipoJuegoModalidad = TipoJuegoModalidadModel(sequelize, Sequelize, TipoJuego, Modalidad);
-const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo);
-const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol);
-const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario);
-const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta);
-const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion, Modalidad);
-const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario);
-const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta);
-const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta);
-const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta);
-const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo);
-const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido);
-const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema);
-const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto);
-const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta);
+const Modalidad = ModalidadModel(sequelize, Sequelize)
+const TipoJuegoModalidad = TipoJuegoModalidadModel(sequelize, Sequelize, TipoJuego, Modalidad)
+const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo)
+const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol)
+const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario)
+const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta)
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion, Modalidad)
+const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario)
+const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta)
+const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta)
+const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta)
+const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo)
+const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido)
+const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema)
+const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto)
+const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta)
 
 //RELACIONES
-Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' });
-UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' });
-Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion' });
-UsuarioInstitucionRol.belongsTo(Institucion, { foreignKey: 'codigo_institucion' });
-Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol' });
-UsuarioInstitucionRol.belongsTo(Rol, { foreignKey: 'codigo_rol' });
+Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' })
+UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' })
+Institucion.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_institucion' })
+UsuarioInstitucionRol.belongsTo(Institucion, { foreignKey: 'codigo_institucion' })
+Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol' })
+UsuarioInstitucionRol.belongsTo(Rol, { foreignKey: 'codigo_rol' })
 
-Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' });
-Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' });
-Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'});
+Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' })
+Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' })
+Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'})
 
-Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' });
-Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'rut_usuario' });
-Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' });
+Curso.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_curso' })
+Usuario.hasMany(CursoUsuarioRol, { foreignKey: 'rut_usuario' })
+Rol.hasMany(CursoUsuarioRol, { foreignKey: 'codigo_rol' })
 
-Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' });
-Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' });
-ModuloContenido.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
-ModuloContenidoTema.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'});
-ModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'});
+Curso.belongsToMany(Modulo, { through: CursoModulo, foreignKey: 'codigo_curso' })
+Modulo.belongsToMany(Curso, { through: CursoModulo, foreignKey: 'codigo_modulo' })
+ModuloContenido.belongsTo(Modulo, {foreignKey: 'codigo_modulo'})
+ModuloContenidoTema.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'})
+ModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'})
 
-Pregunta.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
-Pregunta.hasMany(PreguntaAlternativa, {foreignKey: 'codigo_pregunta', as : 'pregunta_alternativa'});
-Pregunta.hasMany(PreguntaSolucion, {foreignKey: 'codigo_pregunta', as: 'pregunta_solucion'});
-Pregunta.hasMany(PreguntaPista, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModulo, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModuloContenido, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModuloContenidoTema, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(PreguntaModuloContenidoTemaConcepto, {foreignKey: 'codigo_pregunta'});
-Pregunta.hasMany(RingPregunta, {foreignKey: 'codigo_pregunta'});
+Pregunta.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'})
+Pregunta.hasMany(PreguntaAlternativa, {foreignKey: 'codigo_pregunta', as : 'pregunta_alternativa'})
+Pregunta.hasMany(PreguntaSolucion, {foreignKey: 'codigo_pregunta', as: 'pregunta_solucion'})
+Pregunta.hasMany(PreguntaPista, {foreignKey: 'codigo_pregunta'})
+Pregunta.hasMany(PreguntaModulo, {foreignKey: 'codigo_pregunta'})
+Pregunta.hasMany(PreguntaModuloContenido, {foreignKey: 'codigo_pregunta'})
+Pregunta.hasMany(PreguntaModuloContenidoTema, {foreignKey: 'codigo_pregunta'})
+Pregunta.hasMany(PreguntaModuloContenidoTemaConcepto, {foreignKey: 'codigo_pregunta'})
+Pregunta.hasMany(RingPregunta, {foreignKey: 'codigo_pregunta'})
 
-PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'});
-PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'});
-PreguntaModuloContenidoTema.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'});
-PreguntaModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTemaConcepto, {foreignKey: 'codigo_modulo_contenido_tema_concepto'});
+PreguntaModulo.belongsTo(Modulo, {foreignKey: 'codigo_modulo'})
+PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_contenido'})
+PreguntaModuloContenidoTema.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'})
+PreguntaModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTemaConcepto, {foreignKey: 'codigo_modulo_contenido_tema_concepto'})
 
 
-Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'});
+Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'})
 
-Ring.belongsTo(NivelAcademico,  {foreignKey: 'codigo_nivel_academico'});
-Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'});
+Ring.belongsTo(NivelAcademico,  {foreignKey: 'codigo_nivel_academico'})
+Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'})
 
-RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'});
-RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'});
+RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'})
+RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'})
 
-CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'});
-CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'});
+CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'})
+CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'})
 
-TipoJuegoModalidad.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego'});
-TipoJuegoModalidad.belongsTo(Modalidad, {foreignKey: 'codigo_modalidad'});
+TipoJuegoModalidad.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego'})
+TipoJuegoModalidad.belongsTo(Modalidad, {foreignKey: 'codigo_modalidad'})
 
 
 sequelize.sync({ force: false }).then(async() => {
 
         try {
-            console.log('**** CONECTADO A LA BASE DE DATOS ****');
-            const configuraciones = await Configuracion.bulkCreate([{
+            console.log('**** CONECTADO A LA BASE DE DATOS ****')
+            await Configuracion.bulkCreate([{
                 seccion: 'PREGUNTAS',
                 clave: 'DIR',
                 valor: '/Users/alanalvarez/Documents/cachaionline/preguntas/'
@@ -155,10 +155,30 @@ sequelize.sync({ force: false }).then(async() => {
                 clave: 'DIR',
                 valor: '/Users/alanalvarez/Documents/TEMP/'
             }
-            ]);
-            console.log('CONFIGURACIONES INSERTADAS');
+            ])
 
-            const roles = await Rol.bulkCreate([{
+            await Institucion.bulkCreate([{
+                codigo: '1',
+                descripcion: 'CLAUDIO MATTE',
+                direccion: '',
+                email: '',
+                telefono: 0,
+                website: '',
+                logo: ''
+            }, {
+                codigo: '2',
+                descripcion: 'COLEGIO MANANTIAL',
+                direccion: '',
+                email: '',
+                telefono: 0,
+                website: '',
+                logo: ''
+            }])
+            console.log('INSTITUCIONES INSERTADAS')
+
+            console.log('CONFIGURACIONES INSERTADAS')
+
+            await Rol.bulkCreate([{
                     codigo: '1',
                     descripcion: 'ADMINISTRADOR SISTEMA',
                     ver_menu_administrar: true,
@@ -240,10 +260,10 @@ sequelize.sync({ force: false }).then(async() => {
                     ver_menu_rings: true,
                 }
 
-            ]);
-            console.log('ROLES INSERTADOS');
+            ])
+            console.log('ROLES INSERTADOS')
 
-            const usuarios = await Usuario.bulkCreate([{
+            await Usuario.bulkCreate([{
                 rut: 'SYSTEM',
                 clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
                 nombre: 'SYSTEM',
@@ -299,10 +319,18 @@ sequelize.sync({ force: false }).then(async() => {
                 telefono: '12345633',
                 codigo_rol: '5',
                 imagen: ''
-            }]);
-            console.log('USUARIOS INSERTADOS');
+            }])
+            console.log('USUARIOS INSERTADOS')
 
-            const niveles = await NivelAcademico.bulkCreate([{
+            await UsuarioInstitucionRol.bulkCreate([{
+                codigo: '1',
+                rut_usuario: '162323695',
+                codigo_institucion: '1',
+                codigo_rol: '1'
+            }])
+            console.log('USUARIOS INSTITUCIÓN ROL')
+
+            await NivelAcademico.bulkCreate([{
                 codigo: '1',
                 descripcion: 'PRIMERO MEDIO',
                 nivel: 1
@@ -319,9 +347,9 @@ sequelize.sync({ force: false }).then(async() => {
                 descripcion: 'CUARTO MEDIO',
                 nivel: 4
             }])
-            console.log('NIVELES ACADEMICOS INSERTADOS');
+            console.log('NIVELES ACADEMICOS INSERTADOS')
 
-            const materias = await Materia.bulkCreate([{
+            await Materia.bulkCreate([{
                 codigo: 'MAT',
                 nombre: 'MATEMÁTICAS',
                 descripcion: 'Las matemáticas son la ciencia de los números y los cálculos. Desde la antigüedad, el hombre utiliza las matemáticas para hacer la vida más fácil y organizar la sociedad. La matemática fue utilizada por los egipcios en la construcción de las pirámides, presas, canales de riego y estudios de astronomía. Los antiguos griegos también desarrollaron varios conceptos matemáticos.',
@@ -337,34 +365,13 @@ sequelize.sync({ force: false }).then(async() => {
                 nombre: 'LENGUAJE Y COMUNICACIÓN',
                 descripcion: 'El lenguaje oral constituye el grado más alto de evolución lingüística, alcanzando únicamente por el ser humano. Es utilizado como instrumento de comunicación, representación y de relación social y es de vital importancia para el desarrollo cognitivo, social y afectivo del individuo, de aquí, el papel primordial que el lenguaje oral tiene dentro de la nueva legislación del sistema educativo y más concretamente en la definición de competencia de comunicación lingüística.',
                 imagen: 'http://localhost/materias/lenguaje_comunicacion.jpg'
-            }]);
-            console.log('MATERIAS INSERTADAS');
+            }])
+            console.log('MATERIAS INSERTADAS')
             
 
-            const instituciones = await Institucion.bulkCreate([{
-                codigo: '1',
-                descripcion: 'CLAUDIO MATTE',
-                rut_usuario_rector: '18380233K',
-                rut_usuario_administrador: '241568628',
-                direccion: '',
-                email: '',
-                telefono: 0,
-                website: '',
-                logo: ''
-            }, {
-                codigo: '2',
-                descripcion: 'COLEGIO MANANTIAL',
-                rut_usuario_rector: '18380233K',
-                rut_usuario_administrador: '241568628',
-                direccion: '',
-                email: '',
-                telefono: 0,
-                website: '',
-                logo: ''
-            }])
-            console.log('INSTITUCIONES INSERTADAS');
+            
 
-            const cursos = await Curso.bulkCreate([{
+            await Curso.bulkCreate([{
                 codigo: '1',
                 letra: 'A',
                 codigo_institucion: '1',
@@ -384,19 +391,22 @@ sequelize.sync({ force: false }).then(async() => {
                 letra: 'D',
                 codigo_institucion: '1',
                 codigo_nivel_academico: '4'
-            }]);
-            console.log('CURSOS INSERTADOS');
+            }])
+            console.log('CURSOS INSERTADOS')
 
-            const tipo_juego = await TipoJuego.bulkCreate([{
+            await TipoJuego.bulkCreate([{
                 codigo: '1',
-                descripcion: 'SINGLE',
+                descripcion: 'PREGUNTADOS',
             },{
                 codigo: '2',
-                descripcion: 'MULTIJUGADOR',
-            }]);
-            console.log('TIPOS DE JUEGOS INSERTADOS');
+                descripcion: 'CARRERA DE CABALLOS',
+            },{
+                codigo: '3',
+                descripcion: 'ELIMINACIÓN',
+            }])
+            console.log('TIPOS DE JUEGOS INSERTADOS')
 
-            const modalidades = await Modalidad.bulkCreate([{
+            await Modalidad.bulkCreate([{
                 codigo: '1',
                 descripcion: 'USUARIO VS SISTEMA',
             }, {
@@ -404,15 +414,44 @@ sequelize.sync({ force: false }).then(async() => {
                 descripcion: 'USUARIO VS USUARIO',
             }, {
                 codigo: '3',
-                descripcion: 'GRUPO VS SISTEMA',
+                descripcion: 'GRUPO VS GRUPO',
             }, {
                 codigo: '4',
-                descripcion: 'GRUPO VS GRUPO',
+                descripcion: 'DIRECTA',
+            }, {
+                codigo: '5',
+                descripcion: 'DOBLE',
             }])
-            console.log('MODALIDADES INSERTADAS');
+            console.log('MODALIDADES INSERTADAS')
+
+            await TipoJuegoModalidad.bulkCreate([{
+                codigo_tipo_juego: '1',
+                codigo_modalidad: '1',
+            },{
+                codigo_tipo_juego: '1',
+                codigo_modalidad: '2',
+            },{
+                codigo_tipo_juego: '1',
+                codigo_modalidad: '3',
+            },{
+                codigo_tipo_juego: '2',
+                codigo_modalidad: '1',
+            },{
+                codigo_tipo_juego: '2',
+                codigo_modalidad: '2',
+            },{
+                codigo_tipo_juego: '2',
+                codigo_modalidad: '3',
+            },{
+                codigo_tipo_juego: '3',
+                codigo_modalidad: '4',
+            },{
+                codigo_tipo_juego: '3',
+                codigo_modalidad: '5',
+            }])
 
         } catch (error) {
-            console.log(error);
+            console.log(error)
         }
 
     })

@@ -22,7 +22,6 @@ exports.crearPreguntaModuloContenido= async(req, res) => {
         });
 
         if (pregunta_modulo_contenido.length > 0) {
-            console.log('La pregunta ya está asignada al contenido del módulo');
             return res.status(400).json({
                 msg: 'La pregunta ya está asignada al contenido del módulo',
             });
@@ -88,7 +87,6 @@ exports.eliminarPreguntaModuloContenido = async(req, res) => {
         });
 
         if (pregunta_modulo_contenido.length === 0) {
-            console.log('El contenido del módulo no se encuentra asignado a la pregunta');
             return res.status(400).json({
                 msg: 'El contenido del módulo no se encuentra asignado a la pregunta',
             });

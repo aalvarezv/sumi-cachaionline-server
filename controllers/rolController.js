@@ -1,4 +1,4 @@
-const { Rol } = require('../config/db');
+const { Rol, UsuarioInstitucionRol } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -6,15 +6,20 @@ exports.crearRol = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
-        const { codigo, descripcion, inactivo } = req.body;
+        const { codigo, descripcion, ver_menu_administrar,
+            ver_submenu_instituciones, ver_submenu_niveles_academicos,
+            ver_submenu_roles, ver_submenu_usuarios,
+            ver_menu_asignaturas, ver_submenu_materias,
+            ver_submenu_unidades, ver_submenu_modulos,
+            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos,
+            ver_menu_preguntas, ver_menu_rings, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
         if (rol) {
-            console.log('El rol ya existe');
             return res.status(400).json({
                 msg: 'El rol ya existe'
             });
@@ -23,6 +28,20 @@ exports.crearRol = async(req, res) => {
         rol = await Rol.create({
             codigo,
             descripcion,
+            ver_menu_administrar,
+            ver_submenu_instituciones,
+            ver_submenu_niveles_academicos,
+            ver_submenu_roles,
+            ver_submenu_usuarios,
+            ver_menu_asignaturas,
+            ver_submenu_materias,
+            ver_submenu_unidades,
+            ver_submenu_modulos,
+            ver_submenu_contenidos,
+            ver_submenu_temas,
+            ver_submenu_conceptos,
+            ver_menu_preguntas,
+            ver_menu_rings,
             inactivo
         });
 
@@ -55,7 +74,7 @@ exports.actualizarRoles = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -64,7 +83,7 @@ exports.actualizarRoles = async(req, res) => {
             ver_submenu_roles, ver_submenu_usuarios,
             ver_menu_asignaturas, ver_submenu_materias,
             ver_submenu_unidades, ver_submenu_modulos,
-            ver_submenu_temas, ver_submenu_conceptos,
+            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos,
             ver_menu_preguntas, ver_menu_rings, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
@@ -85,6 +104,7 @@ exports.actualizarRoles = async(req, res) => {
             ver_submenu_materias,
             ver_submenu_unidades,
             ver_submenu_modulos,
+            ver_submenu_contenidos,
             ver_submenu_temas,
             ver_submenu_conceptos,
             ver_menu_preguntas,
@@ -120,6 +140,19 @@ exports.eliminarRoles = async(req, res) => {
                 msg: `El rol ${codigo} no existe`
             });
         }
+
+        let rol_usuario_institucion = await UsuarioInstitucionRol.findOne({
+            where: {
+                codigo_rol: codigo,
+            }
+        });
+
+        if (rol_usuario_institucion) {
+            return res.status(404).send({
+                msg: 'El rol tiene usuarios asociados, no se puede eliminar'
+            });
+        }
+
         rol = await Rol.destroy({
             where: {
                 codigo
@@ -166,13 +199,15 @@ exports.busquedaRoles = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.params
+        const { filtro } = req.query
             //consulta por el rol
         const roles = await Rol.findAll({
 
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {
-                [Op.like]: `%${filtro}%`
-            })
+            where: 
+                Sequelize.where(Sequelize.fn("concat", Sequelize.col("codigo"), Sequelize.col("descripcion")), {[Op.like]: `%${filtro}%`}),
+                order: [
+                    ['descripcion', 'ASC'],
+                ]
         });
 
         //envia la información del rol

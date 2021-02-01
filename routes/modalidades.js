@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
-const {crearModalidad, listarModalidades, busquedaModalidad} = require('../controllers/modalidadController');
+const {crearModalidad, listarModalidadesTipoJuego, busquedaModalidad} = require('../controllers/modalidadController');
 
 
 router.post('/crear',
@@ -14,7 +14,7 @@ router.post('/crear',
     crearModalidad
 );
 
-router.get('/listar', auth, listarModalidades);
+router.get('/listar/:codigo_tipo_juego', auth, listarModalidadesTipoJuego);
 router.get('/busqueda/:filtro', auth, busquedaModalidad);
 
 module.exports = router;

@@ -6,7 +6,7 @@ exports.crearUnidad = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -14,7 +14,6 @@ exports.crearUnidad = async(req, res) => {
 
         let unidad = await Unidad.findByPk(codigo);
         if (unidad) {
-            console.log('La unidad ya existe');
             return res.status(400).json({
                 msg: 'La unidad ya existe'
             });
@@ -22,7 +21,6 @@ exports.crearUnidad = async(req, res) => {
 
         let materia = await Materia.findByPk(codigo_materia);
         if (!materia) {
-            console.log('La materia ingresada no es valida')
             return res.status(400).json({
                 msg: 'la materia ingresada no es valida'
             });
@@ -66,7 +64,7 @@ exports.actualizarUnidades = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -121,11 +119,12 @@ exports.eliminarUnidades = async(req, res) => {
             });
         }
 
-        let modulos_unidad = await Modulo.findAll({
+        let modulos_unidad = await Modulo.findOne({
             where:{
                 codigo_unidad : codigo
             }
         })
+        
         if (modulos_unidad){
             return res.status(404).send({
                 msg: `La unidad ${codigo} tiene modulos asociados, no se puede eliminar`
@@ -214,12 +213,43 @@ exports.unidadesMateria = async(req, res) => {
     }
 }
 
+exports.unidadesPorDescripcionyMateria = async(req, res) => {
+
+    try {
+
+        let { codigo_materia, descripcion } = req.query;
+
+        if(codigo_materia.trim() === '0'){
+            codigo_materia = ''
+        }
+
+        const unidades = await Unidad.findAll({
+            where: { [Op.and]: [
+                {codigo_materia: { [Op.like] : `%${codigo_materia}%`}},
+                {descripcion: { [Op.like] : `%${descripcion}%` }},
+            ]},
+            order: [
+                ['descripcion', 'ASC']
+            ]
+        });
+
+        res.json({
+            unidades
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+}
+
 exports.unidadesMateriaNivelAcademico = async(req, res) => {
 
     try {
 
         const { codigo_materia, niveles_academicos } = req.query;
-        console.log(niveles_academicos);
 
         if (!niveles_academicos || niveles_academicos.length === 0) {
             return res.json({

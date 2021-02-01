@@ -1,9 +1,9 @@
-const { ModuloContenidoTemaConcepto, ModuloContenidoTema, ModuloContenido, Modulo, Unidad, Materia } = require('../config/db');
+const { ModuloContenidoTemaConcepto, ModuloContenidoTema, ModuloContenido, Modulo, Unidad, PreguntaModuloContenidoTemaConcepto } = require('../config/db');
 const { validationResult } = require('express-validator');
-const { Sequelize, Op } = require('sequelize');
+const { Op } = require('sequelize');
 
 
-exports.crearModuloContenidoTemaConepto = async(req, res, next) => {
+exports.crearModuloContenidoTemaConcepto = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -15,16 +15,23 @@ exports.crearModuloContenidoTemaConepto = async(req, res, next) => {
       
         const { codigo, descripcion, codigo_modulo_contenido_tema } = req.body;
 
-        
-        modulo_contenido_tema_concepto = await ModuloContenidoTemaConcepto.create({
+        //revisa si existe el tema
+        let tema = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema);
+        if (!tema) {
+            return res.status(404).send({
+                msg: `El tema ${codigo_modulo_contenido_tema} no existe`
+            })
+        }
+
+        const modulo_contenido_tema_concepto = await ModuloContenidoTemaConcepto.create({
             codigo,
             descripcion,
             codigo_modulo_contenido_tema
         });
 
-        //next para pasar a listarContenidosModuloContenidoTemas 
-        req.params.codigo_modulo_contenido_tema = codigo_modulo_contenido_tema;
-        next();
+        res.json({
+            modulo_contenido_tema_concepto,
+        })
 
 
     } catch (error) {
@@ -79,12 +86,12 @@ exports.actualizarModuloContenidoTemaConcepto = async(req, res) => {
             })
         }
 
-        /* let tema = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema);
+        let tema = await ModuloContenidoTema.findByPk(codigo_modulo_contenido_tema);
         if (!tema) {
             return res.status(404).send({
                 msg: `El tema ${codigo_modulo_contenido_tema} no existe`
             })
-        } */
+        }
 
         concepto = await ModuloContenidoTemaConcepto.update({
             descripcion,
@@ -110,7 +117,7 @@ exports.actualizarModuloContenidoTemaConcepto = async(req, res) => {
 
 }
 
-exports.eliminarModuloContenidoTemaConcepto = async(req, res, next) => {
+exports.eliminarModuloContenidoTemaConcepto = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -129,6 +136,19 @@ exports.eliminarModuloContenidoTemaConcepto = async(req, res, next) => {
             return res.status(404).send({
                 msg: `El concepto ${codigo} no existe`
             })
+        }
+
+        //revisa si tiene preguntas asociadas.
+        let preguntas_concepto = await PreguntaModuloContenidoTemaConcepto.findOne({
+            where:{
+                codigo_modulo_contenido_tema_concepto : codigo
+            }
+        })
+
+        if (preguntas_concepto){
+            return res.status(404).send({
+                msg: `El concepto ${codigo} tiene preguntas asociadas, no se puede eliminar`
+            });
         }
 
         //elimino el registro.
@@ -151,34 +171,32 @@ exports.eliminarModuloContenidoTemaConcepto = async(req, res, next) => {
 
 }
 
-
-exports.conceptosTemaContenidoModuloUnidadMateria = async(req, res) => {
+exports.conceptosPorDescripcionTemaContenidoModuloUnidadyMateria = async(req, res) => {
 
     try {
 
         let { codigo_modulo_contenido_tema, codigo_modulo_contenido,
-            codigo_modulo, codigo_unidad, codigo_materia } = req.params;
+            codigo_modulo, codigo_unidad, codigo_materia, descripcion } = req.query;
             
-            if(codigo_modulo_contenido_tema.trim() === '0'){
-                codigo_modulo_contenido_tema = ''
-            }
+        if(codigo_modulo_contenido_tema.trim() === '0'){
+            codigo_modulo_contenido_tema = ''
+        }
 
-            if(codigo_modulo_contenido.trim() === '0'){
-                codigo_modulo_contenido = ''
-            }
-            
-            if(codigo_modulo.trim() === '0'){
-                codigo_modulo = ''
-            }
-            
-            if(codigo_unidad.trim() === '0'){
-                codigo_unidad = ''
-            }
-    
-            if(codigo_materia.trim() === '0'){
-                codigo_materia = ''
-            }
-            console.log('ejecuta')
+        if(codigo_modulo_contenido.trim() === '0'){
+            codigo_modulo_contenido = ''
+        }
+        
+        if(codigo_modulo.trim() === '0'){
+            codigo_modulo = ''
+        }
+        
+        if(codigo_unidad.trim() === '0'){
+            codigo_unidad = ''
+        }
+
+        if(codigo_materia.trim() === '0'){
+            codigo_materia = ''
+        }
 
         const conceptos = await ModuloContenidoTemaConcepto.findAll({
             include:[{
@@ -199,24 +217,18 @@ exports.conceptosTemaContenidoModuloUnidadMateria = async(req, res) => {
             }],
             where: {
               [Op.and]:[
+                    { descripcion: { [Op.like] : `%${descripcion}%`} },
                     { codigo_modulo_contenido_tema: { [Op.like] : `%${codigo_modulo_contenido_tema}%`} },
                     {'$modulo_contenido_tema.codigo_modulo_contenido$': { [Op.like]: `%${codigo_modulo_contenido}%` } },
                     {'$modulo_contenido_tema.modulo_contenido.codigo_modulo$': { [Op.like]: `%${codigo_modulo}%` } },
                     {'$modulo_contenido_tema.modulo_contenido.modulo.codigo_unidad$': { [Op.like]: `%${codigo_unidad}%` } },
-                    {'$modulo_contenido_tema.modulo_contenido.modulo.unidad.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } },
-                    {inactivo: false}
+                    {'$modulo_contenido_tema.modulo_contenido.modulo.unidad.codigo_materia$': { [Op.like]: `%${codigo_materia}%` } }
                 ]
             },
             order: [
                 ['descripcion', 'ASC']
             ]
         });
-
-        /* if (!tema_concepto) {
-            return res.status(404).send({
-                msg: `El concepto ${codigo_modulo_contenido_tema} no tiene temas asociados`
-            });
-        } */
 
         res.json({
             conceptos

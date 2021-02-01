@@ -55,6 +55,11 @@ module.exports = (sequelize, type) =>{
             allownull: false,
             defaultValue: false,
         },
+        ver_submenu_contenidos:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
         ver_submenu_temas:{
             type: type.BOOLEAN,
             allownull: false,
