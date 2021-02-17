@@ -116,21 +116,19 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 
     try {
 
-        setTimeout(async() => {
+            const { nombreUsuario, codigoInstitucion, codigoCurso } = req.query
+            let { codigoRol } = req.query
+            if (codigoRol === '0') codigoRol = ''
 
-            const { nombre, codigo_institucion, codigo_curso } = JSON.parse(req.query.filters);
-            let { codigo_rol } = JSON.parse(req.query.filters);
-            if (codigo_rol === '0') codigo_rol = ''
+            console.log('AQUIII', nombreUsuario, codigoInstitucion, codigoCurso, codigoRol)
 
             const usuarios = await sequelize.query(`
                 SELECT 
                     rut,
+                    nombre_usuario,
                     rut_rol,
-                    #SI ROL ES VACÍO ENTONCES ESTÁ LISTANDO TODOS LOS ROLES, POR LO TANTO CONCATEMAMOS
-                    #EL NOMBRE_USUARIO + ROL_DESCRIPCION, EN CASO CONTRARIO, SOLO EL NOMBRE. 
-                    ${(codigo_rol !== '') ? 'CONCAT(nombre) AS nombre_rol' : 'CONCAT(descripcion_rol," ",nombre) AS nombre_rol'},
                     codigo_rol,
-                    descripcion_rol,
+                    descripcion_rol, 
                     codigo_institucion,
                     descripcion_institucion,
                     existe_usr_rol_en_actual_curso AS item_select,
@@ -139,7 +137,7 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
                 FROM (
                     SELECT 
                         usr.rut, 
-                        usr.nombre, 
+                        usr.nombre AS nombre_usuario, 
                         rl.codigo AS codigo_rol,
                         CONCAT(usr.rut, rl.codigo) AS rut_rol,
                         rl.descripcion AS descripcion_rol,
@@ -150,8 +148,8 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
                             FROM cursos_usuarios_roles cur 
                             INNER JOIN cursos c ON c.codigo = cur.codigo_curso
                             WHERE cur.rut_usuario = rut 
-                                AND cur.codigo_curso = '${codigo_curso}'
-                                AND c.codigo_institucion = '${codigo_institucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
+                                AND cur.codigo_curso = '${codigoCurso}'
+                                AND c.codigo_institucion = '${codigoInstitucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
                                 AND cur.codigo_rol = rl.codigo
                         ) AS existe_usr_rol_en_actual_curso,
                         #EXISTE EN OTRO CURSO DE LA MISMA INSTITUCIÓN.
@@ -159,8 +157,8 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
                             FROM cursos_usuarios_roles cur 
                             INNER JOIN cursos c ON c.codigo = cur.codigo_curso
                             WHERE cur.rut_usuario = rut 
-                                AND cur.codigo_curso <> '${codigo_curso}'
-                                AND c.codigo_institucion = '${codigo_institucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
+                                AND cur.codigo_curso <> '${codigoCurso}'
+                                AND c.codigo_institucion = '${codigoInstitucion}' #EL CODIGO DEL CURSO ES PROPIO DE LA INSTITUCIÓN.
                                 AND cur.codigo_rol = rl.codigo
                         ) AS existe_usr_rol_en_otro_curso
                     FROM usuarios usr
@@ -169,22 +167,19 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
                     INNER JOIN instituciones it ON it.codigo = uir.codigo_institucion
                     WHERE 
                         usr.inactivo = 0 
-                        AND usr.nombre LIKE '%${nombre}%'
-                        AND uir.codigo_institucion = '${codigo_institucion}' 
+                        AND usr.nombre LIKE '%${nombreUsuario}%'
+                        AND uir.codigo_institucion = '${codigoInstitucion}' 
                         AND rl.codigo IN (2,3) 
-                        AND rl.codigo LIKE '%${codigo_rol}%'
+                        AND rl.codigo LIKE '%${codigoRol}%'
                 )tb
                     WHERE (existe_usr_rol_en_actual_curso = 0 AND existe_usr_rol_en_otro_curso = 0) #SIN CURSO.
                         OR (existe_usr_rol_en_actual_curso = 1 AND existe_usr_rol_en_otro_curso = 0)#EN CURSO ACTUAL.
                         OR (codigo_rol = 3) #PROFESOR.
             `, { type: QueryTypes.SELECT });
-            
-            res.model_name = "usuarios";
-            res.model_data = usuarios;
 
-            next();
+            res.json({usuarios});
 
-        }, 500);
+       
 
     } catch (error) {
         console.log(error);

@@ -142,7 +142,7 @@ TipoJuegoModalidad.belongsTo(Modalidad, {foreignKey: 'codigo_modalidad'})
 
 
 sequelize.sync({ force: false }).then(async() => {
-
+        
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****')
             await Configuracion.bulkCreate([{

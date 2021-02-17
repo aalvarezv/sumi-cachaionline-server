@@ -19,38 +19,7 @@ router.get('/listar', auth, listarUsuarios, paginateResults);
 router.get('/listar-por-nivel-academico', auth, listarUsuariosNivelAcademico);
 //lista todos los usuarios inscritos en un curso y aquellos que están disponibles para inscribir
 //corresponden a los que no se encuentran en un curso dentro de la misma institución.
-router.get('/listar-inscritos-disponibles-curso', auth, 
-[   
-    query('filters').custom(filters => {
-        const {nombre} = JSON.parse(filters)
-        if (nombre === undefined) {
-            throw new Error('El nombre es obligatorio');
-        }
-        return true;
-    }),
-    query('filters').custom(filters => {
-        const {codigo_institucion} = JSON.parse(filters)
-        if (codigo_institucion === undefined) {
-            throw new Error('El código institucion es obligatorio');
-        }
-        return true;
-    }),
-    query('filters').custom(filters => {
-        const {codigo_curso} = JSON.parse(filters)
-        if (codigo_curso === undefined) {
-            throw new Error('El código curso es obligatorio');
-        }
-        return true;
-    }),
-    query('filters').custom(filters => {
-        const {codigo_rol} = JSON.parse(filters)
-        if (codigo_rol === undefined) {
-            throw new Error('El código rol es obligatorio');
-        }
-        return true;
-    }),
-
-], listarUsuariosInscritosDisponiblesCurso, paginateResults);
+router.get('/listar-inscritos-disponibles-curso', auth, listarUsuariosInscritosDisponiblesCurso);
 
 router.put('/actualizar', auth, [
     check('rut', 'El rut es obligatorio.').notEmpty().isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),

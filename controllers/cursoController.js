@@ -159,6 +159,19 @@ exports.eliminarCurso = async(req, res) => {
                 msg: `El curso ${codigo} no existe`
             })
         }
+
+        let curso_usuario_rol = await CursoUsuarioRol.findOne({
+            where: {
+                codigo_curso : codigo
+            }
+        })
+      
+        if (curso_usuario_rol){
+            return res.status(404).send({
+                msg: `El curso ${codigo} tiene usuarios asociados, no se puede eliminar`
+            });
+        }
+
         //elimino el registro.
         curso = await Curso.destroy({
             where: {
@@ -250,6 +263,45 @@ exports.busquedaCursos = async(req, res) => {
 
 
 }
+
+exports.cursosInstitucionNivelAcademico = async(req, res) => {
+
+    try {
+
+        let { codigo_institucion, codigo_nivel_academico } = req.query;
+
+        if(codigo_institucion.trim() === '0'){
+            codigo_institucion = ''
+        }
+
+        const cursos = await Curso.findAll({
+            include:[{
+                attributes:['descripcion', 'nivel'],
+                model: NivelAcademico,
+            }],
+            where: { 
+                [Op.and]: [
+                {codigo_institucion: { [Op.eq] : codigo_institucion}},
+                {codigo_nivel_academico: { [Op.eq] : codigo_nivel_academico}},
+            ]},
+            order: [
+                ['nivel_academico','nivel', 'ASC'],
+                ['nivel_academico','descripcion','ASC'],
+            ]
+        });
+
+        res.json({
+            cursos
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+}
+
 
 exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
     

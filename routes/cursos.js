@@ -4,8 +4,8 @@ const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
 const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, 
-        datosCurso, busquedaCursos, listarCursosUsuarioNivelAcademicoInstitucion, 
-        listarUsuariosRingCurso } = require('../controllers/cursoController');
+        datosCurso, busquedaCursos ,listarCursosUsuarioNivelAcademicoInstitucion, 
+        listarUsuariosRingCurso, cursosInstitucionNivelAcademico } = require('../controllers/cursoController');
 
 router.post('/crear', auth, [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
@@ -21,7 +21,7 @@ router.put('/actualizar', auth, [
     actualizarCurso);
 router.delete('/eliminar/:codigo', auth, eliminarCurso);
 router.get('/datos/:codigo', auth, datosCurso);
-router.get('/busqueda/:filtro', auth, busquedaCursos);
+router.get('/busqueda/institucion-nivel-academico/', auth,cursosInstitucionNivelAcademico);
 router.get('/listar/usuario-nivel-academico-institucion', auth, listarCursosUsuarioNivelAcademicoInstitucion);
 router.get('/listar/usuarios-ring', auth, listarUsuariosRingCurso);
 

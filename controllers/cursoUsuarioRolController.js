@@ -10,8 +10,10 @@ exports.crearUsuarioCursoRol = async(req, res) => {
     }
 
     try {
-
+       
         const { codigo_curso, rut_usuario, codigo_rol } = req.body;
+        
+        console.log('AQUIIII!!',codigo_curso, rut_usuario, codigo_rol)
 
         //Verifica si existe la combinación curso vs usuario
         let curso_usuario = await CursoUsuarioRol.findAll({
@@ -24,7 +26,7 @@ exports.crearUsuarioCursoRol = async(req, res) => {
 
         if (curso_usuario.length > 0) {
             return res.status(400).json({
-                msg: 'El usuario ya está asignado al curos'
+                msg: 'El usuario ya está asignado al curso'
             });
         }
 
@@ -37,6 +39,7 @@ exports.crearUsuarioCursoRol = async(req, res) => {
 
         //envía la respuesta
         res.json(curso_usuario);
+
     } catch (error) {
         console.log(error);
         res.status(500).send({
