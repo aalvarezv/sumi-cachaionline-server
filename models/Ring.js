@@ -1,5 +1,5 @@
 module.exports = (sequelize, type, Usuario, TipoJuego, 
-                NivelAcademico, Materia, Institucion, Modalidad, TipoPartida) => {
+                  Materia, Institucion, Modalidad) => {
 
     return sequelize.define('ring', {
 
@@ -29,14 +29,6 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             allowNull: false,
             references: {
                 model: Institucion,
-                key: 'codigo',
-            }
-        },
-        codigo_nivel_academico: {
-            type: type.STRING(128),
-            allowNull: false,
-            references: {
-                model: NivelAcademico,
                 key: 'codigo',
             }
         },

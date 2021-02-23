@@ -21,6 +21,7 @@ router.get('/listar-por-nivel-academico', auth, listarUsuariosNivelAcademico);
 //corresponden a los que no se encuentran en un curso dentro de la misma institución.
 router.get('/listar-inscritos-disponibles-curso', auth, listarUsuariosInscritosDisponiblesCurso);
 
+
 router.put('/actualizar', auth, [
     check('rut', 'El rut es obligatorio.').notEmpty().isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
     check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),

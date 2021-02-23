@@ -1,4 +1,4 @@
-const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol } = require('../config/db');
+const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Curso } = require('../config/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 //llama el resultado de la validación
@@ -179,7 +179,6 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
 
             res.json({usuarios});
 
-       
 
     } catch (error) {
         console.log(error);
@@ -359,3 +358,4 @@ exports.busquedaUsuarios = async(req, res) => {
 
 
 }
+

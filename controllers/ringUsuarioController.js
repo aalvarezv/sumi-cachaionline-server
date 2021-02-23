@@ -1,4 +1,4 @@
-const { RingUsuario, Ring, sequelize } = require('../config/db');
+const { RingUsuario, Ring, Usuario } = require('../config/db');
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -122,8 +122,6 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             ]
         });
 
-        console.log('ENTRA AQUI', rings_usuario)
-
         res.json({
             rings_usuario
         });
@@ -231,5 +229,37 @@ exports.eliminarRingUsuarioMasivo = async(req, res) => {
         });
     }
 
+
+}
+
+exports.listarUsuariosRing = async(req, res) => {
+
+    try {
+        
+        const { codigoRing } = req.query
+
+        const usuariosRing = await RingUsuario.findAll({
+            include:[{
+                attributes: ['rut', 'nombre', 'email'],
+                model: Usuario,
+            }],
+            where: {
+                codigo_ring: codigoRing,
+            }
+        })
+
+        
+
+        res.json({
+            usuariosRing
+        })
+
+    } catch (error) {
+
+        console.log(error)
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
 
 }

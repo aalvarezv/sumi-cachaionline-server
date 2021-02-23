@@ -21,9 +21,11 @@ app.use('/api/cursos-modulos/', require('./cursoModulos'));
 app.use('/api/cursos-usuarios-roles/', require('./cursoUsuariosRol'));
 app.use('/api/usuario-instituciones-roles/', require('./usuarioInstitucionRol'));
 app.use('/api/modalidades/', require('./modalidades'));
+
 app.use('/api/rings/', require('./rings')); 
 app.use('/api/ring-usuarios/', require('./ringUsuarios'));
 app.use('/api/ring-preguntas/',require('./ringPreguntas'));
+app.use('/api/ring-invitaciones/',require('./ringInvitaciones'));
 
 app.use('/api/pregunta-pistas/', require('./preguntaPistas'));
 app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));

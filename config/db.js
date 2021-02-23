@@ -1,5 +1,4 @@
 const { Sequelize } = require('sequelize')
-require('dotenv').config({ path: './variables.env' })
 
 const ConfiguracionModel = require('../models/Configuracion')
 const RolModel = require('../models/Rol')
@@ -23,6 +22,8 @@ const PreguntaAlternativaModel = require('../models/PreguntaAlternativa')
 const RingModel = require('../models/Ring')
 const RingUsuarioModel = require('../models/RingUsuario')
 const RingPreguntaModel = require('../models/RingPregunta')
+const RingNivelAcademicoModel = require('../models/RingNivelAcademico')
+const RingInvitacioModel = require('../models/RingInvitacion')
 const PreguntaPistaModel = require('../models/PreguntaPista')
 const PreguntaSolucionModel = require('../models/PreguntaSolucion')
 const PreguntaModuloModel = require('../models/PreguntaModulo')
@@ -40,7 +41,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log, 
+    logging: false, //console.log, 
     pool: {
         max: 5,
         min: 0,
@@ -77,9 +78,10 @@ const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo)
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol)
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario)
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta)
-const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, NivelAcademico, Materia, Institucion, Modalidad)
+const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, Materia, Institucion, Modalidad)
 const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario)
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta)
+const RingNivelAcademico = RingNivelAcademicoModel(sequelize, Sequelize, Ring, NivelAcademico)
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta)
 const PreguntaSolucion = PreguntaSolucionModel(sequelize, Sequelize, Pregunta)
 const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modulo)
@@ -87,7 +89,7 @@ const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequeliz
 const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema)
 const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto)
 const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta)
-
+const RingInvitacion = RingInvitacioModel(sequelize, Sequelize, Ring, Usuario)
 //RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' })
 UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' })
@@ -96,6 +98,7 @@ UsuarioInstitucionRol.belongsTo(Institucion, { foreignKey: 'codigo_institucion' 
 Rol.hasMany(UsuarioInstitucionRol, { foreignKey: 'codigo_rol' })
 UsuarioInstitucionRol.belongsTo(Rol, { foreignKey: 'codigo_rol' })
 
+Curso.belongsTo(Institucion, { foreignKey: 'codigo_institucion'})
 Curso.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico' })
 Modulo.belongsTo(Unidad, { foreignKey: 'codigo_unidad' })
 Unidad.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'})
@@ -125,14 +128,20 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 PreguntaModuloContenidoTema.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'})
 PreguntaModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTemaConcepto, {foreignKey: 'codigo_modulo_contenido_tema_concepto'})
 
-
 Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'})
 
-Ring.belongsTo(NivelAcademico,  {foreignKey: 'codigo_nivel_academico'})
+Ring.hasMany(RingNivelAcademico,  {foreignKey: 'codigo_ring'})
 Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'})
 
 RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'})
+RingUsuario.belongsTo(Usuario, {foreignKey: 'rut_usuario'})
 RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'})
+
+RingInvitacion.belongsTo(Ring, { foreignKey: 'codigo_ring'})
+RingInvitacion.belongsTo(Usuario, { as: 'usuario_emisor', foreignKey: 'rut_usuario_emisor' })
+RingInvitacion.belongsTo(Usuario, { as: 'usuario_receptor', foreignKey: 'rut_usuario_receptor'})
+
+RingNivelAcademico.belongsTo(NivelAcademico, { foreignKey: 'codigo_nivel_academico'})
 
 CursoUsuarioRol.belongsTo(Curso, {foreignKey: 'codigo_curso'})
 CursoUsuarioRol.belongsTo(Usuario, {foreignKey: 'rut_usuario'})
@@ -141,7 +150,7 @@ TipoJuegoModalidad.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego'})
 TipoJuegoModalidad.belongsTo(Modalidad, {foreignKey: 'codigo_modalidad'})
 
 
-sequelize.sync({ force: false }).then(async() => {
+sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
         
         try {
             console.log('**** CONECTADO A LA BASE DE DATOS ****')
@@ -478,6 +487,8 @@ module.exports = {
     Ring,
     RingUsuario,
     RingPregunta,
+    RingNivelAcademico,
+    RingInvitacion,
     PreguntaPista,
     PreguntaSolucion,
     PreguntaModulo,

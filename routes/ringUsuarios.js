@@ -5,7 +5,8 @@ const { check, query } = require('express-validator');
 
 const { crearRingUsuario, eliminarRingUsuario, 
         crearRingUsuarioMasivo, eliminarRingUsuarioMasivo,
-        listarRingsUsuarioInstitucion } = require('../controllers/ringUsuarioController');
+        listarRingsUsuarioInstitucion, 
+        listarUsuariosRing} = require('../controllers/ringUsuarioController');
 
 router.post('/crear', auth, [
     check('codigo_ring').not().isEmpty().withMessage('El codigo del ring es obligatorio.'),
@@ -17,6 +18,8 @@ router.post('/crear/masivo', auth,[
 ], crearRingUsuarioMasivo);
 
 router.get('/listar/rings-usuario-institucion/:rut_usuario/:codigo_institucion', auth, listarRingsUsuarioInstitucion);
+
+router.get('/listar/usuarios-ring', auth, listarUsuariosRing)
 
 router.delete('/eliminar/:codigo_ring/:rut_usuario', auth, eliminarRingUsuario);
 

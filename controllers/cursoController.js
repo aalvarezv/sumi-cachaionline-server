@@ -2,7 +2,7 @@ const { Curso, Usuario, NivelAcademico,
         Institucion, CursoUsuarioRol, RingUsuario } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-
+const colors = require('colors/safe');
 
 exports.crearCurso = async(req, res) => {
 
@@ -68,25 +68,6 @@ exports.crearCurso = async(req, res) => {
 
 
 }
-/*
-exports.listarCursos = async(req, res, next) => {
-
-    try {
-
-        const cursos = await Curso.findAll();
-        res.model_name = "cursos"
-        res.model_data = cursos
-        
-        next()
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            msg: 'Hubo un error, por favor vuelva a intentar'
-        })
-    }
-}
-*/
 
 exports.actualizarCurso = async(req, res) => {
 
@@ -270,19 +251,27 @@ exports.cursosInstitucionNivelAcademico = async(req, res) => {
 
         let { codigo_institucion, codigo_nivel_academico } = req.query;
 
-        if(codigo_institucion.trim() === '0'){
-            codigo_institucion = ''
+        let filtros_dinamicos = []
+
+        if(codigo_institucion.trim() !== '0'){
+            filtros_dinamicos.push( {codigo_institucion: { [Op.eq] : codigo_institucion}} )
+        }
+
+        if(codigo_nivel_academico.trim() !== '0'){
+            filtros_dinamicos.push( {codigo_nivel_academico: { [Op.eq] : codigo_nivel_academico}} )
         }
 
         const cursos = await Curso.findAll({
             include:[{
                 attributes:['descripcion', 'nivel'],
                 model: NivelAcademico,
+            },{
+                attributes:['codigo','descripcion'],
+                model: Institucion
             }],
             where: { 
                 [Op.and]: [
-                {codigo_institucion: { [Op.eq] : codigo_institucion}},
-                {codigo_nivel_academico: { [Op.eq] : codigo_nivel_academico}},
+                    filtros_dinamicos.map(filtro => filtro)
             ]},
             order: [
                 ['nivel_academico','nivel', 'ASC'],
@@ -307,8 +296,9 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
     
     try{
 
-        const {codigo_nivel_academico, rut_usuario, codigo_institucion} = req.query;
+        const {niveles_academicos, rut_usuario, codigo_institucion} = req.query;
 
+    
         const cursos_usuario_nivel_academico_institucion = await CursoUsuarioRol.findAll({
             attributes: [],
             include: [{
@@ -323,7 +313,7 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
                 [Op.and]:[
                     {rut_usuario: rut_usuario},
                     {'$curso.codigo_institucion$': { [Op.eq]: codigo_institucion } },
-                    {'$curso.nivel_academico.codigo$': { [Op.eq]: codigo_nivel_academico } },
+                    {'$curso.nivel_academico.codigo$': { [Op.in]: niveles_academicos } },
                 ]
             },
             raw: true,
@@ -390,3 +380,4 @@ exports.listarUsuariosRingCurso = async(req, res) => {
         });
     }
 }
+

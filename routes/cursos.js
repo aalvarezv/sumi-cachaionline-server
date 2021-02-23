@@ -3,8 +3,8 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { check } = require('express-validator');
 
-const { crearCurso, listarCursos, actualizarCurso, eliminarCurso, 
-        datosCurso, busquedaCursos ,listarCursosUsuarioNivelAcademicoInstitucion, 
+const { crearCurso, actualizarCurso, eliminarCurso, 
+        datosCurso, listarCursosUsuarioNivelAcademicoInstitucion, 
         listarUsuariosRingCurso, cursosInstitucionNivelAcademico } = require('../controllers/cursoController');
 
 router.post('/crear', auth, [
