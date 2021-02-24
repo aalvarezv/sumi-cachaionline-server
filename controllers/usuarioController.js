@@ -120,8 +120,6 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
             let { codigoRol } = req.query
             if (codigoRol === '0') codigoRol = ''
 
-            console.log('AQUIII', nombreUsuario, codigoInstitucion, codigoCurso, codigoRol)
-
             const usuarios = await sequelize.query(`
                 SELECT 
                     rut,

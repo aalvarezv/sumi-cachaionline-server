@@ -1,11 +1,15 @@
 const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { limpiaTextoObjeto } = require('../helpers');
 
 const autenticarUsuario = async (req, res) => {
     
     try { 
+
+      
         const { rut, clave } = req.body
+
         //revisa que el usuario existe
         let usuario = await Usuario.findByPk(rut);
         if (!usuario) {
@@ -75,37 +79,75 @@ const datosUsuarioAutenticado = async (req, res) => {
     try {
         //obtiene el parametro desde la url
         const {rut} = req.usuario
+
         //consulta por el usuario
         const usuario = await Usuario.findByPk(rut, {
             attributes: { exclude: ['clave', 'createdAt', 'updatedAt'] },
-            include: [{
-                attributes: ['codigo_institucion', 'codigo_rol'],
-                model: UsuarioInstitucionRol,
-                include: [{
-                    attributes: ['codigo', 'descripcion'],
-                    model: Institucion,
-                },{
-                    attributes: { exclude: ['createdAt', 'updatedAt'] },
-                    model: Rol,
-                }],
-                
-            }],
-            order: [
-                [UsuarioInstitucionRol, Institucion, 'descripcion', 'ASC'],
-                [UsuarioInstitucionRol, Rol, 'descripcion', 'ASC'],
-            ]
-
+            raw: true,
+            nested: false,
         });
+
         //si el usuario no existe
         if(!usuario){
             return res.status(404).send({
                 msg: `El usuario ${rut} no existe`
             })
         }
+
+        //obtiene las instituciones del usuario.
+        let usuarioInstituciones = await UsuarioInstitucionRol.findAll({
+            attributes:['codigo_institucion'],
+            include:[{
+                model:Institucion,
+                attributes: ['descripcion'],
+            }],
+            where:{
+                rut_usuario: rut,
+            },
+            group: ['codigo_institucion'],
+            raw: true,
+            nested: false,
+        })
+
+        let institucionRoles = []
+
+        if(usuarioInstituciones.length > 0){
+          
+            //Obtiene los roles por institucion.
+            for(let usuarioInstitucion of usuarioInstituciones){
+
+                let rolesUsuarioInstitucion = await UsuarioInstitucionRol.findAll({
+                    attributes:['codigo_rol'],
+                    include: [{
+                        model: Rol,
+                        attributes: { exclude: ['codigo','createdAt', 'updatedAt'] },
+                    }],
+                    where:{
+                        rut_usuario: rut,
+                        codigo_institucion: usuarioInstitucion.codigo_institucion,
+                    },
+                    raw:true,
+                    nested: true,
+                    //order: ['rol.descripcion', 'ASC']
+                })
+
+                rolesUsuarioInstitucion = limpiaTextoObjeto(rolesUsuarioInstitucion, 'rol.')
+
+                institucionRoles.push({
+                    codigo_institucion: usuarioInstitucion.codigo_institucion,
+                    descripcion_institucion: usuarioInstitucion["institucion.descripcion"],
+                    roles: rolesUsuarioInstitucion,
+                })
+                
+            }
+        }
+
         //envia la información del usuario
         res.json({
-            usuario
+            ...usuario,
+            institucion_roles: institucionRoles
         })
+       
 
     } catch (error) {
         console.log(error);

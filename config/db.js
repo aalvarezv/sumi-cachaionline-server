@@ -41,7 +41,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: false, //console.log, 
+    logging: console.log, 
     pool: {
         max: 5,
         min: 0,
@@ -128,14 +128,19 @@ PreguntaModuloContenido.belongsTo(ModuloContenido, {foreignKey: 'codigo_modulo_c
 PreguntaModuloContenidoTema.belongsTo(ModuloContenidoTema, {foreignKey: 'codigo_modulo_contenido_tema'})
 PreguntaModuloContenidoTemaConcepto.belongsTo(ModuloContenidoTemaConcepto, {foreignKey: 'codigo_modulo_contenido_tema_concepto'})
 
-Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador'})
+Ring.belongsTo(Usuario, {foreignKey: 'rut_usuario_creador',  as: 'usuario_creador'})
+Ring.belongsTo(Materia, {foreignKey: 'codigo_materia', as: 'materia'})
+Ring.belongsTo(Institucion, {foreignKey: 'codigo_institucion', as: 'institucion'})
+Ring.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego', as: 'tipo_juego'})
+Ring.belongsTo(Modalidad, { foreignKey: 'codigo_modalidad', as: 'modalidad'})
+
 
 Ring.hasMany(RingNivelAcademico,  {foreignKey: 'codigo_ring'})
 Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'})
 
 RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'})
 RingUsuario.belongsTo(Usuario, {foreignKey: 'rut_usuario'})
-RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta'})
+RingPregunta.belongsTo(Pregunta, {foreignKey: 'codigo_pregunta', as: 'pregunta'})
 
 RingInvitacion.belongsTo(Ring, { foreignKey: 'codigo_ring'})
 RingInvitacion.belongsTo(Usuario, { as: 'usuario_emisor', foreignKey: 'rut_usuario_emisor' })

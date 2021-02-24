@@ -2,7 +2,7 @@ const { Pregunta, PreguntaAlternativa, PreguntaSolucion,
         PreguntaPista, PreguntaModulo, PreguntaModuloContenido, 
         PreguntaModuloContenidoTema, PreguntaModuloContenidoTemaConcepto,
         ModuloContenidoTema, ModuloContenidoTemaConcepto, RingPregunta,
-        Usuario, Modulo, ModuloContenido, Unidad, Materia, Configuracion, sequelize } = require('../config/db');
+        Usuario, Modulo, ModuloContenido, Unidad, Materia, sequelize } = require('../config/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 const fs = require('fs');
@@ -41,6 +41,8 @@ exports.crearPregunta = async(req, res) => {
             pistas,
         } = req.body;
 
+
+
         let pregunta = await Pregunta.findByPk(codigo);
         if (pregunta) {
             return res.status(400).json({
@@ -72,7 +74,7 @@ exports.crearPregunta = async(req, res) => {
         let audio_pregunta = '';
         if(audio.trim() !== ''){
             //Obtiene la extension del archivo audio de la pregunta.
-            let audio_pregunta_ext = video.substring("data:audio/".length, audio.indexOf(";base64"));
+            let audio_pregunta_ext = audio.substring("data:audio/".length, audio.indexOf(";base64"));
             audio_pregunta = `ad-pregunta.${audio_pregunta_ext}`;
             //Escribe el archivo audio de la pregunta en disco.
             await fs.promises.writeFile(`${dir_pregunta}/${codigo}/${audio_pregunta}`, audio.split(';base64,').pop(), {encoding: 'base64'});
@@ -270,9 +272,9 @@ exports.listarPreguntas = async(req, res) => {
                 'codigo',
                 'rut_usuario_creador',
                 'texto',
-                'imagen',
-                'audio',
-                'video',
+                [Sequelize.literal('CASE WHEN `pregunta`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`imagen`)) ELSE `pregunta`.`imagen` END'), 'imagen'],
+                [Sequelize.literal('CASE WHEN `pregunta`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`audio`)) ELSE `pregunta`.`audio` END'), 'audio'],
+                [Sequelize.literal('CASE WHEN `pregunta`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`video`)) ELSE `pregunta`.`video` END'), 'video'],
                 'duracion',
                 'createdAt',
                 'updatedAt',
@@ -320,37 +322,8 @@ exports.listarPreguntas = async(req, res) => {
             ],
         });
 
-        let dir_pregunta = await getDirPreguntas();
-
-        let new_preguntas = [];
-        for (let pregunta of JSON.parse(JSON.stringify(preguntas))){
-
-            if(pregunta.imagen.trim() !== ''){
-                let imagenBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.imagen}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    imagen : imagenBase64,
-                });
-            }else if(pregunta.audio.trim() !== ''){
-                let audioBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.audio}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    audio: audioBase64,
-                });
-            }else if(pregunta.video.trim() !== ''){
-                let videoBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.video}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    video: videoBase64,
-                });
-            }else{
-                new_preguntas.push(pregunta);
-            }
-
-        }
-
         res.send({
-            preguntas: new_preguntas,
+            preguntas,
         });
 
     } catch (error) {
@@ -402,10 +375,9 @@ exports.listarPreguntasRing = async(req, res) => {
                 'codigo',
                 'rut_usuario_creador',
                 'texto',
-                // [Sequelize.literal('CASE WHEN pregunta.imagen <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.imagen)) ELSE pregunta.imagen END'),'imagen'],
-                'imagen',
-                'audio',
-                'video',
+                [Sequelize.literal('CASE WHEN pregunta.imagen <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.imagen)) ELSE pregunta.imagen END'),'imagen'],
+                [Sequelize.literal('CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.audio)) ELSE pregunta.audio END'),'audio'],
+                [Sequelize.literal('CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.video)) ELSE pregunta.video END'),'video'],
                 'duracion',
                 'createdAt',
                 'updatedAt',
@@ -460,37 +432,8 @@ exports.listarPreguntasRing = async(req, res) => {
             ],
         });
 
-        let dir_pregunta = await getDirPreguntas();
-
-        let new_preguntas = [];
-        for (let pregunta of JSON.parse(JSON.stringify(preguntas))){
-
-            if(pregunta.imagen.trim() !== ''){
-                let imagenBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.imagen}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    imagen : imagenBase64,
-                });
-            }else if(pregunta.audio.trim() !== ''){
-                let audioBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.audio}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    audio: audioBase64,
-                });
-            }else if(pregunta.video.trim() !== ''){
-                let videoBase64 = await fileToBase64(`${dir_pregunta}${pregunta.codigo}/${pregunta.video}`);
-                new_preguntas.push({
-                    ...pregunta,
-                    video: videoBase64,
-                });
-            }else{
-                new_preguntas.push(pregunta);
-            }
-
-        }
-
         res.send({
-            preguntas: new_preguntas,
+            preguntas,
         });
 
 
@@ -597,9 +540,9 @@ exports.datosPreguntas = async(req, res) => {
                 'codigo',
                 'rut_usuario_creador',
                 'texto',
-                'imagen',
-                'audio',
-                'video',
+                [Sequelize.literal('CASE WHEN `pregunta`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`imagen`)) ELSE `pregunta`.`imagen` END'), 'imagen'],
+                [Sequelize.literal('CASE WHEN `pregunta`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`audio`)) ELSE `pregunta`.`audio` END'), 'audio'],
+                [Sequelize.literal('CASE WHEN `pregunta`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta`.`codigo`, "/" , `pregunta`.`video`)) ELSE `pregunta`.`video` END'), 'video'],
                 'duracion',
             ],
             include:[{
@@ -609,21 +552,23 @@ exports.datosPreguntas = async(req, res) => {
             },{
                 model: PreguntaSolucion,
                 as: 'pregunta_solucion',
-                attributes: ['codigo', 
-                             'numero', 
-                             'texto',
-                             'imagen',
-                             'audio',
-                             'video',
+                attributes: [
+                    'codigo', 
+                    'numero', 
+                    'texto',
+                    [Sequelize.literal('CASE WHEN `pregunta_solucion`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta_solucion`.`imagen`)) ELSE `pregunta_solucion`.`imagen` END'), 'imagen'],
+                    [Sequelize.literal('CASE WHEN `pregunta_solucion`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta_solucion`.`audio`)) ELSE `pregunta_solucion`.`audio` END'), 'audio'],
+                    [Sequelize.literal('CASE WHEN `pregunta_solucion`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta_solucion`.`video`)) ELSE `pregunta_solucion`.`video` END'), 'video'],
                 ],
             },{
                 model: PreguntaPista,
-                attributes: ['codigo', 
-                             'numero', 
-                             'texto', 
-                             'imagen',
-                             'audio',
-                             'video',
+                attributes: [
+                    'codigo', 
+                    'numero', 
+                    'texto',
+                    [Sequelize.literal('CASE WHEN `pregunta_pista`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta_pista`.`imagen`)) ELSE `pregunta_pista`.`imagen` END'), 'imagen'],
+                    [Sequelize.literal('CASE WHEN `pregunta_pista`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta_pista`.`audio`)) ELSE `pregunta_pista`.`audio` END'), 'audio'],
+                    [Sequelize.literal('CASE WHEN `pregunta_pista`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta_pista`.`video`)) ELSE `pregunta_pista`.`video` END'), 'video'], 
                 ],
             },{
                 model: PreguntaModulo,
@@ -671,12 +616,15 @@ exports.datosPreguntas = async(req, res) => {
             ],
         });
 
+        console.log(pregunta)
+
         if (!pregunta) {
             return res.status(404).send({
                 msg: `La pregunta ${codigo} no existe`
             })
         }
 
+        /*
         let dir_pregunta = await getDirPreguntas();
         pregunta = JSON.parse(JSON.stringify(pregunta));
 
@@ -757,7 +705,7 @@ exports.datosPreguntas = async(req, res) => {
             ...pregunta,
             pregunta_solucion: new_soluciones,
             pregunta_pista: new_pistas,
-        }
+        }*/
 
         res.send({
             pregunta,

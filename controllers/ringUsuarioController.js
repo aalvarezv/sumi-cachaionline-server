@@ -1,6 +1,7 @@
-const { RingUsuario, Ring, Usuario } = require('../config/db');
-const { Op } = require('sequelize');
+const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad } = require('../config/db');
+const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
+const { limpiaTextoObjeto } = require('../helpers');
 
 exports.crearRingUsuario = async(req, res) => {
 
@@ -103,11 +104,41 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
 
      try {
 
+
          //verifica si existe la combinación ring vs pregunta.
          let rings_usuario = await RingUsuario.findAll({
+            attributes: [['rut_usuario','rut_usuario_invitado'],['createdAt','fecha_invitacion_usuario']],
             include:[{
-                attributes: { exclude: ['createdAt', 'updatedAt'] },
+                attributes: { 
+                    include: ['codigo','nombre','descripcion','fecha_hora_inicio','fecha_hora_fin','tipo_duracion_pregunta',
+                    [Sequelize.literal(`(
+                        CASE WHEN tipo_duracion_pregunta = 1 THEN "SIN TIEMPO" 
+                             WHEN tipo_duracion_pregunta = 2 THEN "TIEMPO DEFINIDO" 
+                             ELSE "TIEMPO PREGUNTA" END)`),'tipo_duracion_pregunta_descripcion']
+                    ,'duracion_pregunta','revancha','revancha_cantidad','retroceder','pistas','privado','inactivo'],
+                    exclude: ['rut_usuario_creador', 'codigo_materia', 'codigo_institucion','codigo_tipo_juego','codigo_modalidad','createdAt', 'updatedAt'] },
                 model: Ring,
+                include:[{
+                    attributes: ['rut','nombre','email'],
+                    model: Usuario,
+                    as: 'usuario_creador',
+                },{
+                    attributes: ['codigo', 'nombre'],
+                    model: Materia,
+                    as: 'materia'
+                },{
+                    attributes: ['codigo', 'descripcion'],
+                    model: Institucion,
+                    as: 'institucion'
+                },{
+                    attributes: ['codigo', 'descripcion'],
+                    model: TipoJuego,
+                    as: 'tipo_juego'
+                },{
+                    attributes: ['codigo', 'descripcion'],
+                    model: Modalidad,
+                    as: 'modalidad',
+                }],
             }],
             where: {
                 [Op.and]:[
@@ -119,8 +150,13 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             },
             order: [
                 [Ring, 'fecha_hora_fin', 'ASC'],
-            ]
+            ],
+           
         });
+
+        //rings_usuario = limpiaTextoObjeto(rings_usuario, 'ring.')
+
+        console.log(rings_usuario)
 
         res.json({
             rings_usuario
@@ -247,8 +283,6 @@ exports.listarUsuariosRing = async(req, res) => {
                 codigo_ring: codigoRing,
             }
         })
-
-        
 
         res.json({
             usuariosRing

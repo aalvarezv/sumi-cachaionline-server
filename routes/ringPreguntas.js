@@ -11,11 +11,12 @@ router.post('/crear', auth, [
     check('codigo_ring').not().isEmpty().withMessage('El codigo del ring es obligatorio.'),
     check('codigo_pregunta').not().isEmpty().withMessage('El código de la pregunta es obligatorio.'),
 ], crearRingPregunta);
+
 router.post('/crear/masivo', auth,[
     check('ring_preguntas_add').not().isEmpty().withMessage('Es requerido un arreglo con al menos un objeto que contenga el código pregunta y código ring para agregar.')
 ], crearRingPreguntaMasivo);
 
-router.get('/listar/ring-preguntas/:codigo_ring', auth, listarRingPreguntas);
+router.get('/listar/preguntas/:codigo_ring', auth, listarRingPreguntas);
 
 router.delete('/eliminar/:codigo_ring/:codigo_pregunta', auth, eliminarRingPregunta);
 

@@ -307,6 +307,28 @@ const getDirPreguntas = () => {
     
 }
 
+ //limpia texto del nombre de los campos del objeto.
+ const limpiaTextoObjeto = (obj, textoReemplazar) => {
+     
+    return obj.map(item => {
+        //objeto a arreglo
+        let entries = Object.entries(item).map(entry => {
+            return entry
+        })
+        //recorro el arreglo y elimino el texto que se necesita.
+        entries = entries.map( entry => {
+            const key = entry[0].replace(textoReemplazar,'')
+            const val = entry[1]
+            return [key, val]
+        })
+        //arreglo a objeto.
+        const obj = Object.fromEntries(entries);
+        return obj
+
+    })
+
+ }
+
 
 module.exports = {
     letras,
@@ -319,4 +341,5 @@ module.exports = {
     moverArchivo,
     getDirPreguntas,
     fileToBase64,
+    limpiaTextoObjeto,
 }

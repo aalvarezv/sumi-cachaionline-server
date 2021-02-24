@@ -130,6 +130,7 @@ exports.listarRings = async(req, res) => {
             include: [{
                 model: Usuario,
                 attributes: ['rut','nombre'],
+                as: 'usuario_creador',
             },{
                 model: RingNivelAcademico,
                 attributes: ['codigo_ring', 'codigo_nivel_academico'],
