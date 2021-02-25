@@ -17,19 +17,23 @@ app.use(cors('*'))
 //cargar rutas apirest
 app.use(require('./routes/index'))
 
-//path de imagenes.
-app.use('/images', serveStatic(process.env.PATH_IMAGES));
+//path de archivos estaticos.
+app.use('/static', serveStatic(process.env.PATH_STATIC));
 
 //socket
 const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server,{
+    cors: {
+        origin: '*'
+    }
+})
 
 const { socketEvents } = require('./sockets')
 process.setMaxListeners(10);
 
 io.sockets.on('connection', socket => {
 
-    //console.log('Cliente conectado...'+socket.id, io.engine.clientsCount)
+    console.log('Cliente conectado...'+socket.id, io.engine.clientsCount)
 
     socket.emit("onconnected", data => {
         console.log(data)
@@ -42,7 +46,6 @@ io.sockets.on('connection', socket => {
     });
 
 });
-
 
 //Inicia el servidor.
 server.listen(PORT, () => {
