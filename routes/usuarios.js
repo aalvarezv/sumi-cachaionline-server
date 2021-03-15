@@ -5,7 +5,8 @@ const paginateResults = require('../middleware/paginateResults');
 const { body, check, query } = require('express-validator');
 
 const {crearUsuario, listarUsuarios, actualizarUsuario, listarUsuariosNivelAcademico,
-       eliminarUsuario, datosUsuario, busquedaUsuarios, listarUsuariosInscritosDisponiblesCurso} = require('../controllers/usuarioController');
+       eliminarUsuario, datosUsuario, busquedaUsuarios, 
+       listarUsuariosInscritosDisponiblesCurso, cargaMasivaUsuarios} = require('../controllers/usuarioController');
 
 router.post('/crear', [
     check('rut', 'El rut es obligatorio.').notEmpty().isLength({ min: 8, max: 9 }).withMessage('El rut no es válido.'),
@@ -28,7 +29,7 @@ router.put('/actualizar', auth, [
     check('email', 'El email es obligatorio.').notEmpty().isEmail().withMessage('No es un email válido.'),
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
 ], actualizarUsuario);
-
+router.post('/carga-masiva', auth, cargaMasivaUsuarios);
 router.delete('/eliminar/:rut', auth, eliminarUsuario);
 router.get('/datos/:rut', auth, datosUsuario);
 router.get('/busqueda', auth, busquedaUsuarios);

@@ -20,6 +20,11 @@ const CursoUsuarioRolModel = require('../models/CursoUsuarioRol')
 const PreguntaModel = require('../models/Pregunta')
 const PreguntaAlternativaModel = require('../models/PreguntaAlternativa')
 const RingModel = require('../models/Ring')
+const SingleModel = require('../models/Single')
+const EstadoModel = require('../models/Estado')
+const RespuestaModel = require('../models/Respuesta')
+const RespuestaPistaModel = require('../models/RespuestaPista')
+const RespuestaSolucionModel = require('../models/RespuestaSolucion')
 const RingUsuarioModel = require('../models/RingUsuario')
 const RingPreguntaModel = require('../models/RingPregunta')
 const RingNivelAcademicoModel = require('../models/RingNivelAcademico')
@@ -41,7 +46,7 @@ const sequelize = new Sequelize(process.env.DB_URI, {
         timestamps: false
     },
     dialect: 'mysql',
-    logging: console.log, 
+    logging: false, //console.log, 
     pool: {
         max: 5,
         min: 0,
@@ -73,6 +78,7 @@ const ModuloContenidoTema = ModuloContenidoTemaModel(sequelize, Sequelize, Modul
 const ModuloContenidoTemaConcepto = ModuloContenidoTemaConceptoModel(sequelize, Sequelize, ModuloContenidoTema)
 
 const Modalidad = ModalidadModel(sequelize, Sequelize)
+const Estado = EstadoModel(sequelize, Sequelize)
 const TipoJuegoModalidad = TipoJuegoModalidadModel(sequelize, Sequelize, TipoJuego, Modalidad)
 const CursoModulo = CursoModuloModel(sequelize, Sequelize, Curso, Modulo)
 const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuario, Rol)
@@ -90,6 +96,12 @@ const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, 
 const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto)
 const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta)
 const RingInvitacion = RingInvitacioModel(sequelize, Sequelize, Ring, Usuario)
+const Single = SingleModel(sequelize, Sequelize, Usuario, Institucion, NivelAcademico, Estado)
+const Respuesta = RespuestaModel(sequelize, Sequelize, Usuario, Single, Ring, Pregunta, PreguntaAlternativa)
+const RespuestaPista = RespuestaPistaModel(sequelize, Sequelize, Respuesta, PreguntaPista)
+const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta, PreguntaSolucion)
+
+
 //RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' })
 UsuarioInstitucionRol.belongsTo(Usuario, { foreignKey: 'rut_usuario' })
@@ -167,9 +179,10 @@ sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
             {
                 seccion: 'TEMP',
                 clave: 'DIR',
-                valor: '/Users/alanalvarez/Documents/TEMP/'
+                valor: '/home/eduardo/Documentos/TEMP/'
             }
             ])
+            console.log('CONFIGURACIONES INSERTADAS')
 
             await Institucion.bulkCreate([{
                 codigo: '1',
@@ -190,7 +203,6 @@ sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
             }])
             console.log('INSTITUCIONES INSERTADAS')
 
-            console.log('CONFIGURACIONES INSERTADAS')
 
             await Rol.bulkCreate([{
                     codigo: '1',
@@ -382,9 +394,6 @@ sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
             }])
             console.log('MATERIAS INSERTADAS')
             
-
-            
-
             await Curso.bulkCreate([{
                 codigo: '1',
                 letra: 'A',
@@ -464,6 +473,21 @@ sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
                 codigo_modalidad: '5',
             }])
 
+            console.log('TIPOS DE JUEGO VS MODALIDAD INSERTADOS')
+
+            await Estado.bulkCreate([{
+                codigo: '1',
+                descripcion: 'INICIADO',
+            },{
+                codigo: '2',
+                descripcion: 'PAUSA',
+            },{
+                codigo: '3',
+                descripcion: 'FINALIZADO',
+            }])
+
+            console.log('ESTADOS INSERTADAS')
+
         } catch (error) {
             console.log(error)
         }
@@ -490,6 +514,11 @@ module.exports = {
     CursoUsuarioRol,
     sequelize,
     Ring,
+    Estado,
+    Single,
+    RespuestaPista,
+    RespuestaSolucion,
+    Respuesta,
     RingUsuario,
     RingPregunta,
     RingNivelAcademico,

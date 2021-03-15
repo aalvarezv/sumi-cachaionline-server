@@ -1,8 +1,13 @@
-const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Curso } = require('../config/db');
-const { Sequelize, Op, QueryTypes } = require('sequelize');
-const bcrypt = require('bcryptjs');
+const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Configuracion } = require('../config/db');
+const { Sequelize, Op, QueryTypes } = require('sequelize')
+const bcrypt = require('bcryptjs')
+const fsp = require('fs').promises
+const fs = require('fs')
+const ExcelJS = require('exceljs')
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
+const { response } = require('express');
+const { errorMonitor } = require('stream');
 
 
 exports.crearUsuario = async(req, res) => {
@@ -184,6 +189,154 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
+}
+
+
+exports.cargaMasivaUsuarios = async(req, res) => {
+
+    const {archivoBase64} = req.body;
+
+    try{
+        //Directorio temporal donde se guardará el archivo de carga.
+        let tmp_dir = await Configuracion.findOne({
+            attributes: ['valor'],
+            where: {
+                seccion: 'TEMP',
+                clave: 'DIR'
+            }
+        });
+
+        if(!tmp_dir){
+            return res.status(404).send({
+                msg: `No existe sección TEMP clave DIR en la configuración, verifique.`,
+            });
+        }
+        //Extrae el valor.
+        tmp_dir = tmp_dir.dataValues.valor;
+
+        //Anido la ruta mas el nombre del archivo, para almacenarlo
+        const archivoPath = tmp_dir + "cargaMasivaServer.xlsx"
+
+        //Convierto el archivo base64 a xlsx y lo guardo en el directorio
+        await fsp.writeFile(archivoPath, archivoBase64, 'base64');
+
+        //Crea la instancia para utilizar la libreria.
+        const workbook = new ExcelJS.Workbook()
+
+        let hoja_excel = null
+        const libro_excel = await workbook.xlsx.readFile(archivoPath)
+
+         //Se ubica en la hoja USUARIOS
+         hoja_excel  = libro_excel.getWorksheet('USUARIOS');
+
+    
+         if (!hoja_excel) {
+             return res.status(404).send({
+                 msg: `No existe la hoja USUARIOS en el archivo excel para procesar y cargar las preguntas, verifique.`,
+             });
+         }
+
+            let errores = []
+
+        for (let i = 2; i < 5; i++) {
+                let error = {
+                    fila: i,
+                    mensajes: []
+                }
+                let rut = hoja_excel.getCell(`A${i}`).text
+                let clave = hoja_excel.getCell(`B${i}`).text
+                let nombre = hoja_excel.getCell(`C${i}`).text
+                let email = hoja_excel.getCell(`D${i}`).text
+                let telefono = hoja_excel.getCell(`E${i}`).text
+                let imagen = hoja_excel.getCell(`F${i}`).text
+                //console.log(rut, clave,nombre, email, telefono, imagen)
+
+             try{
+                if(rut.trim() === ''){
+                    error.mensajes.push('El rut está vacío')
+                }
+                if(nombre.trim() === ''){
+                    error.mensajes.push('El nombre está vacío')
+                }  
+
+                const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/;
+    
+                if(!re.test(String(email).toLowerCase())){
+                    error.mensajes.push('El email no es válido')
+                }
+                //que el telefono sea un numero
+                if(isNaN(telefono)){
+                    error.mensajes.push('El telefono no es un número')
+                }
+
+                if(error.mensajes.length > 0){
+                    errores.push(error)
+                }
+
+
+            }catch(error) {
+               console.log(error);
+               res.status(500).send({
+                   msg: 'Hubo un error, por favor vuelva a intentar'
+               })
+            }
+        }
+
+
+        if(errores.length > 0){
+            return res.status(404).send({
+                msg: 'El archivo contiene errores', 
+                errores
+            })
+        }
+        //hago nuevamente el for, pero esta vez inserto los registros en la base de datos.
+        //y no olvidar el try catch.
+        //verifico que el rut del usuario no existe en la base de datos.
+        try{
+            for (let i = 2; i < 5; i++) {
+             let rut = hoja_excel.getCell(`A${i}`).text
+             let clave = hoja_excel.getCell(`B${i}`).text
+             let nombre = hoja_excel.getCell(`C${i}`).text
+             let email = hoja_excel.getCell(`D${i}`).text
+             let telefono = hoja_excel.getCell(`E${i}`).text
+             let imagen = hoja_excel.getCell(`F${i}`).text
+
+                const usuario = await Usuario.findByPk(rut);
+                    if (!usuario) {
+                        await Usuario.create({
+                            rut,
+                            clave,
+                            nombre,
+                            email,
+                            telefono,
+                            imagen
+                        })
+                    }else{
+                        return res.status(400).json({
+                            msg: `El usuario ${usuario.rut} ya existe`
+                        });
+                    }   
+            }
+
+        }catch(e){
+            res.status(500).send({
+                msg: 'Hubo un error, por favor vuelva a intentar'
+            })
+        }
+        //Elimino el archivo
+        await fsp.unlink(archivoPath)
+
+        res.json({
+            msg: "TODO OK!",
+        })
+
+    }catch(e){
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+    
+
 }
 
 exports.actualizarUsuario = async(req, res) => {

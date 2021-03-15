@@ -2,11 +2,13 @@ const app = require('express')()
 const cors = require('cors')
 const serveStatic = require( "serve-static" );
 
+
 if(process.env.NODE_ENV === 'dev'){
     require('dotenv').config({ path: './.env.development' })
 }else{
     require('dotenv').config({ path: './.env.production' })
 }
+
 
 //puerto de la app.
 const PORT = process.env.PORT || 3001
