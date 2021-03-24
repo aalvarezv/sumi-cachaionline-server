@@ -45,9 +45,17 @@ ProxyPassReverse /socket-cachaionline/ ws://localhost:3008/socket.io/
 ````
 
 ###### Variables de entorno.
+Se debe crear archivos:
+.env.development
+.env.production
 
-* **DB_URI=** Dirección de conexión a la base de datos MySQL ejemplo: mysql://user:password@ip:port/db_name
-* **DB_FORCE=** Valor que indica si la base de datos se elimina y se vuelve a crear. Valores 
-* **PORT=** Puerto de escucha del servidor express y socket.io
-* **SECRETA=** Llave secreta del Token
-* **PATH_STATIC=** Ruta de archivos estáticos ejemplo: E:\\cachaionline\\static\\
+* **DB_USERNAME=**Usuario de la base de datos
+* **DB_PASSWORD=**Contraseña de la base de datos
+* **DB_HOST=**IP Servidor de la base de datos
+* **DB_DATABASE=**Nombre de la base de datos
+* **DB_PORT=**Puerto de la base de datos (3306)
+* **DB_DIALECT=**Base de datos propiamente (mysql)
+* **DB_FORCE=**Valor que indica si la base de datos se elimina y se vuelve a crear. Valores posibles (0, 1)
+* **PORT=**Puerto de escucha del servidor express y socket.io
+* **SECRETA=**Llave secreta del Token
+* **PATH_STATIC=**Ruta de archivos estáticos ejemplo: E:\\cachaionline\\static\\
