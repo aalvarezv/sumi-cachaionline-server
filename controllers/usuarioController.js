@@ -198,21 +198,7 @@ exports.cargaMasivaUsuarios = async(req, res) => {
 
     try{
         //Directorio temporal donde se guardará el archivo de carga.
-        let tmp_dir = await Configuracion.findOne({
-            attributes: ['valor'],
-            where: {
-                seccion: 'TEMP',
-                clave: 'DIR'
-            }
-        });
-
-        if(!tmp_dir){
-            return res.status(404).send({
-                msg: `No existe sección TEMP clave DIR en la configuración, verifique.`,
-            });
-        }
-        //Extrae el valor.
-        tmp_dir = tmp_dir.dataValues.valor;
+        const tmp_dir = process.env.DIR_TEMP;
 
         //Anido la ruta mas el nombre del archivo, para almacenarlo
         const archivoPath = tmp_dir + "cargaMasivaServer.xlsx"

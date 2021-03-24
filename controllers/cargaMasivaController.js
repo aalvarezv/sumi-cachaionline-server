@@ -89,22 +89,10 @@ exports.cargaMateriasUnidadesModulos = async (req, res) => {
             });
         }
 
-        const tmp_dir = await Configuracion.findOne({
-            attributes: ['valor'],
-            where: {
-                seccion: 'TEMP',
-                clave: 'DIR'
-            }
-        });
-
-        if(!tmp_dir){
-            return res.status(404).send({
-                msg: `No existe sección TEMP clave DIR en la configuración, verifique.`,
-            });
-        }
+        const tmp_dir = process.env.DIR_TEMP;
 
         //genera la ruta del archivo excel a leer.
-        let archivo_carga = `${tmp_dir.dataValues.valor}${nombre_archivo_carga}`;
+        let archivo_carga = `${tmp_dir}${nombre_archivo_carga}`;
     
         const workbook = new ExcelJS.Workbook();
 
@@ -488,38 +476,11 @@ exports.cargaPreguntas = async (req, res) => {
             });
         }
         //Directorio temporal donde se guardará el archivo de carga.
-        let tmp_dir = await Configuracion.findOne({
-            attributes: ['valor'],
-            where: {
-                seccion: 'TEMP',
-                clave: 'DIR'
-            }
-        });
-
-        if(!tmp_dir){
-            return res.status(404).send({
-                msg: `No existe sección TEMP clave DIR en la configuración, verifique.`,
-            });
-        }
-        //Extrae el valor.
-        tmp_dir = tmp_dir.dataValues.valor;
+        const tmp_dir = process.env.DIR_TEMP;
 
         //Obtiene el directorio donde serán almacenados los archivos multimedia para la pregunta.
         //Imagen Pregunta, Imagen, Video y Audio para Solucion y Pistas.
-        let dir_pregunta = await Configuracion.findOne({
-            where:{
-                seccion: 'PREGUNTAS',
-                clave: 'DIR'
-            }
-        });
-        
-        if (!dir_pregunta) {
-            return res.status(404).send({
-                msg: `No existe sección PREGUNTAS clave DIR en la configuración, verifique.`
-            })
-        }
-
-        dir_pregunta = dir_pregunta.dataValues.valor;
+        const dir_pregunta = process.env.DIR_PREGUNTAS;
 
         //genera la ruta del archivo excel a leer.
         let archivo_carga = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_archivo_carga}`;

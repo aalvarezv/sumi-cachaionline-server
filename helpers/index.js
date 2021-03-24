@@ -280,31 +280,6 @@ const moverArchivo = (archivo_origen, archivo_destino) => {
    
 }
 
-//Obtiene el directorio donde serán almacenados los archivos multimedia para la pregunta.
-//Imagen Pregunta, Imagen, Video y Audio para Solucion y Pistas.
-const getDirPreguntas = () => {
-   
-    return new Promise(async (resolve, reject) => {
-
-        let dir_pregunta = await Configuracion.findOne({
-            where:{
-                seccion: 'PREGUNTAS',
-                clave: 'DIR'
-            }
-        });
-
-        if (!dir_pregunta) {
-            reject({
-                msg: `No existe sección PREGUNTAS clave DIR en la configuración, verifique.`
-            });
-        }
-
-        dir_pregunta = dir_pregunta.dataValues.valor;
-        resolve(dir_pregunta);
-
-    });
-    
-}
 
 //limpia texto del nombre de los campos del objeto.
 const limpiaTextoObjeto = (obj, textoReemplazar) => {
@@ -342,7 +317,6 @@ module.exports = {
     powerPointToPDF,
     pdfToImage,
     moverArchivo,
-    getDirPreguntas,
     fileToBase64,
     limpiaTextoObjeto,
     isUrl,

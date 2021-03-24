@@ -40,7 +40,7 @@ module.exports = {
         queryInterface.removeColumn('preguntas', 'aplicar', { transaction: t }),
         queryInterface.removeColumn('preguntas', 'analizar', { transaction: t }),
         queryInterface.removeColumn('preguntas', 'evaluar', { transaction: t }),
-        queryInterface.removeColumn( 'preguntas', 'crear', { transaction: t })
+        queryInterface.removeColumn('preguntas', 'crear', { transaction: t })
       ]);
     });
   }
