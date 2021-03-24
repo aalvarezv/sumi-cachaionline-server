@@ -2,7 +2,7 @@ const { Configuracion, Unidad, Materia,
         Modulo, ModuloContenido, ModuloContenidoTema, 
         ModuloContenidoTemaConcepto, Pregunta, PreguntaAlternativa,
         PreguntaSolucion, PreguntaPista,
-        sequelize} = require('../config/db');
+        sequelize} = require('../database/db');
 const { letras } = require('../helpers');
 const uuidv4 = require('uuid').v4;
 const { PDFDocument } = require('pdf-lib');

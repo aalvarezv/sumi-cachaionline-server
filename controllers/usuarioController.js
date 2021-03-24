@@ -1,4 +1,4 @@
-const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Configuracion } = require('../config/db');
+const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Configuracion } = require('../database/db');
 const { Sequelize, Op, QueryTypes } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const fsp = require('fs').promises

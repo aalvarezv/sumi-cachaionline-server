@@ -21,7 +21,8 @@ router.put('/actualizar', auth, [
     actualizarCurso);
 router.delete('/eliminar/:codigo', auth, eliminarCurso);
 router.get('/datos/:codigo', auth, datosCurso);
-router.get('/busqueda/institucion-nivel-academico/', auth,cursosInstitucionNivelAcademico);
+router.get('/busqueda/institucion-nivel-academico/', auth, cursosInstitucionNivelAcademico);
+
 router.get('/listar/usuario-nivel-academico-institucion', auth, listarCursosUsuarioNivelAcademicoInstitucion);
 router.get('/listar/usuarios-ring', auth, listarUsuariosRingCurso);
 

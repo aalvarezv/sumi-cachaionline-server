@@ -1,4 +1,4 @@
-const { Institucion, Curso } = require('../config/db');
+const { Institucion, Curso } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 

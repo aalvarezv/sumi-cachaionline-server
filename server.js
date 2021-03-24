@@ -1,13 +1,14 @@
 const app = require('express')()
 const cors = require('cors')
-const serveStatic = require( "serve-static" );
-
+const serveStatic = require( "serve-static")
 
 if(process.env.NODE_ENV === 'dev'){
     require('dotenv').config({ path: './.env.development' })
 }else{
     require('dotenv').config({ path: './.env.production' })
 }
+
+const { sequelize } = require('./database/db')
 
 
 //puerto de la app.
@@ -52,4 +53,11 @@ io.sockets.on('connection', socket => {
 //Inicia el servidor.
 server.listen(PORT, () => {
     console.log(`El servidor está funcionando en el puerto ${PORT} ${new Date().toLocaleTimeString()}`)
+
+    sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {
+
+        console.log('Se estableció la conexión a la base de datos')
+
+    })
+
 })

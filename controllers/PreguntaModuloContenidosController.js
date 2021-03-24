@@ -1,4 +1,4 @@
-const { PreguntaModuloContenido } = require('../config/db');
+const { PreguntaModuloContenido } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 exports.crearPreguntaModuloContenido= async(req, res) => {

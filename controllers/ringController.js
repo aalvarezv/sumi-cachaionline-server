@@ -1,4 +1,4 @@
-const { Ring, Usuario, NivelAcademico, sequelize, RingPregunta, RingUsuario, RingUsuarioRespuesta, RingNivelAcademico } = require('../config/db');
+const { Ring, Usuario, NivelAcademico, sequelize, RingPregunta, RingUsuario, RingUsuarioRespuesta, RingNivelAcademico } = require('../database/db');
 const { Op } = require('sequelize');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');

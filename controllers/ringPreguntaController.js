@@ -1,5 +1,5 @@
 const { RingPregunta, Pregunta, PreguntaAlternativa, 
-    PreguntaSolucion, PreguntaPista } = require('../config/db');
+    PreguntaSolucion, PreguntaPista } = require('../database/db');
 
 const { Sequelize } = require('sequelize');
 const { validationResult } = require('express-validator');
@@ -36,8 +36,17 @@ exports.crearRingPregunta = async(req, res) => {
             codigo_pregunta
         });
 
+        const cantPreguntasRing = await RingPregunta.count({
+            where: {
+                codigo_ring,
+            }
+        });
+
         //envía la respuesta
-        res.json({ring_pregunta});
+        res.json({
+            ring_pregunta,
+            cantPreguntasRing
+        });
 
     } catch (error) {
         console.log(error);
@@ -81,8 +90,15 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
 
         }
 
+        const cantPreguntasRing = await RingPregunta.count({
+            where: {
+                codigo_ring: ring_preguntas_add[0].codigo_ring,
+            }
+        });
+
         res.json({
-            msg: 'Preguntas correctamente agregadas al ring en forma masiva'
+            msg: 'Preguntas correctamente agregadas al ring en forma masiva',
+            cantPreguntasRing
         });
 
     } catch (error) {
@@ -103,7 +119,7 @@ exports.listarRingPreguntas = async(req, res) => {
     
     try {
 
-        const { codigo_ring } = req.params;
+        const { codigo_ring } = req.query;
     
         //verifica si existe la combinación ring vs pregunta.
         let ring_preguntas = await RingPregunta.findAll({
@@ -205,9 +221,16 @@ exports.eliminarRingPregunta = async(req, res) => {
             }
         });
 
+        const cantPreguntasRing = await RingPregunta.count({
+            where: {
+                codigo_ring,
+            }
+        });
+
         //envío una respuesta informando que el registro fue eliminado
         res.json({
-            msg: 'Pregunta eliminada correctamente del ring'
+            msg: 'Pregunta eliminada correctamente del ring',
+            cantPreguntasRing
         });
 
     } catch (error) {
@@ -254,8 +277,15 @@ exports.eliminarRingPreguntaMasivo = async(req, res) => {
 
         }
 
+        const cantPreguntasRing = await RingPregunta.count({
+            where: {
+                codigo_ring: JSON.parse(ring_preguntas_del[0]).codigo_ring,
+            }
+        });
+
         res.json({
-            msg: 'Preguntas correctamente eliminadas del ring en forma masiva'
+            msg: 'Preguntas correctamente eliminadas del ring en forma masiva',
+            cantPreguntasRing
         });
 
     } catch (error) {
@@ -265,5 +295,30 @@ exports.eliminarRingPreguntaMasivo = async(req, res) => {
         });
     }
 
+
+}
+
+exports.countPreguntasRing = async(req, res) => {
+
+    try{
+
+        const { codigo_ring } = req.query; 
+
+        const cantPreguntasRing = await RingPregunta.count({
+            where: {
+                codigo_ring,
+            }
+        });
+
+        res.json({
+            cantPreguntasRing,
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
 
 }

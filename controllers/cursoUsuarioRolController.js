@@ -1,5 +1,6 @@
-const { CursoUsuarioRol } = require('../config/db');
+const { CursoUsuarioRol, Curso, NivelAcademico, Institucion } = require('../database/db');
 const { validationResult } = require('express-validator');
+const { Sequelize, Op } = require('sequelize');
 
 exports.crearUsuarioCursoRol = async(req, res) => {
 
@@ -13,8 +14,6 @@ exports.crearUsuarioCursoRol = async(req, res) => {
        
         const { codigo_curso, rut_usuario, codigo_rol } = req.body;
         
-        console.log('AQUIIII!!',codigo_curso, rut_usuario, codigo_rol)
-
         //Verifica si existe la combinación curso vs usuario
         let curso_usuario = await CursoUsuarioRol.findAll({
             where: {
@@ -38,7 +37,9 @@ exports.crearUsuarioCursoRol = async(req, res) => {
         });
 
         //envía la respuesta
-        res.json(curso_usuario);
+        res.json({
+            curso_usuario
+        });
 
     } catch (error) {
         console.log(error);
@@ -90,5 +91,60 @@ exports.eliminarUsuarioCursoRol = async(req, res) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
+
+}
+
+//Lista los cursos e indica si el usuario con el rol consultado está inscrito.
+exports.listarCursosUsuarioRol = async(req, res) => {
+
+    try {
+
+        let { 
+            rut_usuario,
+            codigo_rol,
+            codigo_institucion,
+            codigo_nivel_academico,
+        } = req.query;
+
+        const cursos = await Curso.findAll({
+            attributes: [
+                'codigo',
+                'letra', 
+                [Sequelize.literal(`(SELECT COUNT(*) 
+                FROM cursos_usuarios_roles 
+                WHERE codigo_curso = curso.codigo
+                AND rut_usuario = ${rut_usuario}
+                AND codigo_rol = ${codigo_rol}
+                )`),'inscrito']
+            ],
+            include:[{
+                attributes:['descripcion', 'nivel'],
+                model: NivelAcademico,
+            },{
+                attributes:['codigo','descripcion'],
+                model: Institucion
+            }],
+            where: { 
+                [Op.and]: [
+                    {codigo_institucion: { [Op.eq] : codigo_institucion}},
+                    {codigo_nivel_academico: { [Op.eq] : codigo_nivel_academico}}
+            ]},
+            order: [
+                ['nivel_academico','nivel', 'ASC'],
+                ['nivel_academico','descripcion','ASC'],
+            ]
+        });
+
+        res.json({
+            cursos
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+
 
 }

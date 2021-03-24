@@ -1,6 +1,36 @@
-/*
-[Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']*/
+* Uso de sequelize literal.
+[Sequelize.literal('(SELECT descripcion FROM niveles_academicos WHERE codigo = `curso_usuarios->curso`.`codigo_nivel_academico`)'),'descripcion_nivel_academico']
 
 
 Comandos Utiles:
 npx kill-port 3001 -> Termina lo que esta corriendo en el puerto 
+
+Migraciones:
+* Ver lista de Comandos
+npx sequelize-cli
+
+- SEEDS
+* Crear una semilla
+NODE_ENV=dev npx sequelize-cli seed:generate --name create-base 
+* Ejecutar una semilla.
+NODE_ENV=dev npx sequelize-cli db:seed --seed 20210322173237-create-base.js
+* Ejecutar todas las semillas
+NODE_ENV=dev npx sequelize-cli db:seed:all
+* Deshace una migración.
+NODE_ENV=dev npx sequelize-cli db:seed:undo --seed 20210322173237-create-base.js
+* Deshace todas las migraciones.
+NODE_ENV=dev npx sequelize-cli db:seed:undo:all
+
+- MIGRACIONES
+* Crear una migración
+NODE_ENV=dev npx sequelize-cli migration:generate --name add-table-test
+* Crear una migración a partir de la creación de un modelo.
+NODE_ENV=dev npx sequelize-cli model:generate --name test --attributes codigo:integer,descripcion:string
+* Ejecutar todas las migraciones pendientes.
+NODE_ENV=dev npx sequelize-cli db:migrate
+* Deshace la última migración.
+NODE_ENV=dev npx sequelize-cli db:migrate:undo
+* Deshace todas las migraciones.
+npx sequelize-cli db:migrate:undo:all
+
+

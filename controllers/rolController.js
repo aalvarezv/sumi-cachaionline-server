@@ -1,4 +1,4 @@
-const { Rol, UsuarioInstitucionRol } = require('../config/db');
+const { Rol, UsuarioInstitucionRol } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
@@ -58,13 +58,27 @@ exports.crearRol = async(req, res) => {
 exports.listarRoles = async(req, res) => {
 
     try {
-        const rol = await Rol.findAll();
+        
+        const { codigos } = req.query
+        
+        const rol = await Rol.findAll({
+            where: {
+                [Op.and]: [
+                    {codigo: {[Op.in]: codigos}},
+                ]
+            },
+            order: [
+                ['descripcion', 'ASC'],
+            ]
+        });
+        
         res.json({
             rol
         });
+
     } catch (error) {
         console.log(error);
-        res.satus(500).send({
+        res.status(500).send({
             msg: "Hubo un error, por favor vuelva a intentar"
         });
     }

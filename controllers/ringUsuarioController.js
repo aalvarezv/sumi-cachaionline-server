@@ -1,4 +1,4 @@
-const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad } = require('../config/db');
+const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 const { limpiaTextoObjeto } = require('../helpers');
@@ -100,7 +100,7 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
          return res.status(400).json({ errors: errors.array() });
      }
 
-     const { rut_usuario, codigo_institucion } = req.params;
+     const { rut_usuario, codigo_institucion } = req.query;
 
      try {
 

@@ -1,4 +1,4 @@
-const { ModuloContenidoTema, ModuloContenido, Modulo, Unidad, ModuloContenidoTemaConcepto, PreguntaModuloContenidoTema } = require('../config/db');
+const { ModuloContenidoTema, ModuloContenido, Modulo, Unidad, ModuloContenidoTemaConcepto, PreguntaModuloContenidoTema } = require('../database/db');
 const { validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 

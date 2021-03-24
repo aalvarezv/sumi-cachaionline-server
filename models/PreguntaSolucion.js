@@ -18,7 +18,8 @@ module.exports = (sequelize, type, Pregunta) => {
             }
         },
         numero: {
-            type: type.STRING
+            type: type.INTEGER,
+            allownull: false
         },
         texto: {
             type: type.STRING

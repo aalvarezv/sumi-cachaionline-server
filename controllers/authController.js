@@ -1,4 +1,4 @@
-const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../config/db');
+const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { limpiaTextoObjeto } = require('../helpers');

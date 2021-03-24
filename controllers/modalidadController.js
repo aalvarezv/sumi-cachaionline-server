@@ -1,4 +1,4 @@
-const { Modalidad, TipoJuegoModalidad } = require ('../config/db');
+const { Modalidad, TipoJuegoModalidad } = require ('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 

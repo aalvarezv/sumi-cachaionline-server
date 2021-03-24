@@ -1,4 +1,4 @@
-const { RingInvitacion } = require('./config/db')
+const { RingInvitacion } = require('./database/db')
 const uuidv4 = require('uuid').v4;
 
 exports.socketEvents = socket => {

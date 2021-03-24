@@ -7,7 +7,7 @@ const {
     RespuestaPista,
     RespuestaSolucion,
     Usuario,
-} = require('../config/db');
+} = require('../database/db');
 const uuidv4 = require('uuid').v4;
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');

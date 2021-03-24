@@ -1,4 +1,4 @@
-const { TipoJuegoModalidad, Modalidad } = require('../config/db');
+const { TipoJuegoModalidad, Modalidad } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 exports.crearTipoJuegoModalidad = async(req, res) => {

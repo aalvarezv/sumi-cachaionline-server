@@ -1,5 +1,5 @@
 const { CursoUsuarioRol, Usuario, Curso, Ring, 
-    RingInvitacion, RingNivelAcademico, NivelAcademico } = require('../config/db')
+    RingInvitacion, RingNivelAcademico, NivelAcademico } = require('../database/db')
 const {Sequelize, Op} = require('sequelize')
 
 

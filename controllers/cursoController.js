@@ -1,8 +1,7 @@
 const { Curso, Usuario, NivelAcademico, 
-        Institucion, CursoUsuarioRol, RingUsuario } = require('../config/db');
+        Institucion, CursoUsuarioRol, RingUsuario } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-const colors = require('colors/safe');
 
 exports.crearCurso = async(req, res) => {
 
@@ -291,13 +290,11 @@ exports.cursosInstitucionNivelAcademico = async(req, res) => {
     }
 }
 
-
 exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
     
     try{
 
         const {niveles_academicos, rut_usuario, codigo_institucion} = req.query;
-
     
         const cursos_usuario_nivel_academico_institucion = await CursoUsuarioRol.findAll({
             attributes: [],

@@ -4,7 +4,7 @@ const mv = require('mv');
 const fs = require('fs');
 const { PreguntaModulo, PreguntaModuloContenido, 
     PreguntaModuloContenidoTema, PreguntaModuloContenidoTemaConcepto,
-    Configuracion } = require('../config/db');
+    Configuracion } = require('../database/db');
 const mime = require('mime-types');
 
 const letras = [
@@ -180,7 +180,6 @@ const creaPreguntaModuloContenidoTemaConcepto = async (codigo_pregunta, codigo_m
     
 }
 
-
 const powerPointToPDF = async (archivo_ppt, archivo_pdf) => {
 
     return new Promise((resolve, reject) => {
@@ -281,7 +280,7 @@ const moverArchivo = (archivo_origen, archivo_destino) => {
    
 }
 
- //Obtiene el directorio donde serán almacenados los archivos multimedia para la pregunta.
+//Obtiene el directorio donde serán almacenados los archivos multimedia para la pregunta.
 //Imagen Pregunta, Imagen, Video y Audio para Solucion y Pistas.
 const getDirPreguntas = () => {
    
@@ -307,28 +306,32 @@ const getDirPreguntas = () => {
     
 }
 
- //limpia texto del nombre de los campos del objeto.
- const limpiaTextoObjeto = (obj, textoReemplazar) => {
-     
-    return obj.map(item => {
-        //objeto a arreglo
-        let entries = Object.entries(item).map(entry => {
-            return entry
-        })
-        //recorro el arreglo y elimino el texto que se necesita.
-        entries = entries.map( entry => {
-            const key = entry[0].replace(textoReemplazar,'')
-            const val = entry[1]
-            return [key, val]
-        })
-        //arreglo a objeto.
-        const obj = Object.fromEntries(entries);
-        return obj
-
+//limpia texto del nombre de los campos del objeto.
+const limpiaTextoObjeto = (obj, textoReemplazar) => {
+    
+return obj.map(item => {
+    //objeto a arreglo
+    let entries = Object.entries(item).map(entry => {
+        return entry
     })
+    //recorro el arreglo y elimino el texto que se necesita.
+    entries = entries.map( entry => {
+        const key = entry[0].replace(textoReemplazar,'')
+        const val = entry[1]
+        return [key, val]
+    })
+    //arreglo a objeto.
+    const obj = Object.fromEntries(entries);
+    return obj
 
+})
+
+}
+
+const isUrl = (s) => {
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    return regexp.test(s);
  }
-
 
 module.exports = {
     letras,
@@ -342,4 +345,5 @@ module.exports = {
     getDirPreguntas,
     fileToBase64,
     limpiaTextoObjeto,
+    isUrl,
 }

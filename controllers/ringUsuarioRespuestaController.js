@@ -1,4 +1,4 @@
-const { RingUsuarioRespuesta, Ring, Usuario, Pregunta } = require('../config/db');
+const { RingUsuarioRespuesta, Ring, Usuario, Pregunta } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 

@@ -1,4 +1,4 @@
-const { PreguntaModulo } = require('../config/db');
+const { PreguntaModulo } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 exports.crearPreguntaModulo = async(req, res) => {

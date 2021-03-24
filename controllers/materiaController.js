@@ -1,4 +1,4 @@
-const { Materia, Unidad } = require('../config/db');
+const { Materia, Unidad } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 

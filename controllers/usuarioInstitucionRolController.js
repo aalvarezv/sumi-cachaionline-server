@@ -1,4 +1,4 @@
-const { UsuarioInstitucionRol, Institucion, Rol } = require('../config/db');
+const { UsuarioInstitucionRol, Institucion, Rol } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 

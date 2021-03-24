@@ -1,4 +1,4 @@
-const { CursoModulo } = require('../config/db');
+const { CursoModulo } = require('../database/db');
 const { validationResult } = require('express-validator');
 
 
