@@ -24,10 +24,10 @@ module.exports = {
     //Tabla donde se almacenarán los registros
     migrationStorageTableName: "sequelize_migrations",
 
-    define: { 
+    /*define: { 
         timestamps: false
-    },
-    logging: false,//console.log, 
+    },*/
+    logging: console.log,//console.log, 
     pool: {
         max: 5,
         min: 0,

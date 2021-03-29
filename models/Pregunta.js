@@ -1,5 +1,6 @@
 module.exports = (sequelize, type, Usuario) =>{
 
+ 
     return sequelize.define('pregunta',{
         codigo:{
             type: type.STRING(128),
@@ -34,6 +35,30 @@ module.exports = (sequelize, type, Usuario) =>{
         duracion:{
             type: type.INTEGER,
             allowNull: false,
+            defaultValue: 0,
+        },
+        recordar:{
+            type: type.FLOAT,
+            defaultValue: 0,
+        },
+        comprender:{
+            type: type.FLOAT,
+            defaultValue: 0,
+        },
+        aplicar:{
+            type: type.FLOAT,
+            defaultValue: 0,
+        },
+        analizar:{
+            type: type.FLOAT,
+            defaultValue: 0,
+        },
+        evaluar:{
+            type: type.FLOAT,
+            defaultValue: 0,
+        },
+        crear:{
+            type: type.FLOAT,
             defaultValue: 0,
         },
         inactivo:{

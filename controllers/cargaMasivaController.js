@@ -330,6 +330,14 @@ exports.cargaPreguntas = async (req, res) => {
      * letra_columna_pregunta_numero_pistas: Columna donde se indica la cantidad de pistas que tiene una pregunta.
      * fila_inicio: Fila donde se inicia de la lectura de los datos.
      * fila_fin: Fila donde termina la lectura de los datos.
+     * letra_columna_recordar: Columna donde se indica el nivel de capacidad para recordar que necesita el/la alumno/a para poder resolver la pregunta.
+     * letra_columna_comprender: Columna donde se indica el nivel de capacidad para comprender que necesita el/la alumno/a para poder resolver la pregunta.
+     * letra_columna_aplicar: Columna donde se indica el nivel de capacidad para aplicar que necesita el/la almuno/a para poder resolver la pregunta.
+     * letra_columna_anilzar: Columna donde se indica el nivel de capacidad para analizar que necesita el/la alumno/a para poder resolver la pregunta.
+     * letra_columna_evaluar: Columna donde se indica el nivel de capacidad para evaluar que necesita el/la almuno/a para poder resolver la pregunta.
+     * letra_columna_crear: Columna donde se indica el nivel de capacidad para crear que necesita el/la almuno/a para poder resolver la pregunta. 
+     * 
+     * 
      * 
      * Ejemplo directorio carga:
      * DIR_TEMP
@@ -355,6 +363,9 @@ exports.cargaPreguntas = async (req, res) => {
             letra_columna_tipos_archivos_solucion,
             letra_columna_pregunta_numero_pistas,
             fila_inicio, fila_fin,
+            letra_columna_recordar, letra_columna_comprender,
+            letra_columna_aplicar, letra_columna_analizar,
+            letra_columna_evaluar, letra_columna_crear
 
         } = req.body;
 
@@ -475,6 +486,43 @@ exports.cargaPreguntas = async (req, res) => {
                 msg: `Parámetro fila_fin debe ser un número, verifique.`,
             });
         }
+
+        if(!letra_columna_recordar || letra_columna_recordar.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_recordar no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_comprender || letra_columna_comprender.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_comprender no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_aplicar || letra_columna_aplicar.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_aplicar no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_analizar || letra_columna_analizar.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_analizar no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_evaluar || letra_columna_evaluar.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_evaluar no puede ser vacío, verifique.`,
+            });
+        }
+
+        if(!letra_columna_crear || letra_columna_crear.trim() === ''){
+            return res.status(404).send({
+                msg: `Parámetro letra_columna_crear no puede ser vacío, verifique.`,
+            });
+        }
+
         //Directorio temporal donde se guardará el archivo de carga.
         const tmp_dir = process.env.DIR_TEMP;
 
@@ -705,7 +753,14 @@ exports.cargaPreguntas = async (req, res) => {
             let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text;
             let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
             let duracion_pregunta = hoja_excel.getCell(`${letra_columna_duracion_pregunta}${i}`).text.trim();
-
+            let recordar = hoja_excel.getCell(`${letra_columna_recordar}${i}`).text.trim();
+            let comprender = hoja_excel.getCell(`${letra_columna_comprender}${i}`).text.trim();
+            let aplicar = hoja_excel.getCell(`${letra_columna_aplicar}${i}`).text.trim();
+            let analizar = hoja_excel.getCell(`${letra_columna_analizar}${i}`).text.trim();
+            let evaluar = hoja_excel.getCell(`${letra_columna_evaluar}${i}`).text.trim();
+            let crear = hoja_excel.getCell(`${letra_columna_crear}${i}`).text.trim();
+           
+           
             let archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
             let archivo_pregunta_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pdf`;
             let archivo_pregunta_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_%d.jpg`;
@@ -740,6 +795,12 @@ exports.cargaPreguntas = async (req, res) => {
                 audio: '',
                 video: '',
                 duracion: duracion_pregunta,
+                recordar,
+                comprender,
+                aplicar,
+                analizar,
+                evaluar,
+                crear,
             });
 
             //*********ALTERNATIVAS.

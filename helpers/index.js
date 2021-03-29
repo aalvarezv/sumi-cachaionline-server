@@ -296,6 +296,7 @@ return obj.map(item => {
         return [key, val]
     })
     //arreglo a objeto.
+    console.log(entries)
     const obj = Object.fromEntries(entries);
     return obj
 

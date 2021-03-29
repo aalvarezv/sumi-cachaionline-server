@@ -33,6 +33,12 @@ exports.crearPregunta = async(req, res) => {
             audio,
             video,
             duracion,
+            recordar,
+            comprender,
+            aplicar,
+            analizar,
+            evaluar,
+            crear,   
             modulos,
             contenidos,
             temas,
@@ -41,6 +47,8 @@ exports.crearPregunta = async(req, res) => {
             soluciones,
             pistas,
         } = req.body;
+
+        console.log(recordar, comprender, aplicar, analizar, evaluar, crear)
 
         let pregunta = await Pregunta.findByPk(codigo);
         if (pregunta) {
@@ -88,6 +96,12 @@ exports.crearPregunta = async(req, res) => {
             audio: audio_pregunta,
             video: video_pregunta,
             duracion,
+            recordar,
+            comprender,
+            aplicar,
+            analizar,
+            evaluar,
+            crear,
         });
 
         //*********PREGUNTA vs MODULOS
@@ -697,6 +711,12 @@ exports.actualizarPregunta = async(req, res) => {
             audio,
             video,
             duracion,
+            recordar,
+            comprender,
+            aplicar,
+            analizar,
+            evaluar,
+            crear,
             modulos,
             contenidos,
             temas,
@@ -799,6 +819,12 @@ exports.actualizarPregunta = async(req, res) => {
             audio: audio_pregunta,
             video: video_pregunta,
             duracion,
+            recordar,
+            comprender,
+            aplicar,
+            analizar,
+            evaluar,
+            crear,
         },{
             where: {
                 codigo
