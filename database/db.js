@@ -24,6 +24,7 @@ const RingModel = require('../models/Ring')
 const SingleModel = require('../models/Single')
 const EstadoModel = require('../models/Estado')
 const RespuestaModel = require('../models/Respuesta')
+const RespuestaAlternativaModel = require('../models/RespuestaAlternativa')
 const RespuestaPistaModel = require('../models/RespuestaPista')
 const RespuestaSolucionModel = require('../models/RespuestaSolucion')
 const RingUsuarioModel = require('../models/RingUsuario')
@@ -66,7 +67,7 @@ const CursoUsuarioRol = CursoUsuarioRolModel(sequelize, Sequelize, Curso, Usuari
 const Pregunta = PreguntaModel(sequelize, Sequelize, Usuario)
 const PreguntaAlternativa = PreguntaAlternativaModel(sequelize, Sequelize, Pregunta)
 const Ring = RingModel(sequelize, Sequelize, Usuario, TipoJuego, Materia, Institucion, Modalidad)
-const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario)
+const RingUsuario = RingUsuarioModel(sequelize, Sequelize, Ring, Usuario, Institucion, Curso)
 const RingPregunta = RingPreguntaModel(sequelize, Sequelize, Ring, Pregunta)
 const RingNivelAcademico = RingNivelAcademicoModel(sequelize, Sequelize, Ring, NivelAcademico)
 const PreguntaPista = PreguntaPistaModel(sequelize, Sequelize, Pregunta)
@@ -78,7 +79,8 @@ const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoM
 const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta)
 const RingInvitacion = RingInvitacioModel(sequelize, Sequelize, Ring, Usuario)
 const Single = SingleModel(sequelize, Sequelize, Usuario, Institucion, NivelAcademico, Estado)
-const Respuesta = RespuestaModel(sequelize, Sequelize, Usuario, Single, Ring, Pregunta, PreguntaAlternativa)
+const Respuesta = RespuestaModel(sequelize, Sequelize, Usuario, Single, Ring, Pregunta)
+const RespuestaAlternativa = RespuestaAlternativaModel(sequelize, Sequelize, Respuesta, PreguntaAlternativa)
 const RespuestaPista = RespuestaPistaModel(sequelize, Sequelize, Respuesta, PreguntaPista)
 const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta, PreguntaSolucion)
 
@@ -171,6 +173,7 @@ module.exports = {
     Single,
     RespuestaPista,
     RespuestaSolucion,
+    RespuestaAlternativa,
     Respuesta,
     RingUsuario,
     RingPregunta,

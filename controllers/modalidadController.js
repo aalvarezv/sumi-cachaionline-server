@@ -14,7 +14,6 @@ exports.crearModalidad = async(req, res) => {
 
         let modalidad = await Modalidad.findByPk(codigo);
         if (modalidad) {
-            console.log('La modalidad ya existe');
             return res.status(400).json({
                 msg: 'La modalidad ya existe'
             });
@@ -39,7 +38,7 @@ exports.crearModalidad = async(req, res) => {
 exports.listarModalidadesTipoJuego = async(req, res) => {
 
     try {
-        console.log('LLAMA AQUI')
+        
         const {codigo_tipo_juego} = req.params;
 
         const modalidadesTipoJuego = await TipoJuegoModalidad.findAll({

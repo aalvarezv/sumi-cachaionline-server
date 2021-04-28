@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Usuario, Single, Ring, Pregunta, PreguntaAlternativa) =>{
+module.exports = (sequelize, type, Usuario, Single, Ring, Pregunta) =>{
 
     return sequelize.define('respuesta', {
         codigo:{
@@ -37,14 +37,6 @@ module.exports = (sequelize, type, Usuario, Single, Ring, Pregunta, PreguntaAlte
             allownull: false,
             references:{
                 model: Pregunta,
-                key: 'codigo'
-            }
-        },
-        codigo_alternativa:{
-            type: type.STRING(128),
-            allownull: false,
-            references:{
-                model: PreguntaAlternativa,
                 key: 'codigo'
             }
         },

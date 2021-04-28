@@ -5,18 +5,14 @@ const { Configuracion, Unidad, Materia,
         sequelize} = require('../database/db');
 const { letras } = require('../helpers');
 const uuidv4 = require('uuid').v4;
-const { PDFDocument } = require('pdf-lib');
-const findRemoveSync = require('find-remove');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
+const sizeOf = require('image-size');
 
 const { creaPreguntaModulo, 
         creaPreguntaModuloContenido, 
         creaPreguntaModuloContenidoTema, 
-        creaPreguntaModuloContenidoTemaConcepto,
-        powerPointToPDF,
-        pdfToImage,
-        moverArchivo, } = require('../helpers');
+        creaPreguntaModuloContenidoTemaConcepto} = require('../helpers');
 
 exports.cargaMateriasUnidadesModulos = async (req, res) => {
 
@@ -523,6 +519,9 @@ exports.cargaPreguntas = async (req, res) => {
             });
         }
 
+        let ancho_max_imagen_pregunta = 720;
+        let ancho_max_imagen_pista    = 720;
+
         //Directorio temporal donde se guardará el archivo de carga.
         const tmp_dir = process.env.DIR_TEMP;
 
@@ -554,15 +553,28 @@ exports.cargaPreguntas = async (req, res) => {
             try {
                  
                 let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text;
-                let archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
+                let archivo_pregunta_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.png`;
 
                 //Verifica que existe el archivo de pregunta.
-                if(!fs.existsSync(archivo_pregunta_ppt)){
+                if(!fs.existsSync(archivo_pregunta_png)){
                     errores = [
                         ...errores,
                         { 
                             fila: i,
-                            error: `Archivo pregunta ${archivo_pregunta_ppt} no existe`,  
+                            error: `Archivo pregunta ${archivo_pregunta_png} no existe`,  
+                        }
+                    ]
+                }
+
+                //Verifica el tamaño de la imagen.
+                let size = sizeOf(archivo_pregunta_png);
+
+                if(size.width > ancho_max_imagen_pregunta){
+                    errores = [
+                        ...errores,
+                        { 
+                            fila: i,
+                            error: `El ancho ${size.width} del archivo pregunta ${archivo_pregunta_png} supera el máximo permitido ${ancho_max_imagen_pregunta}`,  
                         }
                     ]
                 }
@@ -703,7 +715,7 @@ exports.cargaPreguntas = async (req, res) => {
                                 ...errores,
                                 { 
                                 fila: i,
-                                error: `Archivo video solución  ${archivo_solucion_mp4} no existe.`,  
+                                error: `Archivo video solución ${archivo_solucion_mp4} no existe.`,  
                                 }
                             ]
                         }
@@ -716,18 +728,51 @@ exports.cargaPreguntas = async (req, res) => {
                 //Si el archivo tiene pistas.
                 if(pregunta_numero_pistas > 0){
     
-                    let archivo_pista_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pptx`;
-                    
-                    if(!fs.existsSync(archivo_pista_ppt)){
+                    let carpeta_pistas_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}`;
+                    //Valida que existe la carpeta con las pistas
+                    if(!fs.existsSync(carpeta_pistas_png)){
                         errores = [
                             ...errores,
                             { 
                             fila: i,
-                            error: `Archivo power point pista ${archivo_pista_ppt} no existe.`,  
+                            error: `Carpeta con imagenes png de pista ${carpeta_pistas_png} no existe.`,  
                             }
                         ]
                     }
-                
+
+                    //Valida que existen las imagenes de pistas
+                    for(let i = 0; i < pregunta_numero_pistas; i++){
+                        //Genera el número de la solución.
+                        let numero_pista = i + 1;
+                        //Genera el path donde se encuentran las imagenes de pistas.
+                        let archivo_pista_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}/${numero_pista}.png`;  
+
+                        //Valida que existe el archivo de pistas
+                        if(!fs.existsSync(archivo_pista_png)){
+                            errores = [
+                                ...errores,
+                                { 
+                                fila: i,
+                                error: `Archivo de pista ${archivo_pista_png} no existe.`,  
+                                }
+                            ]
+                        }
+
+                        //Verifica el tamaño de la imagen.
+                        let size = sizeOf(archivo_pista_png);
+
+                        if(size.width > ancho_max_imagen_pista){
+                            errores = [
+                                ...errores,
+                                { 
+                                    fila: i,
+                                    error: `El ancho ${size.width} del archivo pista ${archivo_pista_png} supera el máximo permitido ${ancho_max_imagen_pista}`,  
+                                }
+                            ]
+                        }
+
+                    } 
+
                 }
 
             } catch (error) {
@@ -746,7 +791,7 @@ exports.cargaPreguntas = async (req, res) => {
                 errores,
             });
         }
-
+        
         //Lee filas del archivo excel y comienza el proceso.
         for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
             
@@ -760,38 +805,30 @@ exports.cargaPreguntas = async (req, res) => {
             let evaluar = hoja_excel.getCell(`${letra_columna_evaluar}${i}`).text.trim();
             let crear = hoja_excel.getCell(`${letra_columna_crear}${i}`).text.trim();
            
-           
-            let archivo_pregunta_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pptx`;
-            let archivo_pregunta_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.pdf`;
-            let archivo_pregunta_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_%d.jpg`;
-            
-            let resp = await powerPointToPDF(archivo_pregunta_ppt, archivo_pregunta_pdf);
-            console.log(resp.msg);
+            let archivo_pregunta_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.png`;
 
-            resp = await pdfToImage(archivo_pregunta_pdf, archivo_pregunta_imagen);
-            console.log(resp.msg);
-
-            const pdf_doc = await PDFDocument.load(fs.readFileSync(archivo_pregunta_pdf));
-            const pdf_doc_pages = pdf_doc.getPageCount();
-            console.log(`PDF ${archivo_pregunta_pdf} Total Páginas: ${pdf_doc_pages}`);
-            
             let codigo_pregunta = uuidv4();
 
-            //Crea el directorio (codigo pregunta) para almacenar los archivos de la pregunta.
-            //await fs.promises.mkdir(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
+            //Crea los directorios para almacenar los archivos de la pregunta.
+            fs.mkdirSync(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
+            //soluciones
+            fs.mkdirSync(`${dir_pregunta}/${codigo_pregunta}/soluciones`, {recursive: true});
+            //pistas
+            fs.mkdirSync(`${dir_pregunta}/${codigo_pregunta}/pistas`, {recursive: true});
            
-            //Obtiene la imagen de la pregunta que se obtuvo del PDF a IMAGEN y que corresponde a la segunda página del PDF, parten de 0 una vez que .
-            let imagen_pregunta = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_1.jpg`;
+            //Copia la imagen de la pregunta al directorio creado con el nombre del codigo pregunta uuid
+            fs.copyFileSync(archivo_pregunta_png,  `${dir_pregunta}${codigo_pregunta}/img-pregunta.png`);
 
-            //Mueve la imagen de la pregunta al directorio creado con el nombre del codigo pregunta uuid
-            await moverArchivo(imagen_pregunta, `${dir_pregunta}${codigo_pregunta}/img-pregunta.jpg`);
+            let size = sizeOf(archivo_pregunta_png);
       
             //Graba la pregunta en la base de datos.
             await Pregunta.create({
                 codigo: codigo_pregunta,
                 rut_usuario_creador: 'SYSTEM',
                 texto: '',
-                imagen: 'img-pregunta.jpg',
+                imagen: 'img-pregunta.png',
+                imagen_ancho: size.width,
+                imagen_alto: size.height,
                 audio: '',
                 video: '',
                 duracion: duracion_pregunta,
@@ -966,30 +1003,7 @@ exports.cargaPreguntas = async (req, res) => {
             }
 
             let numero_solucion = 0;
-            //SOLUCIONES IMG.
-            for(let i = 2; i < pdf_doc_pages; i++){
-                //Genera el path donde se encuentra la solución de la imagen. 
-                //Corresponde al directorio donde se convierte el ppt a pdf y luego el pdf a imagen.
-                //La imagen 2 en adelante son soluciones.
-                let archivo_solucion_jpg = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}_${i}.jpg`;
-                //Genera el número de la solución.
-                numero_solucion = i - 1;
-                //Mueve el archivo de imagen de la solución hasta el directorio de los archivos de la pregunta.
-                await moverArchivo(archivo_solucion_jpg, `${dir_pregunta}${codigo_pregunta}/soluciones/img-solucion-${numero_solucion}.jpg`);
-
-                //crea el registro en la bd donde se asocia la solución a la pregunta.
-                await PreguntaSolucion.create({
-                    codigo: uuidv4(),
-                    codigo_pregunta,
-                    numero: numero_solucion,
-                    texto: '',
-                    imagen:`img-solucion-${numero_solucion}.jpg`, 
-                    audio: '',
-                    video: '',
-                });
-
-            }
-
+            
             //La pregunta también puede contener archivos adicionales de solución. Como videos o imagenes.
             const tipo_solucion = Number(hoja_excel.getCell(`${letra_columna_tipos_archivos_solucion}${i}`).text.trim());
             
@@ -998,10 +1012,10 @@ exports.cargaPreguntas = async (req, res) => {
             switch (tipo_solucion) {
                 case 0: //No tiene ningún archivo de solución adicional.
                     break;
-                case 1: //imagen (No se considera ya que las soluciones de imagen están incluidas en el power point de la pregunta)
+                case 1: //imagen (No se considera ya que las soluciones serán video siempre)
                     break;
                 case 2: //video
-                    numero_solucion+1
+                    numero_solucion++;
                     //genera el path del video.
                     archivo_solucion_mp4 = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_videos}/${nombre_archivo_pregunta}-VD.mp4`;
                     //Verifica que el archivo existe.
@@ -1031,71 +1045,42 @@ exports.cargaPreguntas = async (req, res) => {
                 
             }
 
-
             //PISTAS
             const pregunta_numero_pistas = Number(hoja_excel.getCell(`${letra_columna_pregunta_numero_pistas}${i}`).text.trim());
-            //Si el archivo tiene pistas.
-            if(pregunta_numero_pistas > 0){
+  
+            //PISTAS IMG.
+            for(let i = 0; i < pregunta_numero_pistas; i++){
 
-                let archivo_pista_ppt = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pptx`;
-                let archivo_pista_pdf = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}.pdf`;
-                let archivo_pista_imagen = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}_%d.jpg`;
-                //Convierte el archivo ppt de pistas a pdf.
-                let resp = await powerPointToPDF(archivo_pista_ppt, archivo_pista_pdf);
-                console.log(resp.msg);
-                //Convierte el archivo pdf de pistas a imagen.
-                resp = await pdfToImage(archivo_pista_pdf, archivo_pista_imagen);
-                console.log(resp.msg);
-                //Obtiene el número de páginas del archivo PDF.
-                const pdf_doc = await PDFDocument.load(fs.readFileSync(archivo_pista_pdf));
-                const pdf_doc_pages = pdf_doc.getPageCount();
-                console.log(`PDF pistas ${archivo_pista_pdf} Total Páginas: ${pdf_doc_pages}`);
+                //Genera el número de la solución.
+                let numero_pista = i + 1;
+                //Genera el path donde se encuentran las imagenes de pistas.
+                let archivo_pista_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}/${numero_pista}.png`;
                 
-                //PISTAS IMG.
-                for(let i = 0; i < pdf_doc_pages; i++){
-                    //Genera el path donde se encuentra la imagen de la pista. 
-                    let archivo_pista_jpg = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}_${i}.jpg`;
-                    //Genera el número de la solución.
-                    let numero_pista = i + 1;
-                    //Mueve el archivo de imagen de la solución hasta el directorio de los archivos de la pregunta.
-                    await moverArchivo(archivo_pista_jpg, `${dir_pregunta}${codigo_pregunta}/pistas/img-pista-${numero_pista}.jpg`);
-
-                    //crea el registro en la bd donde se asocia la pista a la pregunta.
-                    await PreguntaPista.create({
-                        codigo: uuidv4(),
-                        codigo_pregunta,
-                        numero: numero_pista,
-                        texto: '',
-                        imagen:`img-pista-${numero_pista}.jpg`, 
-                        audio: '',
-                        video: '',
-                    });
-
-                }
-
-                //ELIMINA TODOS LOS ARCHIVOS PDF y JPG que no son utilizados.
-                const res_rm_pista = findRemoveSync(`${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/`, {extensions: ['.pdf', '.jpg']})
-
-                //Listado de archivos elimandos.
-                console.log(res_rm_pista);
-
-                //Archivo ppt pista que se debe eliminar al finalizar el proceso.
-                console.log(archivo_pista_ppt);
                 
+                //Mueve el archivo de imagen de la solución hasta el directorio de los archivos de la pregunta.
+                fs.copyFileSync(archivo_pista_png, `${dir_pregunta}${codigo_pregunta}/pistas/img-pista-${numero_pista}.png`)
+
+                let size = sizeOf(archivo_pista_png)
+                //crea el registro en la bd donde se asocia la pista a la pregunta.
+                await PreguntaPista.create({
+                    codigo: uuidv4(),
+                    codigo_pregunta,
+                    numero: numero_pista,
+                    texto: '',
+                    imagen:`img-pista-${numero_pista}.png`, 
+                    imagen_ancho: size.width,
+                    imagen_alto: size.height,
+                    audio: '',
+                    video: '',
+                });
+
             }
 
-            //Archivo ppt pregunta que se debe eliminar al finalizar el proceso.
-            console.log(archivo_pregunta_ppt);
-            //Archivo mp4 video que se debe eliminar al finalizar el proceso.
-            console.log(archivo_solucion_mp4);
-
-            //ELIMINA TODOS LOS ARCHIVOS PDF y JPG que no son utilizados.
-            const res_rm_pregunta = findRemoveSync(`${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/`, {extensions: ['.pdf', '.jpg']})
-            //Listado de archivos elimandos.
-            console.log(res_rm_pregunta);
-
+            //Archivo png pregunta que se debe eliminar al finalizar el proceso.
+            console.log(`Pregunta Procesada ${nombre_archivo_pregunta}`);
+        
         }
-    
+     
         res.json({
             msg:"Todo OK",
         });

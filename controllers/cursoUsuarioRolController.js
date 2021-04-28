@@ -113,8 +113,8 @@ exports.listarCursosUsuarioRol = async(req, res) => {
                 [Sequelize.literal(`(SELECT COUNT(*) 
                 FROM cursos_usuarios_roles 
                 WHERE codigo_curso = curso.codigo
-                AND rut_usuario = ${rut_usuario}
-                AND codigo_rol = ${codigo_rol}
+                AND rut_usuario = '${rut_usuario}'
+                AND codigo_rol = '${codigo_rol}'
                 )`),'inscrito']
             ],
             include:[{

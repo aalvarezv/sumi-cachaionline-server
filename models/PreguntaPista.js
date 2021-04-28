@@ -27,6 +27,14 @@ module.exports = (sequelize, type, Pregunta) => {
         imagen: {
             type: type.STRING
         },
+        imagen_ancho:{
+            type: type.INTEGER,
+            allowNull: false
+        },
+        imagen_alto:{
+            type: type.INTEGER,
+            allowNull: false
+        },
         audio: {
             type: type.STRING
         },

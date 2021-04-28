@@ -39,4 +39,6 @@ app.use('/api/carga-masiva/', require('./cargaMasiva'));
 app.use('/api/single/', require('./singles'));
 app.use('/api/respuesta/', require('./respuestas'));
 
+app.use('/api/token', require('./token'));
+
 module.exports = app;

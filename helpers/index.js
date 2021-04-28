@@ -14,6 +14,8 @@ const letras = [
     'Z' 
 ]
 
+const validRefreshTokens = []
+
 const fileToBase64 = file => {
 
     return new Promise(async(resolve, reject) => {
@@ -254,7 +256,7 @@ const pdfToImage = (archivo_pdf, archivo_imagen) => {
 const moverArchivo = (archivo_origen, archivo_destino) => {
     return new Promise((resolve, reject) => {
 
-        //verificar que el archivo PDF existe.
+        //verificar que el archivo Origen existe.
         if(!fs.existsSync(archivo_origen)){
             reject({
                 error: 100,
@@ -296,7 +298,6 @@ return obj.map(item => {
         return [key, val]
     })
     //arreglo a objeto.
-    console.log(entries)
     const obj = Object.fromEntries(entries);
     return obj
 
@@ -311,6 +312,7 @@ const isUrl = (s) => {
 
 module.exports = {
     letras,
+    validRefreshTokens,
     creaPreguntaModulo,
     creaPreguntaModuloContenido,
     creaPreguntaModuloContenidoTema,

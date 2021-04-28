@@ -5,24 +5,12 @@ module.exports = {
    
     let instituciones = [{
         codigo: '1',
-        descripcion: 'CLAUDIO MATTE',
+        descripcion: 'COLEGIO DEMO',
         direccion: '',
         email: '',
         telefono: 0,
         website: '',
         logo: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        codigo: '2',
-        descripcion: 'COLEGIO MANANTIAL',
-        direccion: '',
-        email: '',
-        telefono: 0,
-        website: '',
-        logo: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('instituciones', instituciones, {});
@@ -43,8 +31,6 @@ module.exports = {
         ver_submenu_conceptos: true,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '2',
         descripcion: 'ALUMNO',
@@ -61,8 +47,6 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: false,
         ver_menu_rings: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '3',
         descripcion: 'PROFESOR',
@@ -79,8 +63,6 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '4',
         descripcion: 'RECTOR',
@@ -97,8 +79,6 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: false,
         ver_menu_rings: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '5',
         descripcion: 'ADMINISTRADOR INSTITUCIÓN',
@@ -115,8 +95,6 @@ module.exports = {
         ver_submenu_conceptos: true,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('roles', roles, {});
@@ -128,62 +106,20 @@ module.exports = {
         email: 'info@cachaionline.com',
         telefono: '12345678',
         imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        rut: '93733991',
-        clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-        nombre: 'Eduardo Patricio Alvarez Opazo',
-        email: 'ed.alvarezv@gmail.com',
-        telefono: '12345678',
-        imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        rut: '92622908',
-        clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-        nombre: 'Maria Gloria Vargas Hernandez',
-        email: 'mar.vargash@gmail.com',
-        telefono: '12345678',
-        imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        rut: '18999799K',
-        clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-        nombre: 'Eduardo Nicolas Alvarez Vargas',
-        email: 'ed.alvarezv@gmail.com',
-        telefono: '12345698',
-        imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
+    },{
         rut: '162323695',
         clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
         nombre: 'Alan Patricio Alvarez Vargas',
         email: 'alvarez.vargas@gmail.com',
         telefono: '12345633',
         imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        rut: '18380233K',
+    },{
+        rut: '19',
         clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-        nombre: 'Wendy Perez Reyes',
-        email: 'wen.preyes@gmail.com',
-        telefono: '12345633',
+        nombre: 'Usuario Demo',
+        email: 'demo@gmail.com',
+        telefono: '56912345678',
         imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        rut: '241568628',
-        clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
-        nombre: 'Juan Perez',
-        email: 'admin.institucion@gmail.com',
-        telefono: '12345633',
-        imagen: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('usuarios', usuarios, {});
@@ -193,8 +129,11 @@ module.exports = {
         rut_usuario: '162323695',
         codigo_institucion: '1',
         codigo_rol: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+    },{
+        codigo: '2',
+        rut_usuario: '19',
+        codigo_institucion: '1',
+        codigo_rol: '2',
     }]
 
     await queryInterface.bulkInsert('usuarios_instituciones_roles', usuarioInstitucionRoles, {});
@@ -203,26 +142,18 @@ module.exports = {
         codigo: '1',
         descripcion: 'PRIMERO MEDIO',
         nivel: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '2',
         descripcion: 'SEGUNDO MEDIO',
         nivel: 2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '3',
         descripcion: 'TERCERO MEDIO',
         nivel: 3,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '4',
         descripcion: 'CUARTO MEDIO',
         nivel: 4,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('niveles_academicos', nivelesAcademicos, {});
@@ -232,23 +163,6 @@ module.exports = {
         nombre: 'MATEMÁTICAS',
         descripcion: 'Las matemáticas son la ciencia de los números y los cálculos. Desde la antigüedad, el hombre utiliza las matemáticas para hacer la vida más fácil y organizar la sociedad. La matemática fue utilizada por los egipcios en la construcción de las pirámides, presas, canales de riego y estudios de astronomía. Los antiguos griegos también desarrollaron varios conceptos matemáticos.',
         imagen: 'http://localhost/materias/matematicas.jpg',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        codigo: 'CIE',
-        nombre: 'CIENCIAS',
-        descripcion: 'La ciencia en un sentido amplio, existía antes de la era moderna y en muchas civilizaciones.1​ La ciencia moderna es distinta en su enfoque y exitosa en sus resultados, por lo que ahora define lo que es la ciencia en el sentido más estricto del término.2​3​ "Ciencia" era una palabra para categorizar un tipo de conocimiento específico, más que una palabra que define la búsqueda de dicho conocimiento. En particular, era el tipo de conocimiento que las personas pueden comunicarse entre sí y compartir. Por ejemplo, el conocimiento sobre el funcionamiento de las cosas naturales se acumuló mucho antes de que se registrara la historia y condujo al desarrollo de un pensamiento abstracto complejo.',
-        imagen: 'http://localhost/materias/ciencias.jpg',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-
-    }, {
-        codigo: 'LEN',
-        nombre: 'LENGUAJE Y COMUNICACIÓN',
-        descripcion: 'El lenguaje oral constituye el grado más alto de evolución lingüística, alcanzando únicamente por el ser humano. Es utilizado como instrumento de comunicación, representación y de relación social y es de vital importancia para el desarrollo cognitivo, social y afectivo del individuo, de aquí, el papel primordial que el lenguaje oral tiene dentro de la nueva legislación del sistema educativo y más concretamente en la definición de competencia de comunicación lingüística.',
-        imagen: 'http://localhost/materias/lenguaje_comunicacion.jpg',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('materias', materias, {});
@@ -258,48 +172,28 @@ module.exports = {
         letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '2',
-        letra: 'B',
+        letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '2',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '3',
-        letra: 'C',
+        letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '3',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '4',
-        letra: 'D',
+        letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '4',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('cursos', cursos, {});
 
     let tipoJuegos = [{
         codigo: '1',
-        descripcion: 'PREGUNTADOS',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo: '2',
-        descripcion: 'CARRERA DE CABALLOS',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo: '3',
-        descripcion: 'ELIMINACIÓN',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        descripcion: 'TRIVIA',
     }]
 
     await queryInterface.bulkInsert('tipo_juegos', tipoJuegos, {});
@@ -307,28 +201,9 @@ module.exports = {
     let modalidades = [{
         codigo: '1',
         descripcion: 'USUARIO VS SISTEMA',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }, {
         codigo: '2',
         descripcion: 'USUARIO VS USUARIO',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        codigo: '3',
-        descripcion: 'GRUPO VS GRUPO',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        codigo: '4',
-        descripcion: 'DIRECTA',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    }, {
-        codigo: '5',
-        descripcion: 'DOBLE',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('modalidades', modalidades, {});
@@ -336,43 +211,9 @@ module.exports = {
     let tipoJuegoModalidades = [{
         codigo_tipo_juego: '1',
         codigo_modalidad: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     },{
         codigo_tipo_juego: '1',
         codigo_modalidad: '2',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '1',
-        codigo_modalidad: '3',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '2',
-        codigo_modalidad: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '2',
-        codigo_modalidad: '2',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '2',
-        codigo_modalidad: '3',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '3',
-        codigo_modalidad: '4',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    },{
-        codigo_tipo_juego: '3',
-        codigo_modalidad: '5',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('tipo_juego_modalidades', tipoJuegoModalidades, {});
@@ -380,18 +221,12 @@ module.exports = {
     let estados = [{
         codigo: '1',
         descripcion: 'INICIADO',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     },{
         codigo: '2',
         descripcion: 'PAUSA',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     },{
         codigo: '3',
         descripcion: 'FINALIZADO',
-        createdAt: new Date(),
-        updatedAt: new Date(),
     }]
 
     await queryInterface.bulkInsert('estados', estados, {});

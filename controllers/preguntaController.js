@@ -48,8 +48,6 @@ exports.crearPregunta = async(req, res) => {
             pistas,
         } = req.body;
 
-        console.log(recordar, comprender, aplicar, analizar, evaluar, crear)
-
         let pregunta = await Pregunta.findByPk(codigo);
         if (pregunta) {
             return res.status(400).json({
@@ -604,6 +602,12 @@ exports.datosPreguntas = async(req, res) => {
                 [Sequelize.literal(`CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT('${url_preguntas}', pregunta.codigo, "/" , pregunta.audio)) ELSE pregunta.audio END`), 'audio'],
                 [Sequelize.literal(`CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT('${url_preguntas}', pregunta.codigo, "/" , pregunta.video)) ELSE pregunta.video END`), 'video'],
                 'duracion',
+                'recordar',
+                'comprender',
+                'aplicar',
+                'analizar',
+                'evaluar',
+                'crear',
             ],
             include:[{
                 model: PreguntaAlternativa,

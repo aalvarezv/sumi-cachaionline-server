@@ -31,6 +31,17 @@ NODE_ENV=dev npx sequelize-cli db:migrate
 * Deshace la última migración.
 NODE_ENV=dev npx sequelize-cli db:migrate:undo
 * Deshace todas las migraciones.
-npx sequelize-cli db:migrate:undo:all
+NODE_ENV=dev npx sequelize-cli db:migrate:undo:all
 
 
+- LIMPIAR PREGUNTAS
+SET foreign_key_checks = 0;
+truncate pregunta_alternativas;
+truncate pregunta_soluciones;
+truncate pregunta_pistas;
+truncate pregunta_modulos_contenidos_temas_conceptos;
+truncate pregunta_modulos_contenidos_temas;
+truncate pregunta_modulos_contenidos;
+truncate pregunta_modulos;
+truncate preguntas;
+SET foreign_key_checks = 1;

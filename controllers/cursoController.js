@@ -314,7 +314,12 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
                 ]
             },
             raw: true,
-            group: ['curso.codigo']
+            group: ['curso.codigo'],
+            
+            order: [
+                [Curso, NivelAcademico , 'descripcion', 'ASC'],
+                [Curso , 'letra', 'ASC'],
+            ]
         });
 
        

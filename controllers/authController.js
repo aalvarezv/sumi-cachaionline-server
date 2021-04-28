@@ -1,7 +1,8 @@
 const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { limpiaTextoObjeto } = require('../helpers');
+const uuidv4 = require('uuid').v4
+const { limpiaTextoObjeto, validRefreshTokens } = require('../helpers');
 
 const autenticarUsuario = async (req, res) => {
     
@@ -14,14 +15,7 @@ const autenticarUsuario = async (req, res) => {
         let usuario = await Usuario.findByPk(rut);
         if (!usuario) {
             return res.status(400).json({
-                msg: 'El usuario no existe'
-            })
-        }
-    
-        //revisar que el usuario no se encuentre inactivo
-        if(usuario.inactivo){
-            return res.status(401).json({
-                msg: 'El usuario se encuentra inactivo'
+                msg: 'Verifique los datos ingresados'
             })
         }
         
@@ -29,7 +23,14 @@ const autenticarUsuario = async (req, res) => {
         const passCorrecto = await bcrypt.compare(clave, usuario.clave)
         if(!passCorrecto){
             return res.status(401).json({
-                msg: 'El password es incorrecto'
+                msg: 'Verifique los datos ingresados'
+            })
+        }
+
+        //revisar que el usuario no se encuentre inactivo
+        if(usuario.inactivo){
+            return res.status(401).json({
+                msg: 'La cuenta de usuario se encuentra inactiva'
             })
         }
 
@@ -60,12 +61,23 @@ const autenticarUsuario = async (req, res) => {
         //     }
         // })
 
+        //id para refrescar el token
+        const tokenRefresh = uuidv4()
+        validRefreshTokens.push({
+            rut: usuario.rut,
+            tokenRefresh,
+            fechaHora: new Date(),
+        })
+
         //firmar el jsonwebtoken 
         jwt.sign(payload, process.env.SECRETA, {
             expiresIn: 86400, //86400 segundos 1 día.
         }, (error, token) => {
             if (error) throw error
-            res.json({ token })
+            res.json({ 
+                token,
+                tokenRefresh,
+            })
         })
 
     } catch (error) {
@@ -99,7 +111,7 @@ const datosUsuarioAutenticado = async (req, res) => {
             attributes:['codigo_institucion'],
             include:[{
                 model:Institucion,
-                attributes: ['descripcion'],
+                attributes: ['descripcion', 'direccion', 'email', 'telefono', 'logo'],
             }],
             where:{
                 rut_usuario: rut,
@@ -136,6 +148,10 @@ const datosUsuarioAutenticado = async (req, res) => {
                 institucionRoles.push({
                     codigo_institucion: usuarioInstitucion.codigo_institucion,
                     descripcion_institucion: usuarioInstitucion["institucion.descripcion"],
+                    direccion_institucion: usuarioInstitucion["institucion.direccion"],
+                    email_institucion: usuarioInstitucion["institucion.email"],
+                    telefono_institucion: usuarioInstitucion["institucion.telefono"],
+                    logo_institucion: usuarioInstitucion["institucion.logo"],
                     roles: rolesUsuarioInstitucion,
                 })
                 

@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, Ring, Usuario) => {
+module.exports = (sequelize, type, Ring, Usuario, Institucion, Curso) => {
 
     return sequelize.define('ring_usuario', {
         codigo_ring: {
@@ -18,7 +18,27 @@ module.exports = (sequelize, type, Ring, Usuario) => {
                 model: Usuario,
                 key: 'rut'
             }
-        }
+        },
+        codigo_institucion: {
+            type: type.STRING(12),
+            allowNull: false,
+            references: {
+                model: Institucion,
+                key: 'codigo'
+            }
+        },
+        codigo_curso: {
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+                model: Curso,
+                key: 'codigo'
+            }
+        },
+        grupo: {
+            type: type.STRING(128),
+            allowNull: false,
+        },
     }, {
         //agrega atributos timestamp (updatedAt, createdAt).
         timestamps: true,

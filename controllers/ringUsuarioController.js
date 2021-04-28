@@ -1,7 +1,6 @@
 const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-const { limpiaTextoObjeto } = require('../helpers');
 
 exports.crearRingUsuario = async(req, res) => {
 
@@ -13,13 +12,13 @@ exports.crearRingUsuario = async(req, res) => {
 
     try {
 
-        const { codigo_ring, rut_usuario } = req.body;
+        const { codigo_ring, rut_usuario, codigo_institucion, codigo_curso } = req.body;
 
         //verifica si existe la combinación ring vs usuario.
         let ring_usuario = await RingUsuario.findAll({
             where: {
                 codigo_ring,
-                rut_usuario
+                rut_usuario,
             }
         });
 
@@ -33,6 +32,8 @@ exports.crearRingUsuario = async(req, res) => {
         ring_usuario = await RingUsuario.create({
             codigo_ring,
             rut_usuario,
+            codigo_institucion,
+            codigo_curso,
         });
 
         //envía la respuesta
@@ -61,7 +62,7 @@ exports.crearRingUsuarioMasivo = async(req, res) => {
 
         for(let ring_usuario_add of ring_usuarios_add){
    
-            const {rut_usuario, codigo_ring} = ring_usuario_add;
+            const {rut_usuario, codigo_ring, codigo_institucion, codigo_curso} = ring_usuario_add;
            
             //verifica si existe la combinación ring vs pregunta.
             let ring_usuario = await RingUsuario.findAll({
@@ -75,6 +76,8 @@ exports.crearRingUsuarioMasivo = async(req, res) => {
                 await RingUsuario.create({
                     codigo_ring,
                     rut_usuario,
+                    codigo_institucion,
+                    codigo_curso,
                 });
             }
 
@@ -104,10 +107,9 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
 
      try {
 
-
          //verifica si existe la combinación ring vs pregunta.
          let rings_usuario = await RingUsuario.findAll({
-            attributes: [['rut_usuario','rut_usuario_invitado'],['createdAt','fecha_invitacion_usuario']],
+            attributes: [['rut_usuario','rut_usuario_invitado'],['createdAt','fecha_invitacion_usuario'], 'grupo'],
             include:[{
                 attributes: { 
                     include: ['codigo','nombre','descripcion','fecha_hora_inicio','fecha_hora_fin','tipo_duracion_pregunta',
@@ -143,7 +145,7 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             where: {
                 [Op.and]:[
                     {rut_usuario},
-                    {'$ring.codigo_institucion$': { [Op.eq]: codigo_institucion } },
+                    {codigo_institucion},
                     //sequelize.where( sequelize.col('fecha_hora_inicio'), '<=', new Date() ),
                     //sequelize.where( sequelize.col('fecha_hora_fin'), '>=', new Date() ),
                 ]
@@ -153,10 +155,6 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             ],
            
         });
-
-        //rings_usuario = limpiaTextoObjeto(rings_usuario, 'ring.')
-
-        console.log(rings_usuario)
 
         res.json({
             rings_usuario
@@ -247,7 +245,7 @@ exports.eliminarRingUsuarioMasivo = async(req, res) => {
                 await RingUsuario.destroy({
                     where: {
                         codigo_ring,
-                        rut_usuario
+                        rut_usuario,
                     }
                 });
             }

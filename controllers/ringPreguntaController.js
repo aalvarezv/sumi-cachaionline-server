@@ -4,6 +4,8 @@ const { RingPregunta, Pregunta, PreguntaAlternativa,
 const { Sequelize } = require('sequelize');
 const { validationResult } = require('express-validator');
 
+const url_preguntas = process.env.URL_PREGUNTAS;
+
 exports.crearRingPregunta = async(req, res) => {
 
     //si hay errores de la validación
@@ -129,9 +131,9 @@ exports.listarRingPreguntas = async(req, res) => {
                 attributes:[
                     'rut_usuario_creador',
                     'texto',
-                    [Sequelize.literal('CASE WHEN pregunta.imagen <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.imagen)) ELSE pregunta.imagen END'),'imagen'],
-                    [Sequelize.literal('CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.audio)) ELSE pregunta.audio END'),'audio'],
-                    [Sequelize.literal('CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"),pregunta.codigo,"/",pregunta.video)) ELSE pregunta.video END'),'video'],
+                    [Sequelize.literal(`CASE WHEN pregunta.imagen <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.imagen)) ELSE pregunta.imagen END`),'imagen'],
+                    [Sequelize.literal(`CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.audio)) ELSE pregunta.audio END`),'audio'],
+                    [Sequelize.literal(`CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.video)) ELSE pregunta.video END`),'video'],
                     'duracion',
                     'createdAt',
                 ],
@@ -141,6 +143,7 @@ exports.listarRingPreguntas = async(req, res) => {
                     model: PreguntaAlternativa,
                     as: 'pregunta_alternativa',
                     attributes: ['codigo', 'letra', 'correcta', 'numero'],
+                    //separated: true,
                 },{
                     model: PreguntaSolucion,
                     as: 'pregunta_solucion',
@@ -148,27 +151,31 @@ exports.listarRingPreguntas = async(req, res) => {
                         'codigo', 
                         'numero', 
                         'texto',
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`imagen`)) ELSE `pregunta->pregunta_solucion`.`imagen` END'), 'imagen'],
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`audio`)) ELSE `pregunta->pregunta_solucion`.`audio` END'), 'audio'],
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`video`)) ELSE `pregunta->pregunta_solucion`.`video` END'), 'video'],
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`imagen` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`imagen`)) ELSE `pregunta->pregunta_solucion`.`imagen` END'), 'imagen'],
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`audio` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`audio`)) ELSE `pregunta->pregunta_solucion`.`audio` END'), 'audio'],
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`video` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`video`)) ELSE `pregunta->pregunta_solucion`.`video` END'), 'video'],
                     ],
+                    //separated: true,
                 },{
                     model: PreguntaPista,
                     attributes: [
                         'codigo', 
                         'numero', 
                         'texto',
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`imagen` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`imagen`)) ELSE `pregunta->pregunta_pista`.`imagen` END'), 'imagen'],
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`audio` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`audio`)) ELSE `pregunta->pregunta_pista`.`audio` END'), 'audio'],
-                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`video` <> "" THEN (SELECT CONCAT((SELECT valor FROM configuraciones WHERE seccion="PREGUNTAS" AND clave="URL"), `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`video`)) ELSE `pregunta->pregunta_pista`.`video` END'), 'video'], 
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`imagen` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`imagen`)) ELSE `pregunta->pregunta_pista`.`imagen` END'), 'imagen'],
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`audio` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`audio`)) ELSE `pregunta->pregunta_pista`.`audio` END'), 'audio'],
+                        [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`video` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`video`)) ELSE `pregunta->pregunta_pista`.`video` END'), 'video'],
                     ],
+                    //separated: true,
                 }],
             }],
             where: {
                 codigo_ring
             },
             order: [
-                [Pregunta, PreguntaAlternativa ,'numero', 'ASC']
+                [Pregunta, PreguntaAlternativa ,'numero', 'ASC'],
+                [Pregunta, PreguntaSolucion,'numero', 'ASC'],
+                [Pregunta, PreguntaPista,'numero', 'ASC'],
             ]
         });
 

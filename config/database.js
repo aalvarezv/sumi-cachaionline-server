@@ -4,13 +4,13 @@ if(process.env.NODE_ENV === 'dev'){
     require('dotenv').config({ path: './.env.production' })
 }
 module.exports = {
+
     username: process.env.DB_USERNAME || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_DATABASE || 'db_cachaionline',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || 'mysql',
-    
     //Almacenar seeders ejecutados en un archivo json
     //seederStorage: "json",
     //Archivo donde se guardara el json
@@ -23,11 +23,10 @@ module.exports = {
     migrationStorage: "sequelize",
     //Tabla donde se almacenarán los registros
     migrationStorageTableName: "sequelize_migrations",
-
-    /*define: { 
-        timestamps: false
-    },*/
-    logging: console.log,//console.log, 
+    define: { 
+        timestamps: true
+    },
+    logging: console.log,
     pool: {
         max: 5,
         min: 0,
@@ -35,7 +34,7 @@ module.exports = {
         idle: 10000
     },
     dialectOptions: {
-        useUTC: false, //for reading from database
+        useUTC: false,
         dateStrings: true,
         typeCast: true
     },
