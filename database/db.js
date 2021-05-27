@@ -37,7 +37,6 @@ const PreguntaModuloModel = require('../models/PreguntaModulo')
 const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido')
 const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema')
 const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto')
-const RingUsuarioPreguntaModel = require('../models/RingUsuarioRespuesta')
 const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad')
 
 //conexión a la bd
@@ -76,7 +75,6 @@ const PreguntaModulo = PreguntaModuloModel(sequelize, Sequelize, Pregunta, Modul
 const PreguntaModuloContenido = PreguntaModuloContenidoModel(sequelize, Sequelize, Pregunta, ModuloContenido)
 const PreguntaModuloContenidoTema = PreguntaModuloContenidoTemaModel(sequelize, Sequelize, Pregunta, ModuloContenidoTema)
 const PreguntaModuloContenidoTemaConcepto = PreguntaModuloContenidoTemaConceptoModel(sequelize, Sequelize, Pregunta, ModuloContenidoTemaConcepto)
-const RingUsuarioRespuesta = RingUsuarioPreguntaModel(sequelize, Sequelize, Ring, Usuario, Pregunta)
 const RingInvitacion = RingInvitacioModel(sequelize, Sequelize, Ring, Usuario)
 const Single = SingleModel(sequelize, Sequelize, Usuario, Institucion, NivelAcademico, Estado)
 const Respuesta = RespuestaModel(sequelize, Sequelize, Usuario, Single, Ring, Pregunta)
@@ -186,7 +184,6 @@ module.exports = {
     TipoJuego,  
     PreguntaModuloContenidoTema,
     PreguntaModuloContenidoTemaConcepto,
-    RingUsuarioRespuesta,
     Modalidad,
     TipoJuegoModalidad,
 }

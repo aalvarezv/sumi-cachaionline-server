@@ -10,12 +10,17 @@ const {
     PreguntaPista,
     PreguntaSolucion,
     Usuario,
+    sequelize,
 } = require('../database/db');
 const uuidv4 = require('uuid').v4;
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
 
+const { QueryTypes } = require('sequelize');
+
 exports.guardarRespuesta = async(req, res) => {
+
+    
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -288,9 +293,13 @@ exports.guardarRespuesta = async(req, res) => {
 
             respuestaExiste = await Respuesta.findByPk(respuestaExiste.codigo)
 
+
+            const resultados = await getResultados(rut_usuario, codigo_single, codigo_ring);
+
             res.json({
                 msg: 'Respuesta actualizada',
                 respuesta: respuestaExiste,
+                resultados,
             })
 
         }else{
@@ -336,10 +345,13 @@ exports.guardarRespuesta = async(req, res) => {
                 }   
             }
 
+            const resultados = await getResultados(rut_usuario, codigo_single, codigo_ring);
+
             //envía la respuesta
             res.json({
                 msg: 'Respuesta grabada',
-                respuesta
+                respuesta,
+                resultados
             });
 
         }
@@ -351,5 +363,44 @@ exports.guardarRespuesta = async(req, res) => {
             msg: 'Hubo un error, por favor vuelva a intentar'
         })
     }
+
+}
+
+
+const getResultados = (rut_usuario, codigo_single, codigo_ring) => {
+
+    return new Promise(async(resolve, reject) => {
+
+        try {
+            
+            const resultados = await sequelize.query(`
+                SELECT 
+                    (SELECT COUNT(*) 
+                        FROM respuestas 
+                        WHERE rut_usuario = '${rut_usuario}' 
+                        AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
+                        AND correcta = 1 
+                        AND omitida = 0) AS total_correctas,
+                    (SELECT COUNT(*) 
+                        FROM respuestas 
+                        WHERE rut_usuario = '${rut_usuario}' 
+                        AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
+                        AND correcta = 0 
+                        AND omitida = 0) AS total_incorrectas,
+                    (SELECT COUNT(*) 
+                        FROM respuestas 
+                        WHERE rut_usuario = '${rut_usuario}' 
+                        AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
+                        AND omitida = 1) AS total_omitidas
+            `, { type: QueryTypes.SELECT })
+
+            resolve(resultados[0]);
+
+        } catch (error) {
+            reject(error);
+        }
+
+    })
+
 
 }

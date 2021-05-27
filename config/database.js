@@ -38,5 +38,5 @@ module.exports = {
         dateStrings: true,
         typeCast: true
     },
-    timezone: '-03:00'
+    timezone: '-04:00'
 }

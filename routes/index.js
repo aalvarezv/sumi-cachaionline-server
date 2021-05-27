@@ -31,7 +31,6 @@ app.use('/api/pregunta-pistas/', require('./preguntaPistas'));
 app.use('/api/pregunta-soluciones/', require('./preguntaSoluciones'));
 app.use('/api/pregunta-modulos/', require('./preguntaModulos'));
 app.use('/api/pregunta-modulo-contenidos/', require('./preguntaModuloContenidos'));
-app.use('/api/ring-usuario-respuestas', require('./ringUsuarioRespuestas'));
 app.use('/api/tipo-juego-modalidades/', require('./tipoJuegoModalidades'));
 
 app.use('/api/carga-masiva/', require('./cargaMasiva'));
@@ -40,5 +39,7 @@ app.use('/api/single/', require('./singles'));
 app.use('/api/respuesta/', require('./respuestas'));
 
 app.use('/api/token', require('./token'));
+
+app.use('/api/politicas-condiciones', require('./politicasCondiciones'));
 
 module.exports = app;

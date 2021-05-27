@@ -8,6 +8,10 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             primaryKey: true,
             allowNull: false,
         },
+        codigo_conexion: {
+            type: type.STRING(8),
+            allowNull: false,
+        },
         nombre: {
             type: type.STRING,
             allowNull: false,
@@ -83,12 +87,44 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             allowNull: false,
             defaultValue: 0,
         },
+        nota_alta: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        nota_alta_mensaje: {
+            type: type.STRING(128),
+            allowNull: false,
+        },
+        nota_media: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        nota_media_mensaje: {
+            type: type.STRING(128),
+            allowNull: false,
+        },
+        nota_baja: {
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        nota_baja_mensaje: {
+            type: type.STRING(128),
+            allowNull: false,
+        },
         retroceder: {
             type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false,
         },
         pistas: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        mostrar_cantidad_usuarios: {
             type: type.BOOLEAN,
             allowNull: false,
             defaultValue: false,

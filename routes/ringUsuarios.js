@@ -1,13 +1,13 @@
 const express = require('express');
+const moment = require('moment');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { check, query } = require('express-validator');
-
-
 const { crearRingUsuario, eliminarRingUsuario, 
         crearRingUsuarioMasivo, eliminarRingUsuarioMasivo,
         listarRingsUsuarioInstitucion, 
         listarUsuariosRing} = require('../controllers/ringUsuarioController');
+
 
 router.post('/crear', auth, [
     check('codigo_ring').not().isEmpty().withMessage('El codigo del ring es obligatorio.'),
@@ -17,10 +17,11 @@ router.post('/crear', auth, [
 router.post('/crear/masivo', auth,[
     check('ring_usuarios_add').not().isEmpty().withMessage('Es requerido un arreglo con al menos un objeto que contenga el rut usuario y código ring para agregar.')
 ], crearRingUsuarioMasivo);
-
-router.get('/listar/rings-usuario-institucion', auth, [
+ //auth,
+router.get('/listar/rings-usuario-institucion', [
     query('codigo_institucion').exists().withMessage('El código de la institución es obligatorio.'),
-    query('rut_usuario').exists().withMessage('El rut del usuario es obligatorio.')
+    query('rut_usuario').exists().withMessage('El rut del usuario es obligatorio.'),
+    query('ring_finalizados').exists().withMessage('El parámetro ring finalizados es obligatorio.')
 ], listarRingsUsuarioInstitucion);
 
 router.get('/listar/usuarios-ring', auth, listarUsuariosRing)

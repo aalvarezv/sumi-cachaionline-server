@@ -1,13 +1,14 @@
-const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad } = require('../database/db');
+const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad, sequelize } = require('../database/db');
 const { Sequelize, Op } = require('sequelize');
 const { validationResult } = require('express-validator');
+const moment = require('moment');
 
 exports.crearRingUsuario = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -34,6 +35,7 @@ exports.crearRingUsuario = async(req, res) => {
             rut_usuario,
             codigo_institucion,
             codigo_curso,
+            grupo: '',
         });
 
         //envía la respuesta
@@ -47,6 +49,7 @@ exports.crearRingUsuario = async(req, res) => {
     }
 
 }
+
 
 exports.crearRingUsuarioMasivo = async(req, res) => {
 
@@ -78,6 +81,7 @@ exports.crearRingUsuarioMasivo = async(req, res) => {
                     rut_usuario,
                     codigo_institucion,
                     codigo_curso,
+                    grupo: '',
                 });
             }
 
@@ -100,25 +104,58 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
      //si hay errores de la validación
      const errors = validationResult(req);
      if (!errors.isEmpty()) {
-         return res.status(400).json({ errors: errors.array() });
+         return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
      }
 
-     const { rut_usuario, codigo_institucion } = req.query;
-
+     const { rut_usuario, codigo_institucion, ring_finalizados } = req.query;
+     
      try {
+       
+         let filtro_fecha = []
+         if(ring_finalizados === 'true'){
+            filtro_fecha.push({'$ring.fecha_hora_fin$' : { [Op.lte] : moment().format('YYYY-MM-DD HH:mm')}})
+         }else{
+            filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
+         }
 
          //verifica si existe la combinación ring vs pregunta.
          let rings_usuario = await RingUsuario.findAll({
             attributes: [['rut_usuario','rut_usuario_invitado'],['createdAt','fecha_invitacion_usuario'], 'grupo'],
             include:[{
                 attributes: { 
-                    include: ['codigo','nombre','descripcion','fecha_hora_inicio','fecha_hora_fin','tipo_duracion_pregunta',
-                    [Sequelize.literal(`(
-                        CASE WHEN tipo_duracion_pregunta = 1 THEN "SIN TIEMPO" 
-                             WHEN tipo_duracion_pregunta = 2 THEN "TIEMPO DEFINIDO" 
-                             ELSE "TIEMPO PREGUNTA" END)`),'tipo_duracion_pregunta_descripcion']
-                    ,'duracion_pregunta','revancha','revancha_cantidad','retroceder','pistas','privado','inactivo'],
-                    exclude: ['rut_usuario_creador', 'codigo_materia', 'codigo_institucion','codigo_tipo_juego','codigo_modalidad','createdAt', 'updatedAt'] },
+                    include: ['codigo',
+                              'nombre',
+                              'descripcion',
+                              'fecha_hora_inicio',
+                              'fecha_hora_fin',
+                              [
+                                Sequelize.literal(`(SELECT COUNT(*) FROM ring_usuarios WHERE codigo_ring = ring.codigo)`),'cantidad_usuarios'
+                              ],
+                              'tipo_duracion_pregunta',
+                              [
+                                Sequelize.literal(`(
+                                    CASE WHEN tipo_duracion_pregunta = 1 THEN "SIN TIEMPO" 
+                                        WHEN tipo_duracion_pregunta = 2 THEN "TIEMPO DEFINIDO" 
+                                        ELSE "TIEMPO PREGUNTA" END)`),'tipo_duracion_pregunta_descripcion'
+                              ],
+                              'duracion_pregunta',
+                              'revancha',
+                              'revancha_cantidad',
+                              'retroceder',
+                              'pistas',
+                              'privado',
+                              'inactivo'
+                            ],
+                    exclude: [
+                            'rut_usuario_creador', 
+                            'codigo_materia', 
+                            'codigo_institucion',
+                            'codigo_tipo_juego',
+                            'codigo_modalidad',
+                            'createdAt', 
+                            'updatedAt'
+                        ] 
+                },
                 model: Ring,
                 include:[{
                     attributes: ['rut','nombre','email'],
@@ -146,12 +183,11 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                 [Op.and]:[
                     {rut_usuario},
                     {codigo_institucion},
-                    //sequelize.where( sequelize.col('fecha_hora_inicio'), '<=', new Date() ),
-                    //sequelize.where( sequelize.col('fecha_hora_fin'), '>=', new Date() ),
+                    filtro_fecha.map(filtro => filtro),    
                 ]
             },
             order: [
-                [Ring, 'fecha_hora_fin', 'ASC'],
+                [Ring, 'fecha_hora_inicio', 'ASC'],
             ],
            
         });

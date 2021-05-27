@@ -52,6 +52,7 @@ io.sockets.on('connection', socket => {
 
 //Inicia el servidor.
 server.listen(PORT, () => {
+
     console.log(`El servidor está funcionando en el puerto ${PORT} ${new Date().toLocaleTimeString()}`)
 
     sequelize.sync({ force: Number(process.env.DB_FORCE) }).then(async() => {

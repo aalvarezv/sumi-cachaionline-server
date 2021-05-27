@@ -1,5 +1,6 @@
-const { Ring, Usuario, NivelAcademico, sequelize, RingPregunta, RingUsuario, RingUsuarioRespuesta, RingNivelAcademico } = require('../database/db');
-const { Op } = require('sequelize');
+const { Ring, Usuario, NivelAcademico, sequelize, RingPregunta, RingUsuario, Respuesta, RingNivelAcademico } = require('../database/db');
+const { Op, QueryTypes } = require('sequelize');
+const moment = require('moment');
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
 
@@ -29,8 +30,15 @@ exports.crearRing = async(req, res) => {
             duracion_pregunta,
             revancha,
             revancha_cantidad,
+            nota_alta,
+            nota_alta_mensaje,
+            nota_media,
+            nota_media_mensaje,
+            nota_baja,
+            nota_baja_mensaje,
             retroceder,
             pistas,
+            mostrar_cantidad_usuarios,
             privado,
             inactivo,
         } = req.body;
@@ -52,9 +60,27 @@ exports.crearRing = async(req, res) => {
             });
         }
 
+        const ultimoCodigoConexion = await sequelize.query(`SELECT codigo, codigo_conexion, codigo_institucion FROM rings WHERE createdAt = (SELECT MAX (createdAt) FROM rings WHERE codigo_institucion = '${codigo_institucion}') AND codigo_institucion = '${codigo_institucion}'`, { type: QueryTypes.SELECT })
+
+        let codigoConexion = 0
+
+        console.log(ultimoCodigoConexion)
+        
+        if(ultimoCodigoConexion.length > 0){
+            if(Number(ultimoCodigoConexion[0].codigo_conexion) === 1000){
+                codigoConexion = 1
+            }else{
+                codigoConexion = Number(ultimoCodigoConexion[0].codigo_conexion) + 1
+            }
+        }else{
+            codigoConexion = 1
+        }
+       
+
         //Guarda el nuevo ring
         ring = await Ring.create({
             codigo,
+            codigo_conexion: codigoConexion,
             nombre,
             descripcion,
             rut_usuario_creador,
@@ -62,14 +88,21 @@ exports.crearRing = async(req, res) => {
             codigo_materia,
             codigo_tipo_juego,
             codigo_modalidad,
-            fecha_hora_inicio,
-            fecha_hora_fin,
+            fecha_hora_inicio: moment(fecha_hora_inicio).format('YYYY-MM-DD HH:mm'),
+            fecha_hora_fin: moment(fecha_hora_fin).format('YYYY-MM-DD HH:mm'),
             tipo_duracion_pregunta,
             duracion_pregunta,
             revancha,
             revancha_cantidad,
+            nota_alta,
+            nota_alta_mensaje,
+            nota_media,
+            nota_media_mensaje,
+            nota_baja,
+            nota_baja_mensaje,
             retroceder,
             pistas,
+            mostrar_cantidad_usuarios,
             privado,
             inactivo,
         }); 
@@ -192,8 +225,15 @@ exports.actualizarRing = async(req, res) => {
             duracion_pregunta,
             revancha,
             revancha_cantidad,
+            nota_alta,
+            nota_alta_mensaje,
+            nota_media,
+            nota_media_mensaje,
+            nota_baja,
+            nota_baja_mensaje,
             retroceder,
             pistas,
+            mostrar_cantidad_usuarios,
             privado,
             inactivo,
         } = req.body;
@@ -224,14 +264,21 @@ exports.actualizarRing = async(req, res) => {
             codigo_materia,
             codigo_tipo_juego,
             codigo_modalidad,
-            fecha_hora_inicio,
-            fecha_hora_fin,
+            fecha_hora_inicio: moment(fecha_hora_inicio).format('YYYY-MM-DD HH:mm'),
+            fecha_hora_fin: moment(fecha_hora_fin).format('YYYY-MM-DD HH:mm'),
             tipo_duracion_pregunta,
             duracion_pregunta,
             revancha,
             revancha_cantidad,
+            nota_alta,
+            nota_alta_mensaje,
+            nota_media,
+            nota_media_mensaje,
+            nota_baja,
+            nota_baja_mensaje,
             retroceder,
             pistas,
+            mostrar_cantidad_usuarios,
             privado,
             inactivo,
         }, {
@@ -308,13 +355,13 @@ exports.eliminarRing = async(req, res) => {
         }
 
         //revisa si tiene respuestas de la competencia registradas.
-        const ringResultados = await RingUsuarioRespuesta.findOne({
+        const ringRespuestas = await Respuesta.findOne({
             where: {
                 codigo_ring: codigo
             }
         })
 
-        if(ringResultados){
+        if(ringRespuestas){
             return res.status(404).send({
                 msg: `El ring ${codigo} tiene resultados registrados, no se puede eliminar`
             })
