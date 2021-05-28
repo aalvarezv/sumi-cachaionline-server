@@ -1,10 +1,11 @@
 const { Configuracion } = require("../database/db")
 
-const getPoliticasCondiciones = (req, res) => {
+const getPoliticasCondiciones = async (req, res) => {
 
     try {
         
-        const politicas = Configuracion.findOne({
+        const politicas = await Configuracion.findOne({
+            attributes: ['valor'],
             where: {
                 seccion: 'POLITICAS',
                 clave: 'CONDICIONES',

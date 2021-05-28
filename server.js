@@ -13,8 +13,10 @@ const { sequelize } = require('./database/db')
 
 //puerto de la app.
 const PORT = process.env.PORT || 3001
+//habilitar formularios.
+app.use(require('express').urlencoded({ extended: true }));
 //habilitar express.json.
-app.use(require('express').json({ extended: true, limit: '150mb' }))
+app.use(require('express').json({ extended: true, limit: '150mb' }));
 //habilitar cors.
 app.use(cors('*'))
 //cargar rutas apirest
