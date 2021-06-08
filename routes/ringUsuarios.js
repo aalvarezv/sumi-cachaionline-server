@@ -21,7 +21,7 @@ router.post('/crear/masivo', auth,[
 router.get('/listar/rings-usuario-institucion', [
     query('codigo_institucion').exists().withMessage('El código de la institución es obligatorio.'),
     query('rut_usuario').exists().withMessage('El rut del usuario es obligatorio.'),
-    query('ring_finalizados').exists().withMessage('El parámetro ring finalizados es obligatorio.')
+    query('estado_ring').exists().withMessage('El parámetro estado ring es obligatorio 0 para obtener los rings finalizados, 1 para obtener los rings activos y distinto de 0 y 1 para obtener todos los rings tanto finalizados como activos.')
 ], listarRingsUsuarioInstitucion);
 
 router.get('/listar/usuarios-ring', auth, listarUsuariosRing)

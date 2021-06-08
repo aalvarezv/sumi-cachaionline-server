@@ -1,5 +1,5 @@
 const { RingUsuario, Ring, Usuario, Materia, Institucion, TipoJuego, Modalidad, sequelize } = require('../database/db');
-const { Sequelize, Op } = require('sequelize');
+const { Sequelize, Op, QueryTypes } = require('sequelize');
 const { validationResult } = require('express-validator');
 const moment = require('moment');
 
@@ -107,16 +107,23 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
          return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
      }
 
-     const { rut_usuario, codigo_institucion, ring_finalizados } = req.query;
+     const { rut_usuario, codigo_institucion, estado_ring } = req.query;
      
      try {
        
          let filtro_fecha = []
-         if(ring_finalizados === 'true'){
-            filtro_fecha.push({'$ring.fecha_hora_fin$' : { [Op.lte] : moment().format('YYYY-MM-DD HH:mm')}})
-         }else{
-            filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
+
+         switch (Number(estado_ring)) {
+            case 0: //finalizados
+                filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.lt] : moment().format('YYYY-MM-DD HH:mm')}})
+                break;
+            case 1://activos
+                filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
+                break;
+            default:
+                break;
          }
+
 
          //verifica si existe la combinación ring vs pregunta.
          let rings_usuario = await RingUsuario.findAll({
@@ -146,7 +153,7 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                               'privado',
                               'inactivo'
                             ],
-                    exclude: [
+                    exclude:[
                             'rut_usuario_creador', 
                             'codigo_materia', 
                             'codigo_institucion',
@@ -189,11 +196,40 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             order: [
                 [Ring, 'fecha_hora_inicio', 'ASC'],
             ],
-           
+            raw: true,
+            nest: true,
         });
 
+       
+        let newRingsUsuario = [
+            ...rings_usuario
+        ]
+
+      
+        for(let ringUsuario of rings_usuario){
+            
+            codigoRing = ringUsuario.ring.codigo
+
+            const unidades = await sequelize.query(`SELECT  un.codigo, un.descripcion
+            FROM ring_preguntas rp
+            LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rp.codigo_pregunta
+            LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
+            LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
+            WHERE rp.codigo_ring = '${codigoRing}'
+            GROUP BY un.codigo`, { type: QueryTypes.SELECT })
+
+            newRingsUsuario.push({
+                ...ringUsuario,
+                ring: {
+                    ...ringUsuario.ring,
+                    unidades,
+                }
+            })
+
+        }
+
         res.json({
-            rings_usuario
+            rings_usuario: newRingsUsuario
         });
 
      } catch (error) {

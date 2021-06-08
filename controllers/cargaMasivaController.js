@@ -519,8 +519,8 @@ exports.cargaPreguntas = async (req, res) => {
             });
         }
 
-        let ancho_max_imagen_pregunta = 720;
-        let ancho_max_imagen_pista    = 720;
+        let ancho_max_imagen_pregunta = 484;
+        let ancho_max_imagen_pista    = 484;
 
         //Directorio temporal donde se guardará el archivo de carga.
         const tmp_dir = process.env.DIR_TEMP;
@@ -741,9 +741,9 @@ exports.cargaPreguntas = async (req, res) => {
                     }
 
                     //Valida que existen las imagenes de pistas
-                    for(let i = 0; i < pregunta_numero_pistas; i++){
+                    for(let j = 0; j < pregunta_numero_pistas; j++){
                         //Genera el número de la solución.
-                        let numero_pista = i + 1;
+                        let numero_pista = j + 1;
                         //Genera el path donde se encuentran las imagenes de pistas.
                         let archivo_pista_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pistas}/${nombre_archivo_pregunta}-${pregunta_numero_pistas}/${numero_pista}.png`;  
 
