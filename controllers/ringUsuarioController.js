@@ -201,16 +201,13 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
         });
 
        
-        let newRingsUsuario = [
-            ...rings_usuario
-        ]
+        let newRingsUsuario = []
 
-      
         for(let ringUsuario of rings_usuario){
             
             codigoRing = ringUsuario.ring.codigo
 
-            const unidades = await sequelize.query(`SELECT  un.codigo, un.descripcion
+            const unidadesRing = await sequelize.query(`SELECT  un.codigo, un.descripcion
             FROM ring_preguntas rp
             LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rp.codigo_pregunta
             LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
@@ -222,7 +219,7 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                 ...ringUsuario,
                 ring: {
                     ...ringUsuario.ring,
-                    unidades,
+                    unidades: unidadesRing,
                 }
             })
 

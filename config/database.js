@@ -26,7 +26,7 @@ module.exports = {
     define: { 
         timestamps: true
     },
-    logging: console.log,
+    logging: process.env.NODE_ENV === 'dev' ? console.log : false,
     pool: {
         max: 5,
         min: 0,
