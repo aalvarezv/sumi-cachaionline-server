@@ -6,6 +6,7 @@ const { PreguntaModulo, PreguntaModuloContenido,
     PreguntaModuloContenidoTema, PreguntaModuloContenidoTemaConcepto,
     Configuracion } = require('../database/db');
 const mime = require('mime-types');
+const nodemailer = require("nodemailer");
 
 const letras = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
@@ -282,7 +283,6 @@ const moverArchivo = (archivo_origen, archivo_destino) => {
    
 }
 
-
 //limpia texto del nombre de los campos del objeto.
 const limpiaTextoObjeto = (obj, textoReemplazar) => {
     
@@ -308,7 +308,140 @@ return obj.map(item => {
 const isUrl = (s) => {
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     return regexp.test(s);
- }
+}
+
+const generaCodigo4Digitos = () => {
+    return Math.floor(1000 + Math.random() * 9000);
+}
+
+const sendMail = (mail_to, mail_subject, mail_message_text, mail_message_html, mail_attach) => {
+    
+    return new Promise( async (resolve, reject) => {
+
+        try{
+            
+            //HOST
+            const smtpHost = await Configuracion.findOne({
+                where: {
+                    seccion: 'SMTP',
+                    clave: 'SERVER'
+                }
+            })
+
+            if(!smtpHost){
+                throw new Error('seccion=SMTP clave=SERVER No existe en la configuración')
+            }
+
+            let mail_host = smtpHost.valor
+
+           
+            if(mail_host.trim() === ''){
+                throw new Error('seccion=SMTP clave=SERVER No tiene un valor definido en la configuración')
+            }
+            
+            //PORT
+            const smtpPort = await Configuracion.findOne({
+                where: {
+                    seccion: 'SMTP',
+                    clave: 'PORT'
+                }
+            })
+
+            if(!smtpPort){
+                throw new Error('seccion=SMTP clave=PORT No existe en la configuración')
+            }
+
+            let mail_port = smtpPort.valor
+
+            if(mail_port.trim() === ''){
+                throw new Error('seccion=SMTP clave=PORT No tiene un valor definido en la configuración')
+            }
+            
+            //SSL
+            const smtpSSL = await Configuracion.findOne({
+                where: {
+                    seccion: 'SMTP',
+                    clave: 'SSL'
+                }
+            })
+
+            if(!smtpSSL){
+                throw new Error('seccion=SMTP clave=SSL No existe en la configuración')
+            }
+
+            let mail_secure = smtpSSL.valor
+            
+            if(mail_secure.trim() === ''){
+                throw new Error('seccion=SMTP clave=SSL No tiene un valor definido en la configuración')
+            }
+    
+            //USER
+            const smtpUser = await Configuracion.findOne({
+                where: {
+                    seccion: 'SMTP',
+                    clave: 'USER'
+                }
+            })
+
+            if(!smtpUser){
+                throw new Error('seccion=SMTP clave=USER No existe en la configuración')
+            }
+
+            let mail_user = smtpUser.valor
+
+            if(mail_user.trim() === ''){
+                throw new Error('seccion=SMTP clave=USER No tiene un valor definido en la configuración')
+            }
+
+            //PASSWORD
+            const smtpPass = await Configuracion.findOne({
+                where: {
+                    seccion: 'SMTP',
+                    clave: 'PASSWORD'
+                }
+            })
+
+            if(!smtpPass){
+                throw new Error('seccion=SMTP clave=PASSWORD No existe en la configuración')
+            }
+
+            let mail_pass = smtpPass.valor
+
+            if(mail_pass.trim() === ''){
+                throw new Error('seccion=SMTP clave=PASSWORD No tiene un valor definido en la configuración')
+            }
+
+            let transporter = nodemailer.createTransport({
+                host: mail_host,
+                port: Number(mail_port),
+                secure: Boolean(Number(mail_secure)), // true for 465, false for other ports
+                auth: {
+                    user: mail_user,
+                    pass: mail_pass, 
+                },
+            })
+            
+            // Envía el email.
+            let info = await transporter.sendMail({
+                from: mail_user,
+                to: mail_to,
+                subject: mail_subject,
+                text: mail_message_text,
+                html: mail_message_html,
+                attachments: mail_attach,
+            })
+    
+            resolve(info.messageId)
+
+        }catch(e){
+            console.log(e)
+            reject(e)
+        }
+
+    })
+    
+
+}
 
 module.exports = {
     letras,
@@ -323,4 +456,6 @@ module.exports = {
     fileToBase64,
     limpiaTextoObjeto,
     isUrl,
+    generaCodigo4Digitos,
+    sendMail,
 }

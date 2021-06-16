@@ -38,6 +38,7 @@ const PreguntaModuloContenidoModel = require('../models/PreguntaModuloContenido'
 const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloContenidoTema')
 const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto')
 const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad')
+const UsuarioRecuperaClaveModel = require('../models/UsuarioRecuperaClave')
 
 //conexión a la bd
 const sequelize = new Sequelize(config)
@@ -81,6 +82,7 @@ const Respuesta = RespuestaModel(sequelize, Sequelize, Usuario, Single, Ring, Pr
 const RespuestaAlternativa = RespuestaAlternativaModel(sequelize, Sequelize, Respuesta, PreguntaAlternativa)
 const RespuestaPista = RespuestaPistaModel(sequelize, Sequelize, Respuesta, PreguntaPista)
 const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta, PreguntaSolucion)
+const UsuarioRecuperaClave = UsuarioRecuperaClaveModel(sequelize, Sequelize, Usuario)
 
 
 //RELACIONES
@@ -186,4 +188,5 @@ module.exports = {
     PreguntaModuloContenidoTemaConcepto,
     Modalidad,
     TipoJuegoModalidad,
+    UsuarioRecuperaClave
 }

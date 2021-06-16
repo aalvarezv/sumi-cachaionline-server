@@ -2,12 +2,10 @@ const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Configuracio
 const { Sequelize, Op, QueryTypes } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const fsp = require('fs').promises
-const fs = require('fs')
 const ExcelJS = require('exceljs')
 //llama el resultado de la validación
 const { validationResult } = require('express-validator');
-const { response } = require('express');
-const { errorMonitor } = require('stream');
+
 
 
 exports.crearUsuario = async(req, res) => {
@@ -190,7 +188,6 @@ exports.listarUsuariosInscritosDisponiblesCurso = async(req, res, next) => {
         })
     }
 }
-
 
 exports.cargaMasivaUsuarios = async(req, res) => {
 
@@ -496,3 +493,47 @@ exports.busquedaUsuarios = async(req, res) => {
 
 }
 
+exports.actualizarAvatar = async(req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+    
+    try{
+
+        const { rut, avatar_color, avatar_textura, avatar_sombrero, avatar_accesorio } = req.body;
+
+        //verifica si el usuario existe 
+        let usuario = await Usuario.findByPk(rut);
+        if (!usuario) {
+            return res.status(404).send({
+                msg: `El usuario ${rut} no existe`
+            })
+        }
+
+        //actualizo los datos del avatar
+        usuario = await Usuario.update({
+            avatar_color,
+            avatar_textura,
+            avatar_sombrero,
+            avatar_accesorio,
+        }, {
+            where: {
+                rut
+            }
+        })
+
+        res.json({
+            msg: 'Avatar actualizado'
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+
+}

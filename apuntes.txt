@@ -16,9 +16,9 @@ NODE_ENV=dev npx sequelize-cli seed:generate --name create-base
 NODE_ENV=dev npx sequelize-cli db:seed --seed 20210322173237-create-base.js
 * Ejecutar todas las semillas
 NODE_ENV=dev npx sequelize-cli db:seed:all
-* Deshace una migración.
+* Deshace una semilla.
 NODE_ENV=dev npx sequelize-cli db:seed:undo --seed 20210322173237-create-base.js
-* Deshace todas las migraciones.
+* Deshace todas las semillas.
 NODE_ENV=dev npx sequelize-cli db:seed:undo:all
 
 - MIGRACIONES

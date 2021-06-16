@@ -42,4 +42,6 @@ app.use('/api/token', require('./token'));
 
 app.use('/api/politicas-condiciones', require('./politicasCondiciones'));
 
+app.use('/api/recupera-clave/', require('./usuarioRecuperaClave'))
+
 module.exports = app;

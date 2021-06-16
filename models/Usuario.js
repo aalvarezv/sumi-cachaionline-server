@@ -26,6 +26,26 @@ module.exports = (sequelize, type) =>{
             type: type.TEXT('long'),
             allownull: false
         },
+        avatar_color:{
+            type: type.INTEGER,
+            defaultValue: 0,
+            allowNull: false
+        },
+        avatar_textura:{
+            type: type.INTEGER,
+            defaultValue: 0,
+            allowNull: false
+        },
+        avatar_sombrero:{
+            type: type.INTEGER,
+            defaultValue: 0,
+            allowNull: false
+        },
+        avatar_accesorio:{
+            type: type.INTEGER,
+            defaultValue: 0,
+            allowNull: false
+        },
         inactivo:{
             type: type.BOOLEAN,
             allowNull: false,
