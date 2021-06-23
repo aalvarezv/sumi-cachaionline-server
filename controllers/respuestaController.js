@@ -294,7 +294,7 @@ exports.guardarRespuesta = async(req, res) => {
             respuestaExiste = await Respuesta.findByPk(respuestaExiste.codigo)
 
 
-            const resultados = await getResultados(rut_usuario, codigo_single, codigo_ring);
+            const resultados = await getResultadosPorUsuario(rut_usuario, codigo_single, codigo_ring);
 
             res.json({
                 msg: 'Respuesta actualizada',
@@ -345,7 +345,7 @@ exports.guardarRespuesta = async(req, res) => {
                 }   
             }
 
-            const resultados = await getResultados(rut_usuario, codigo_single, codigo_ring);
+            const resultados = await getResultadosPorUsuario(rut_usuario, codigo_single, codigo_ring);
 
             //envía la respuesta
             res.json({
@@ -356,7 +356,6 @@ exports.guardarRespuesta = async(req, res) => {
 
         }
        
-        
     } catch (error) {
         console.log(error);
         res.status(500).send({
@@ -366,8 +365,7 @@ exports.guardarRespuesta = async(req, res) => {
 
 }
 
-
-const getResultados = (rut_usuario, codigo_single, codigo_ring) => {
+const getResultadosPorUsuario = (rut_usuario, codigo_single, codigo_ring) => {
 
     return new Promise(async(resolve, reject) => {
 
@@ -404,3 +402,4 @@ const getResultados = (rut_usuario, codigo_single, codigo_ring) => {
 
 
 }
+

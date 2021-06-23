@@ -44,4 +44,6 @@ app.use('/api/politicas-condiciones', require('./politicasCondiciones'));
 
 app.use('/api/recupera-clave/', require('./usuarioRecuperaClave'))
 
+app.use('/api/estadistica/', require('./estadistica'))
+
 module.exports = app;

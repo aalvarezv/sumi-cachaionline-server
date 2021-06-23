@@ -167,6 +167,8 @@ exports.listarRingPreguntas = async(req, res) => {
                         [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`imagen` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`imagen`)) ELSE `pregunta->pregunta_pista`.`imagen` END'), 'imagen'],
                         [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`audio` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`audio`)) ELSE `pregunta->pregunta_pista`.`audio` END'), 'audio'],
                         [Sequelize.literal('CASE WHEN `pregunta->pregunta_pista`.`video` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_pista`.`codigo_pregunta`, "/pistas/" , `pregunta->pregunta_pista`.`video`)) ELSE `pregunta->pregunta_pista`.`video` END'), 'video'],
+                        'imagen_alto',
+                        'imagen_ancho',
                     ],
                     //separated: true,
                 }],
