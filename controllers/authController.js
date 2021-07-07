@@ -176,9 +176,10 @@ const datosUsuarioAutenticado = async (req, res) => {
                     nested: true,
                     //order: ['rol.descripcion', 'ASC']
                 })
-
+                
                 roles = roles.map((rol, idx) => {
                     return {
+                        codigo_rol: rol.codigo_rol,
                         descripcion: rol["rol.descripcion"],
                         ver_menu_administrar: rol["rol.ver_menu_administrar"],
                         ver_submenu_instituciones: rol["rol.ver_submenu_instituciones"],
