@@ -10,6 +10,8 @@ const {
     eliminarRingPreguntaMasivo,
     listarRingPreguntas, 
     countPreguntasRing,
+    getPuntajesPreguntaRing,
+    updatePuntajesPreguntaRing,
 } = require('../controllers/ringPreguntaController');
 
 router.post('/crear', auth, [
@@ -34,5 +36,21 @@ router.delete('/eliminar/masivo',[
 router.get('/count/preguntas', auth, [
     query('codigo_ring').exists().withMessage('El código de ring es requerido')
 ], countPreguntasRing)
+
+
+router.get('/puntajes-pregunta', auth, [
+    query('codigo_ring').exists().withMessage('El codigo ring es obligatorio.').notEmpty().withMessage('El codigo ring no puede ser vacío'),
+    query('codigo_pregunta').exists().withMessage('El codigo pregunta es obligatorio.').notEmpty().withMessage('El código pregunta no puede ser vacío'),   
+], getPuntajesPreguntaRing)
+
+router.put('/puntajes-pregunta', auth, [
+    check('codigo_ring').exists().withMessage('El codigo ring es obligatorio.').notEmpty().withMessage('El codigo ring no puede ser vacío'),
+    check('codigo_pregunta').exists().withMessage('El codigo pregunta es obligatorio.').notEmpty().withMessage('El código pregunta no puede ser vacío'),  
+    check('puntos_respuesta_correcta').exists().withMessage('Puntos respuesta correcta es obligatorio.').notEmpty().withMessage('Puntos respuesta correcta no puede ser vacío'), 
+    check('puntos_respuesta_incorrecta').exists().withMessage('Puntos respuesta incorrecta es obligatorio.').notEmpty().withMessage('Puntos respuesta incorrecta no puede ser vacío'), 
+    check('puntos_respuesta_omitida').exists().withMessage('Puntos respuesta omitida es obligatorio.').notEmpty().withMessage('Puntos respuesta omitida no puede ser vacío'),
+    check('puntos_respuesta_timeout').exists().withMessage('Puntos respuesta timeout es obligatorio.').notEmpty().withMessage('Puntos respuesta timeout no puede ser vacío'),
+], updatePuntajesPreguntaRing)
+
 
 module.exports = router;

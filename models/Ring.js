@@ -114,6 +114,26 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             type: type.STRING(128),
             allowNull: false,
         },
+        puntos_respuesta_correcta:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_incorrecta:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_omitida:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_timeout:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         retroceder: {
             type: type.BOOLEAN,
             allowNull: false,

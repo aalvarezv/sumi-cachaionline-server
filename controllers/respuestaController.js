@@ -4,7 +4,8 @@ const {
     RespuestaPista,
     RespuestaSolucion,
     Single, 
-    Ring, 
+    Ring,
+    RingPregunta, 
     Pregunta, 
     PreguntaAlternativa, 
     PreguntaPista,
@@ -18,9 +19,8 @@ const { validationResult } = require('express-validator');
 
 const { QueryTypes } = require('sequelize');
 
-exports.guardarRespuesta = async(req, res) => {
 
-    
+exports.guardarRespuesta = async(req, res) => {
 
     //si hay errores de la validación
     const errors = validationResult(req);
@@ -30,7 +30,7 @@ exports.guardarRespuesta = async(req, res) => {
     
     try {
                 
-        const {
+        let {
             rut_usuario,
             codigo_single,
             codigo_ring,
@@ -38,31 +38,49 @@ exports.guardarRespuesta = async(req, res) => {
             alternativas,
             tiempo,
             omitida,
+            timeout,
             vio_pista,
             pistas,
             vio_solucion,
             soluciones,
         } = req.body;
 
-
+        tiempo = Number(tiempo)
         if(typeof tiempo !== "number"){
             return res.status(400).send({
                 msg: 'El campo tiempo debe ser numérico.'
             })
         }
 
+        omitida = (omitida === "true")
         if(typeof omitida !== "boolean"){
             return res.status(400).send({
                 msg: 'El campo omitida debe ser booleano.'
             })
         }
 
+        timeout = (timeout === "true")
+        if(typeof timeout !== "boolean"){
+            return res.status(400).send({
+                msg: 'El campo timeout debe ser booleano.'
+            })
+        }
+
+        //Si envía omitida y timeout, lanzo mensaje de error ya que no pueden ser ambas true.
+        if(omitida && timeout){
+            return res.status(400).send({
+                msg: 'La respuesta no puede ser omitida y timeout al mismo tiempo.'
+            })
+        }
+
+        vio_pista = (vio_pista === "true")
         if(typeof vio_pista !== "boolean"){
             return res.status(400).send({
                 msg: 'El campo vio_pista debe ser booleano.'
             })
         }
 
+        vio_solucion = (vio_solucion === "true")
         if(typeof vio_solucion !== "boolean"){
             return res.status(400).send({
                 msg: 'El campo vio_solucion debe ser booleano.'
@@ -72,12 +90,12 @@ exports.guardarRespuesta = async(req, res) => {
         let usuario = await Usuario.findByPk(rut_usuario);
         if(!usuario){
             return res.status(400).json({
-                msg: 'El rut usuario no es válido.'
+                msg: `El rut usuario ${rut_usuario} no es válido.`
             });
         } 
 
         if(codigo_ring && codigo_ring.trim() !== ''){
-            //verifica que el ring es válidog
+            //verifica que el ring es válido
             let ring = await Ring.findByPk(codigo_ring)
             if(!ring){
                 return res.status(400).json({
@@ -115,7 +133,8 @@ exports.guardarRespuesta = async(req, res) => {
         })
 
         let alternativasCorrectasRespuesta = 0
-        if(!omitida){
+
+        if(!omitida && !timeout){
 
             if(alternativas.length === 0){
                 return res.status(400).json({
@@ -219,12 +238,40 @@ exports.guardarRespuesta = async(req, res) => {
             raw: true,
         })
 
+        //Puntajes de acuerdo a ring pregunta
+        let puntos = 0
+        if(codigo_ring && codigo_ring !== ''){
+
+            let puntajesRingPregunta = await RingPregunta.findOne({
+                where:{
+                    codigo_pregunta,
+                    codigo_ring,
+                },
+                raw: true
+            })
+
+            if(omitida){
+                puntos = puntajesRingPregunta.puntos_respuesta_omitida
+            }else if(timeout){
+                puntos = puntajesRingPregunta.puntos_respuesta_timeout
+            }else if(correcta === 1){
+                puntos = puntajesRingPregunta.puntos_respuesta_correcta
+            }else if(correcta === 0){
+                puntos = puntajesRingPregunta.puntos_respuesta_incorrecta
+            }else{
+                puntos = 0
+            }
+
+        }
+        
         if(respuestaExiste){
 
             await Respuesta.update({
                 tiempo,
-                correcta,
+                correcta: omitida || timeout ? 0 : correcta,
                 omitida,
+                timeout,
+                puntos,
                 vio_pista: vio_pista === true ? vio_pista : respuestaExiste.vio_pista,
                 vio_solucion: vio_solucion === true ? vio_solucion : respuestaExiste.vio_solucion,
             },{
@@ -239,13 +286,15 @@ exports.guardarRespuesta = async(req, res) => {
                 }
             });
 
-            for(let alternativa of alternativas){
+            if(!omitida && !timeout){
+                for(let alternativa of alternativas){
 
-                await RespuestaAlternativa.create({
-                    codigo_respuesta: respuestaExiste.codigo,
-                    codigo_alternativa: alternativa,    
-                });
-        
+                    await RespuestaAlternativa.create({
+                        codigo_respuesta: respuestaExiste.codigo,
+                        codigo_alternativa: alternativa,    
+                    });
+            
+                }
             }
 
             if(vio_pista){
@@ -303,7 +352,6 @@ exports.guardarRespuesta = async(req, res) => {
             })
 
         }else{
-
             //Guarda la respuesta.
             let codigo = uuidv4()
             let respuesta = await Respuesta.create({
@@ -313,19 +361,23 @@ exports.guardarRespuesta = async(req, res) => {
                 codigo_ring: !codigo_ring || codigo_ring === '' ? null : codigo_ring,
                 codigo_pregunta,
                 tiempo,
-                correcta,
+                correcta: omitida || timeout ? 0 : correcta,
                 omitida,
+                timeout,
+                puntos,
                 vio_pista,
                 vio_solucion,
-
             }); 
 
-            for(let alternativa of alternativas){
-                await RespuestaAlternativa.create({
-                    codigo_respuesta: codigo,
-                    codigo_alternativa: alternativa,    
-                });
+            if(!omitida && !timeout){
+                for(let alternativa of alternativas){
+                    await RespuestaAlternativa.create({
+                        codigo_respuesta: codigo,
+                        codigo_alternativa: alternativa,    
+                    });
+                }
             }
+            
 
             if(vio_pista){
                 for(let pista of pistas){
@@ -351,7 +403,7 @@ exports.guardarRespuesta = async(req, res) => {
             res.json({
                 msg: 'Respuesta grabada',
                 respuesta,
-                resultados
+                resultados,
             });
 
         }
@@ -378,18 +430,34 @@ const getResultadosPorUsuario = (rut_usuario, codigo_single, codigo_ring) => {
                         WHERE rut_usuario = '${rut_usuario}' 
                         AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
                         AND correcta = 1 
-                        AND omitida = 0) AS total_correctas,
+                        AND omitida = 0
+                        AND timeout = 0) AS total_correctas,
                     (SELECT COUNT(*) 
                         FROM respuestas 
                         WHERE rut_usuario = '${rut_usuario}' 
                         AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
                         AND correcta = 0 
-                        AND omitida = 0) AS total_incorrectas,
+                        AND omitida = 0
+                        AND timeout = 0) AS total_incorrectas,
                     (SELECT COUNT(*) 
                         FROM respuestas 
                         WHERE rut_usuario = '${rut_usuario}' 
                         AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
-                        AND omitida = 1) AS total_omitidas
+                        AND correcta = 0
+                        AND omitida = 1
+                        AND timeout = 0) AS total_omitidas,
+                    (SELECT COUNT(*) 
+                        FROM respuestas 
+                        WHERE rut_usuario = '${rut_usuario}' 
+                        AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"} 
+                        AND correcta = 0 
+                        AND omitida = 0
+                        AND timeout = 1) AS total_timeout,
+                    CAST((SELECT SUM(puntos) 
+                        FROM respuestas 
+                        WHERE rut_usuario = '${rut_usuario}' 
+                        AND ${codigo_single ? "codigo_single='"+codigo_single+"'" : "codigo_ring ='"+codigo_ring+"'"}
+                        ) AS SIGNED) AS total_puntos
             `, { type: QueryTypes.SELECT })
 
             resolve(resultados[0]);

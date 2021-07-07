@@ -1,8 +1,12 @@
-const {Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../database/db');
+const {CursoUsuarioRol, Curso, NivelAcademico, Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid').v4
 const { limpiaTextoObjeto, validRefreshTokens } = require('../helpers');
+const moment = require('moment');
+const { Sequelize, Op } = require('sequelize');
+
+//filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
 
 const autenticarUsuario = async (req, res) => {
     
@@ -86,6 +90,17 @@ const autenticarUsuario = async (req, res) => {
     }
 }
 
+/*attributes: [
+                'codigo',
+                'letra', 
+                [Sequelize.literal(`(SELECT COUNT(*) 
+                FROM cursos_usuarios_roles 
+                WHERE codigo_curso = curso.codigo
+                AND rut_usuario = '${rut_usuario}'
+                AND codigo_rol = '${codigo_rol}'
+                )`),'inscrito']
+            ],*/
+
 const datosUsuarioAutenticado = async (req, res) => {
 
     try {
@@ -94,9 +109,27 @@ const datosUsuarioAutenticado = async (req, res) => {
 
         //consulta por el usuario
         const usuario = await Usuario.findByPk(rut, {
-            attributes: { exclude: ['clave', 'createdAt', 'updatedAt'] },
+            attributes: [
+                'rut', 
+                'nombre',
+                'email',
+                'telefono',
+                'imagen',
+                'avatar_color',
+                'avatar_textura',
+                'avatar_sombrero',
+                'avatar_accesorio',
+                [Sequelize.literal(`(SELECT COUNT(*)
+                    FROM ring_usuarios ru
+                    LEFT JOIN rings r ON r.codigo = ru.codigo_ring
+                    WHERE ru.rut_usuario = '${rut}'
+                    AND ru.finalizado = 0 
+                    AND r.fecha_hora_fin >= '${moment().format('YYYY-MM-DD HH:mm')}'
+                )`),'rings_activos'],
+                'inactivo',
+            ],
             raw: true,
-            nested: false,
+            nested: true,
         });
 
         //si el usuario no existe
@@ -106,6 +139,7 @@ const datosUsuarioAutenticado = async (req, res) => {
             })
         }
 
+        
         //obtiene las instituciones del usuario.
         let usuarioInstituciones = await UsuarioInstitucionRol.findAll({
             attributes:['codigo_institucion'],
@@ -125,10 +159,10 @@ const datosUsuarioAutenticado = async (req, res) => {
 
         if(usuarioInstituciones.length > 0){
           
-            //Obtiene los roles por institucion.
+            //Obtiene los roles y cursos del usuario por institucion.
             for(let usuarioInstitucion of usuarioInstituciones){
 
-                let rolesUsuarioInstitucion = await UsuarioInstitucionRol.findAll({
+                let roles = await UsuarioInstitucionRol.findAll({
                     attributes:['codigo_rol'],
                     include: [{
                         model: Rol,
@@ -143,8 +177,55 @@ const datosUsuarioAutenticado = async (req, res) => {
                     //order: ['rol.descripcion', 'ASC']
                 })
 
-                rolesUsuarioInstitucion = limpiaTextoObjeto(rolesUsuarioInstitucion, 'rol.')
+                roles = roles.map((rol, idx) => {
+                    return {
+                        descripcion: rol["rol.descripcion"],
+                        ver_menu_administrar: rol["rol.ver_menu_administrar"],
+                        ver_submenu_instituciones: rol["rol.ver_submenu_instituciones"],
+                        ver_submenu_niveles_academicos: rol["rol.ver_submenu_niveles_academicos"],
+                        ver_submenu_roles: rol["rol.ver_submenu_roles"],
+                        ver_submenu_usuarios: rol["rol.ver_submenu_usuarios"],
+                        ver_menu_asignaturas: rol["rol.ver_menu_asignaturas"],
+                        ver_submenu_materias: rol["rol.ver_submenu_materias"],
+                        ver_submenu_unidades: rol["rol.ver_submenu_unidades"],
+                        ver_submenu_modulos: rol["rol.ver_submenu_modulos"],
+                        ver_submenu_contenidos: rol["rol.ver_submenu_contenidos"],
+                        ver_submenu_temas: rol["rol.ver_submenu_temas"],
+                        ver_submenu_conceptos: rol["rol.ver_submenu_conceptos"],
+                        ver_menu_preguntas: rol["rol.ver_menu_preguntas"],
+                        ver_menu_rings: rol["rol.ver_menu_rings"],
+                        inactivo: rol["rol.inactivo"],
+                    }
+                })
 
+                let cursos = await Curso.findAll({
+                    attributes:['codigo', 'letra'],
+                    include:[{
+                        model: CursoUsuarioRol,
+                        attributes: ['codigo_curso', 'rut_usuario'],
+                    },{
+                        model: NivelAcademico,
+                        attributes: ['descripcion']
+                    }],
+                    where:{
+                        [Op.and]:[
+                            {codigo_institucion: {[Op.eq]: usuarioInstitucion.codigo_institucion }},
+                            {'$curso_usuario_rols.rut_usuario$': {[Op.eq]: rut}}
+                        ]
+                    },
+                    raw: true,
+                    nested: true,
+                    group: 'codigo'
+                })
+
+                cursos = cursos.map(curso => {
+                    return {
+                        codigo: curso.codigo,
+                        descripcion: `${curso["nivel_academico.descripcion"]} ${curso.letra}`
+                    }
+                })
+
+                
                 institucionRoles.push({
                     codigo_institucion: usuarioInstitucion.codigo_institucion,
                     descripcion_institucion: usuarioInstitucion["institucion.descripcion"],
@@ -152,10 +233,16 @@ const datosUsuarioAutenticado = async (req, res) => {
                     email_institucion: usuarioInstitucion["institucion.email"],
                     telefono_institucion: usuarioInstitucion["institucion.telefono"],
                     logo_institucion: usuarioInstitucion["institucion.logo"],
-                    roles: rolesUsuarioInstitucion,
+                    roles,
+                    cursos,
                 })
-                
+
             }
+
+
+
+
+
         }
 
         //envia la información del usuario

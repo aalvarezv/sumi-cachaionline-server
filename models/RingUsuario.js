@@ -39,6 +39,11 @@ module.exports = (sequelize, type, Ring, Usuario, Institucion, Curso) => {
             type: type.STRING(128),
             allowNull: false,
         },
+        finalizado: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
     }, {
         //agrega atributos timestamp (updatedAt, createdAt).
         timestamps: true,

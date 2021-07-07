@@ -36,6 +36,10 @@ exports.crearRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
@@ -63,8 +67,6 @@ exports.crearRing = async(req, res) => {
         const ultimoCodigoConexion = await sequelize.query(`SELECT codigo, codigo_conexion, codigo_institucion FROM rings WHERE createdAt = (SELECT MAX (createdAt) FROM rings WHERE codigo_institucion = '${codigo_institucion}') AND codigo_institucion = '${codigo_institucion}'`, { type: QueryTypes.SELECT })
 
         let codigoConexion = 0
-
-        console.log(ultimoCodigoConexion)
         
         if(ultimoCodigoConexion.length > 0){
             if(Number(ultimoCodigoConexion[0].codigo_conexion) === 1000){
@@ -75,7 +77,11 @@ exports.crearRing = async(req, res) => {
         }else{
             codigoConexion = 1
         }
-       
+        
+        console.log('PUNTOS', puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout)
 
         //Guarda el nuevo ring
         ring = await Ring.create({
@@ -100,6 +106,10 @@ exports.crearRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
@@ -231,12 +241,21 @@ exports.actualizarRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
             privado,
             inactivo,
         } = req.body;
+
+        console.log('PUNTOS', puntos_respuesta_correcta,
+        puntos_respuesta_incorrecta,
+        puntos_respuesta_omitida,
+        puntos_respuesta_timeout)
 
         //verifica que el ring a actualizar existe.
         let ring = await Ring.findByPk(codigo);
@@ -276,6 +295,10 @@ exports.actualizarRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,

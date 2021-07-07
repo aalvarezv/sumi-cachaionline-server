@@ -391,6 +391,8 @@ exports.listarPreguntasRing = async(req, res) => {
                 [Sequelize.literal(`CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.audio)) ELSE pregunta.audio END`),'audio'],
                 [Sequelize.literal(`CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.video)) ELSE pregunta.video END`),'video'],
                 'duracion',
+                'imagen_ancho',
+                'imagen_alto',
                 'createdAt',
                 'updatedAt',
             ],
@@ -460,6 +462,8 @@ exports.listarPreguntasRing = async(req, res) => {
                     [Sequelize.literal(`CASE WHEN pregunta_pista.imagen <> "" THEN (SELECT CONCAT('${url_preguntas}', pregunta_pista.codigo_pregunta, "/pistas/" , pregunta_pista.imagen)) ELSE pregunta_pista.imagen END`), 'imagen'],
                     [Sequelize.literal(`CASE WHEN pregunta_pista.audio <> "" THEN (SELECT CONCAT('${url_preguntas}', pregunta_pista.codigo_pregunta, "/pistas/" , pregunta_pista.audio)) ELSE pregunta_pista.audio END`), 'audio'],
                     [Sequelize.literal(`CASE WHEN pregunta_pista.video <> "" THEN (SELECT CONCAT('${url_preguntas}', pregunta_pista.codigo_pregunta, "/pistas/" , pregunta_pista.video)) ELSE pregunta_pista.video END`), 'video'], 
+                    'imagen_ancho',
+                    'imagen_alto',
                 ],
             },{
                 model: RingPregunta,

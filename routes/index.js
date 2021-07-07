@@ -46,4 +46,6 @@ app.use('/api/recupera-clave/', require('./usuarioRecuperaClave'))
 
 app.use('/api/estadistica/', require('./estadistica'))
 
+app.use('/api/sugerencia-alternativa-pregunta/', require('./sugerenciaAlternativaPregunta'))
+
 module.exports = app;

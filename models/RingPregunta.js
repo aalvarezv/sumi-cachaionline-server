@@ -18,7 +18,27 @@ module.exports = (sequelize, type, Ring, Pregunta) => {
                 model: Pregunta,
                 key: 'codigo'
             }
-        }
+        },
+        puntos_respuesta_correcta:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_incorrecta:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_omitida:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        puntos_respuesta_timeout:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
     }, {
         //agrega atributos timestamp (updatedAt, createdAt).
         timestamps: true,

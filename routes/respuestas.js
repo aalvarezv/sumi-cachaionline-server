@@ -6,13 +6,24 @@ const { check } = require('express-validator');
 const { guardarRespuesta } = require('../controllers/respuestaController');
 
 router.post('/guardar', auth, [
-    check('rut_usuario').not().isEmpty().withMessage('El rut usuario es obligatorio.'),
-    check('codigo_pregunta').not().isEmpty().withMessage('El código pregunta es obligatorio.'),
-    check('alternativas').isArray().notEmpty().withMessage('Debe enviar al menos una alternativa.'),
-    check('tiempo').not().isEmpty().withMessage('El tiempo es obligatorio.').isInt({ min: 1 }).withMessage('El tiempo debe ser mayor a cero.'),
-    check('omitida').not().isEmpty().withMessage('Si la respuesta fue omitida es obligatorio.'),
-    check('vio_pista').not().isEmpty().withMessage('Si vió pista es obligatorio.'),
-    check('vio_solucion').not().isEmpty().withMessage('Si vió solucion es obligatorio.'),
+    check('rut_usuario').exists().withMessage('Rut usuario es obligatorio.').notEmpty().withMessage('Rut usuario no puede ser vacío'),
+    check('codigo_pregunta').exists().withMessage('Codigo pregunta es obligatorio.').notEmpty().withMessage('Codigo pregunta no puede ser vacío'),
+    check('alternativas').custom((alternativas, { req }) => {
+        let {omitida, timeout} = req.body;
+        omitida = (omitida === "true")
+        timeout = (timeout === "true")
+
+        if(!omitida && !timeout && alternativas.length === 0){
+            throw new Error('Debe enviar al menos una alternativa.')
+        } 
+        
+        return true;
+    }),
+    check('tiempo').exists().withMessage('Tiempo es obligatorio.').notEmpty().withMessage('Tiempo no puede ser vacío'),
+    check('omitida').exists().withMessage('Omitida es obligatorio.').notEmpty().withMessage('Omitida no puede ser vacío'),
+    check('timeout').exists().withMessage('Timeout es obligatorio.').notEmpty().withMessage('Timeout no puede ser vacío'),
+    check('vio_pista').exists().withMessage('Vio pista es obligatorio.').notEmpty().withMessage('Vio pista no puede ser vacío'),
+    check('vio_solucion').exists().withMessage('Vio solución es obligatorio.').notEmpty().withMessage('Vio solución no puede ser vacío'),
 ], guardarRespuesta);
 
 

@@ -50,7 +50,6 @@ exports.crearRingUsuario = async(req, res) => {
 
 }
 
-
 exports.crearRingUsuarioMasivo = async(req, res) => {
 
     //si hay errores de la validación
@@ -115,10 +114,15 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
 
          switch (Number(estado_ring)) {
             case 0: //finalizados
-                filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.lt] : moment().format('YYYY-MM-DD HH:mm')}})
+                filtro_fecha.push({
+                    [Op.or]:[ 
+                        {finalizado: 1},
+                        {'$ring.fecha_hora_fin$': { [Op.lt] : moment().format('YYYY-MM-DD HH:mm')}}
+                    ]
+                })
                 break;
             case 1://activos
-                filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
+                filtro_fecha.push({finalizado: 0}, { '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
                 break;
             default:
                 break;
@@ -136,14 +140,27 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                               'fecha_hora_inicio',
                               'fecha_hora_fin',
                               [
+                                Sequelize.literal(`CONVERT((
+                                    CASE 
+                                        WHEN (SELECT finalizado 
+                                                FROM ring_usuarios 
+                                              WHERE codigo_ring = ring.codigo 
+                                              AND rut_usuario = ${rut_usuario}) = 1 THEN 0 #finalizado por usuario (terminó de jugar) 
+                                        WHEN fecha_hora_fin <  '${moment().format('YYYY-MM-DD HH:mm')}' THEN 0 #finalizado por horario definido
+                                        WHEN fecha_hora_fin >= '${moment().format('YYYY-MM-DD HH:mm')}' THEN 1 #activo por horario definido
+                                    END), UNSIGNED INTEGER)`),'estado_ring'
+                              ],
+                              [
                                 Sequelize.literal(`(SELECT COUNT(*) FROM ring_usuarios WHERE codigo_ring = ring.codigo)`),'cantidad_usuarios'
                               ],
                               'tipo_duracion_pregunta',
                               [
                                 Sequelize.literal(`(
-                                    CASE WHEN tipo_duracion_pregunta = 1 THEN "SIN TIEMPO" 
+                                    CASE 
+                                        WHEN tipo_duracion_pregunta = 1 THEN "SIN TIEMPO" 
                                         WHEN tipo_duracion_pregunta = 2 THEN "TIEMPO DEFINIDO" 
-                                        ELSE "TIEMPO PREGUNTA" END)`),'tipo_duracion_pregunta_descripcion'
+                                        ELSE "TIEMPO PREGUNTA" 
+                                    END)`),'tipo_duracion_pregunta_descripcion'
                               ],
                               'duracion_pregunta',
                               'revancha',
@@ -243,7 +260,7 @@ exports.eliminarRingUsuario = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -358,6 +375,41 @@ exports.listarUsuariosRing = async(req, res) => {
     } catch (error) {
 
         console.log(error)
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        })
+    }
+
+}
+
+exports.finalizarRingUsuario = async(req, res) =>{
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try {
+
+        const {rut_usuario, codigo_ring, codigo_institucion} = req.body
+        
+        await RingUsuario.update({
+            finalizado: true,
+        },{
+            where: {
+                codigo_ring,
+                rut_usuario,
+                codigo_institucion,
+            }
+        })
+
+        res.json({
+            msg: `Ring ${codigo_ring} finalizado correctamente para el usuario ${rut_usuario}`
+        })
+
+    } catch (error) {
+        console.log(error);
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
         })

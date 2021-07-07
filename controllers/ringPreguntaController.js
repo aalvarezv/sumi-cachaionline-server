@@ -11,12 +11,19 @@ exports.crearRingPregunta = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
 
-        const { codigo_ring, codigo_pregunta } = req.body;
+        const { 
+                codigo_ring, 
+                codigo_pregunta,
+                puntos_respuesta_correcta, 
+                puntos_respuesta_incorrecta, 
+                puntos_respuesta_omitida, 
+                puntos_respuesta_timeout, 
+            } = req.body;
 
         //verifica si existe la combinación ring vs pregunta.
         let ring_pregunta = await RingPregunta.findAll({
@@ -35,7 +42,11 @@ exports.crearRingPregunta = async(req, res) => {
         //Guarda la nueva relacion entre ring y pregunta.
         ring_pregunta = await RingPregunta.create({
             codigo_ring,
-            codigo_pregunta
+            codigo_pregunta,
+            puntos_respuesta_correcta, 
+            puntos_respuesta_incorrecta, 
+            puntos_respuesta_omitida, 
+            puntos_respuesta_timeout, 
         });
 
         const cantPreguntasRing = await RingPregunta.count({
@@ -64,7 +75,7 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -73,7 +84,14 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
 
         for(let ring_pregunta_add of ring_preguntas_add){
    
-            const {codigo_pregunta, codigo_ring} = ring_pregunta_add;
+            const {
+                    codigo_pregunta, 
+                    codigo_ring,
+                    puntos_respuesta_correcta, 
+                    puntos_respuesta_incorrecta, 
+                    puntos_respuesta_omitida, 
+                    puntos_respuesta_timeout 
+                } = ring_pregunta_add;
            
             //verifica si existe la combinación ring vs pregunta.
             let ring_pregunta = await RingPregunta.findAll({
@@ -86,7 +104,11 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
             if (ring_pregunta.length === 0) {
                 await RingPregunta.create({
                     codigo_ring,
-                    codigo_pregunta
+                    codigo_pregunta,
+                    puntos_respuesta_correcta, 
+                    puntos_respuesta_incorrecta, 
+                    puntos_respuesta_omitida, 
+                    puntos_respuesta_timeout 
                 });
             }
 
@@ -116,7 +138,7 @@ exports.listarRingPreguntas = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
     
     try {
@@ -203,7 +225,7 @@ exports.eliminarRingPregunta = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -254,11 +276,11 @@ exports.eliminarRingPregunta = async(req, res) => {
 }
 
 exports.eliminarRingPreguntaMasivo = async(req, res) => {
+    
     //si hay errores de la validación
     const errors = validationResult(req);
-    console.log(errors);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -311,6 +333,12 @@ exports.eliminarRingPreguntaMasivo = async(req, res) => {
 
 exports.countPreguntasRing = async(req, res) => {
 
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try{
 
         const { codigo_ring } = req.query; 
@@ -323,6 +351,82 @@ exports.countPreguntasRing = async(req, res) => {
 
         res.json({
             cantPreguntasRing,
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+
+}
+
+exports.getPuntajesPreguntaRing = async (req, res) => {
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try {
+        
+        const { codigo_ring, codigo_pregunta } = req.query; 
+
+        const puntajesPreguntaRing = await RingPregunta.findOne({
+            where: {
+                codigo_ring,
+                codigo_pregunta,
+            }
+        })
+
+        res.json({
+            puntajesPreguntaRing,
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+
+}
+
+exports.updatePuntajesPreguntaRing = async (req, res) => {
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try {
+        
+        const { 
+            codigo_ring, 
+            codigo_pregunta,
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout, 
+        } = req.body; 
+
+        await RingPregunta.update({
+            puntos_respuesta_correcta,
+            puntos_respuesta_incorrecta,
+            puntos_respuesta_omitida,
+            puntos_respuesta_timeout,
+        },{
+            where: {
+                codigo_ring,
+                codigo_pregunta,
+            }
+        })
+
+        res.json({
+           msg: 'Puntaje pregunta ring actualizado correctamente'
         })
 
     } catch (error) {

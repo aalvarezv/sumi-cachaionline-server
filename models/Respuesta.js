@@ -55,6 +55,16 @@ module.exports = (sequelize, type, Usuario, Single, Ring, Pregunta) =>{
             allowNull: false,
             defaultValue: false,
         },
+        timeout:{
+            type: type.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        puntos:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         vio_pista:{
             type: type.BOOLEAN,
             allowNull: false,
