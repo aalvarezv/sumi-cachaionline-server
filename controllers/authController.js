@@ -6,7 +6,6 @@ const { limpiaTextoObjeto, validRefreshTokens } = require('../helpers');
 const moment = require('moment');
 const { Sequelize, Op } = require('sequelize');
 
-//filtro_fecha.push({ '$ring.fecha_hora_fin$': { [Op.gte] : moment().format('YYYY-MM-DD HH:mm')}})
 
 const autenticarUsuario = async (req, res) => {
     
@@ -89,17 +88,6 @@ const autenticarUsuario = async (req, res) => {
         res.status(400).send('Hubo un error')
     }
 }
-
-/*attributes: [
-                'codigo',
-                'letra', 
-                [Sequelize.literal(`(SELECT COUNT(*) 
-                FROM cursos_usuarios_roles 
-                WHERE codigo_curso = curso.codigo
-                AND rut_usuario = '${rut_usuario}'
-                AND codigo_rol = '${codigo_rol}'
-                )`),'inscrito']
-            ],*/
 
 const datosUsuarioAutenticado = async (req, res) => {
 

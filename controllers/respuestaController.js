@@ -45,6 +45,10 @@ exports.guardarRespuesta = async(req, res) => {
             soluciones,
         } = req.body;
 
+        alternativas = alternativas.filter(alternativa => alternativa !== '')
+        pistas = pistas.filter(pista => pista !== '')
+        soluciones = soluciones.filter(solucion => solucion !== '')
+
         tiempo = Number(tiempo)
         if(typeof tiempo !== "number"){
             return res.status(400).send({
