@@ -40,6 +40,8 @@ const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModu
 const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad')
 const UsuarioRecuperaClaveModel = require('../models/UsuarioRecuperaClave')
 const SugerenciaAlternativaPreguntaModel = require('../models/SugerenciaAlternativaPregunta')
+const TokenRefreshModel = require('../models/TokenRefresh');
+
 
 //conexión a la bd
 const sequelize = new Sequelize(config)
@@ -85,6 +87,8 @@ const RespuestaPista = RespuestaPistaModel(sequelize, Sequelize, Respuesta, Preg
 const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta, PreguntaSolucion)
 const UsuarioRecuperaClave = UsuarioRecuperaClaveModel(sequelize, Sequelize, Usuario)
 const SugerenciaAlternativaPregunta = SugerenciaAlternativaPreguntaModel(sequelize, Sequelize)
+const TokenRefresh = TokenRefreshModel(sequelize, Sequelize, Usuario);
+
 
 //RELACIONES
 Usuario.hasMany(UsuarioInstitucionRol, { foreignKey: 'rut_usuario' })
@@ -191,4 +195,5 @@ module.exports = {
     TipoJuegoModalidad,
     UsuarioRecuperaClave,
     SugerenciaAlternativaPregunta,
+    TokenRefresh,
 }
