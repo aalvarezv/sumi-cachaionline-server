@@ -1,7 +1,13 @@
-const { RingPregunta, Pregunta, PreguntaAlternativa, 
-    PreguntaSolucion, PreguntaPista } = require('../database/db');
+const { 
+    RingPregunta, 
+    Pregunta, 
+    PreguntaAlternativa, 
+    PreguntaPista,
+    PreguntaSolucion, 
+    sequelize 
+} = require('../database/db');
 
-const { Sequelize } = require('sequelize');
+const { Sequelize, QueryTypes } = require('sequelize');
 const { validationResult } = require('express-validator');
 
 const url_preguntas = process.env.URL_PREGUNTAS;
@@ -167,7 +173,6 @@ exports.listarRingPreguntas = async(req, res) => {
                     model: PreguntaAlternativa,
                     as: 'pregunta_alternativa',
                     attributes: ['codigo', 'letra', 'correcta', 'numero'],
-                    //separated: true,
                 },{
                     model: PreguntaSolucion,
                     as: 'pregunta_solucion',
@@ -179,7 +184,7 @@ exports.listarRingPreguntas = async(req, res) => {
                         [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`audio` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`audio`)) ELSE `pregunta->pregunta_solucion`.`audio` END'), 'audio'],
                         [Sequelize.literal('CASE WHEN `pregunta->pregunta_solucion`.`video` <> "" THEN (SELECT CONCAT("'+url_preguntas+'", `pregunta->pregunta_solucion`.`codigo_pregunta`, "/soluciones/" , `pregunta->pregunta_solucion`.`video`)) ELSE `pregunta->pregunta_solucion`.`video` END'), 'video'],
                     ],
-                    //separated: true,
+
                 },{
                     model: PreguntaPista,
                     attributes: [
@@ -192,7 +197,7 @@ exports.listarRingPreguntas = async(req, res) => {
                         'imagen_alto',
                         'imagen_ancho',
                     ],
-                    //separated: true,
+
                 }],
             }],
             where: {
@@ -202,11 +207,40 @@ exports.listarRingPreguntas = async(req, res) => {
                 [Pregunta, PreguntaAlternativa ,'numero', 'ASC'],
                 [Pregunta, PreguntaSolucion,'numero', 'ASC'],
                 [Pregunta, PreguntaPista,'numero', 'ASC'],
-            ]
+            ],
+
         });
 
+        ring_preguntas = JSON.parse(JSON.stringify(ring_preguntas))
+
+        let newPreguntasRing = []
+
+        for(let preguntaRing of ring_preguntas){
+
+            let codigo_pregunta = preguntaRing.codigo_pregunta
+
+            const unidadesPregunta = await sequelize.query(`
+                SELECT 
+                    un.codigo, un.descripcion
+                    FROM pregunta_modulos pmd
+                    LEFT JOIN modulos md ON md.codigo = pmd.codigo_modulo
+                    LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
+                    WHERE pmd.codigo_pregunta = '${codigo_pregunta}'
+                GROUP BY un.codigo
+            `, { type: QueryTypes.SELECT })
+
+            newPreguntasRing.push({
+                ...preguntaRing,
+                pregunta: {
+                    ...preguntaRing.pregunta,
+                    unidades: unidadesPregunta,
+                }
+            })
+
+        }
+
         res.json({
-            ring_preguntas
+            ring_preguntas: newPreguntasRing,
         });
 
     } catch (error) {

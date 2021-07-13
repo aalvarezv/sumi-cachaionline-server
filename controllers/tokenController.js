@@ -1,39 +1,54 @@
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
-const { validRefreshTokens } = require("../helpers");
+const { TokenRefresh } = require('../database/db');
 
 
-const tokenRefresh = (req, res) => {
+const tokenRefresh = async (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
     
-    const { rut, tokenRefresh } = req.body
+    try{
 
-    //verifica si el tokenRefresh + usuario existe en el arreglo de token válidos.
-    if(validRefreshTokens.find(item => item.rut === rut && item.tokenRefresh === tokenRefresh)){
-        const payload = {
-            usuario: {
-                rut,
+        const { rut, tokenRefresh } = req.body
+
+        const tokenRefeshExist = await TokenRefresh.findOne({
+            where: {
+                rut_usuario: rut,
+                token_refresh: tokenRefresh
             }
-        }
+        })
 
-        //firmar el jsonwebtoken 
-        jwt.sign(payload, process.env.SECRETA, {
-            expiresIn: 86400, //86400 segundos 1 día.
-        }, (error, token) => {
-            if (error) throw error
-            res.json({ 
-                token,
+        //verifica si el tokenRefresh + usuario existe en la tabla.
+        if(tokenRefeshExist){
+            
+            const payload = {
+                usuario: {
+                    rut,
+                }
+            }
+
+            //firmar el jsonwebtoken 
+            jwt.sign(payload, process.env.SECRETA, {
+                expiresIn: 86400, //86400 segundos 1 día.
+            }, (error, token) => {
+                if (error) throw error
+                res.json({ 
+                    token,
+                })
             })
-        })
 
-    }else{
-        res.status(400).send({
-            msg: 'No se puede refrescar el token con datos incorrectos'
-        })
+        }else{
+            res.status(400).send({
+                msg: 'No se puede refrescar el token con datos incorrectos'
+            })
+        }
+    
+    } catch (error) {
+        console.log(error)
+        res.status(400).send('Hubo un error')
     }
 
 }

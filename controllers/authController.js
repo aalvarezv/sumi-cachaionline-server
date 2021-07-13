@@ -1,17 +1,25 @@
-const {CursoUsuarioRol, Curso, NivelAcademico, Usuario, UsuarioInstitucionRol, Institucion, Rol} = require('../database/db');
+const {
+    CursoUsuarioRol, 
+    Curso, 
+    NivelAcademico, 
+    Usuario, 
+    UsuarioInstitucionRol, 
+    Institucion, 
+    Rol, 
+    sequelize,
+    TokenRefresh
+} = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid').v4
-const { limpiaTextoObjeto, validRefreshTokens } = require('../helpers');
 const moment = require('moment');
-const { Sequelize, Op } = require('sequelize');
+const { Sequelize, Op, QueryTypes } = require('sequelize');
 
 
 const autenticarUsuario = async (req, res) => {
     
     try { 
 
-      
         const { rut, clave } = req.body
 
         //revisa que el usuario existe
@@ -66,11 +74,25 @@ const autenticarUsuario = async (req, res) => {
 
         //id para refrescar el token
         const tokenRefresh = uuidv4()
-        validRefreshTokens.push({
-            rut: usuario.rut,
-            tokenRefresh,
-            fechaHora: new Date(),
-        })
+
+        const tokenRefeshExist = await TokenRefresh.findByPk(rut)
+        if(tokenRefeshExist){
+            await TokenRefresh.update({
+                token_refresh: tokenRefresh,
+                updatedAt: moment().format('YYYY-MM-DD HH:mm')
+            },{ 
+                where: {
+                    rut_usuario: rut
+                }
+            })
+        }else{
+            await TokenRefresh.create({
+                rut_usuario: rut,
+                token_refresh: tokenRefresh,
+                createdAt: moment().format('YYYY-MM-DD HH:mm'),
+                updatedAt: moment().format('YYYY-MM-DD HH:mm')
+            })
+        }
 
         //firmar el jsonwebtoken 
         jwt.sign(payload, process.env.SECRETA, {
@@ -114,6 +136,9 @@ const datosUsuarioAutenticado = async (req, res) => {
                     AND ru.finalizado = 0 
                     AND r.fecha_hora_fin >= '${moment().format('YYYY-MM-DD HH:mm')}'
                 )`),'rings_activos'],
+                [Sequelize.literal(`CONVERT(IFNULL((SELECT SUM(puntos) 
+                    FROM respuestas
+                    WHERE rut_usuario = '${rut}'), 0), SIGNED)`),'puntaje_global'],
                 'inactivo',
             ],
             raw: true,
@@ -214,6 +239,13 @@ const datosUsuarioAutenticado = async (req, res) => {
                     }
                 })
 
+                const puntos = await sequelize.query(`
+                    SELECT CONVERT(IFNULL(SUM(puntos), 0), SIGNED) AS total_puntos
+                        FROM respuestas re
+                    LEFT JOIN rings ri ON ri.codigo = re.codigo_ring
+                    WHERE re.rut_usuario = '${rut}' AND ri.codigo_institucion = '${usuarioInstitucion.codigo_institucion}'
+                `, { type: QueryTypes.SELECT })
+
                 
                 institucionRoles.push({
                     codigo_institucion: usuarioInstitucion.codigo_institucion,
@@ -224,12 +256,10 @@ const datosUsuarioAutenticado = async (req, res) => {
                     logo_institucion: usuarioInstitucion["institucion.logo"],
                     roles,
                     cursos,
+                    puntaje_institucion: puntos[0].total_puntos
                 })
 
             }
-
-
-
 
 
         }

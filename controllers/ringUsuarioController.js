@@ -148,7 +148,7 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
                                               AND rut_usuario = ${rut_usuario}) = 1 THEN 0 #finalizado por usuario (terminó de jugar) 
                                         WHEN fecha_hora_fin <  '${moment().format('YYYY-MM-DD HH:mm')}' THEN 0 #finalizado por horario definido
                                         WHEN fecha_hora_fin >= '${moment().format('YYYY-MM-DD HH:mm')}' THEN 1 #activo por horario definido
-                                    END), UNSIGNED INTEGER)`),'estado_ring'
+                                    END), SIGNED)`),'estado_ring'
                               ],
                               [
                                 Sequelize.literal(`(SELECT COUNT(*) FROM ring_usuarios WHERE codigo_ring = ring.codigo)`),'cantidad_usuarios'
@@ -224,13 +224,15 @@ exports.listarRingsUsuarioInstitucion = async (req,res) => {
             
             codigoRing = ringUsuario.ring.codigo
 
-            const unidadesRing = await sequelize.query(`SELECT  un.codigo, un.descripcion
-            FROM ring_preguntas rp
-            LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rp.codigo_pregunta
-            LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
-            LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
-            WHERE rp.codigo_ring = '${codigoRing}'
-            GROUP BY un.codigo`, { type: QueryTypes.SELECT })
+            const unidadesRing = await sequelize.query(`
+                SELECT  un.codigo, un.descripcion
+                    FROM ring_preguntas rp
+                LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rp.codigo_pregunta
+                LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
+                LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
+                WHERE rp.codigo_ring = '${codigoRing}'
+                GROUP BY un.codigo
+            `, { type: QueryTypes.SELECT })
 
             newRingsUsuario.push({
                 ...ringUsuario,

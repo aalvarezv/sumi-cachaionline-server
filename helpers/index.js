@@ -15,8 +15,6 @@ const letras = [
     'Z' 
 ]
 
-const validRefreshTokens = []
-
 const fileToBase64 = file => {
 
     return new Promise(async(resolve, reject) => {
@@ -445,7 +443,6 @@ const sendMail = (mail_to, mail_subject, mail_message_text, mail_message_html, m
 
 module.exports = {
     letras,
-    validRefreshTokens,
     creaPreguntaModulo,
     creaPreguntaModuloContenido,
     creaPreguntaModuloContenidoTema,
