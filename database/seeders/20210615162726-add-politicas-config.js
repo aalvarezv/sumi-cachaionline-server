@@ -1,4 +1,5 @@
 'use strict';
+const moment = require('moment');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -7,6 +8,8 @@ module.exports = {
         seccion: 'POLITICAS',
         clave: 'CONDICIONES',
         valor: 'Texto Políticas y Condiciones',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
       }]
 
     await queryInterface.bulkInsert('configuraciones', configuracionPoliticas, {});

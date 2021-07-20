@@ -1,4 +1,5 @@
 'use strict';
+const moment = require('moment');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -11,6 +12,9 @@ module.exports = {
         telefono: 0,
         website: '',
         logo: '',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
+
     }]
 
     await queryInterface.bulkInsert('instituciones', instituciones, {});
@@ -31,6 +35,8 @@ module.exports = {
         ver_submenu_conceptos: true,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '2',
         descripcion: 'ALUMNO',
@@ -47,6 +53,8 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: false,
         ver_menu_rings: false,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '3',
         descripcion: 'PROFESOR',
@@ -63,6 +71,8 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '4',
         descripcion: 'RECTOR',
@@ -79,6 +89,8 @@ module.exports = {
         ver_submenu_conceptos: false,
         ver_menu_preguntas: false,
         ver_menu_rings: false,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '5',
         descripcion: 'ADMINISTRADOR INSTITUCIÓN',
@@ -95,6 +107,8 @@ module.exports = {
         ver_submenu_conceptos: true,
         ver_menu_preguntas: true,
         ver_menu_rings: true,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('roles', roles, {});
@@ -104,22 +118,28 @@ module.exports = {
         clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
         nombre: 'SYSTEM',
         email: 'info@cachaionline.com',
-        telefono: '12345678',
+        telefono: 1,
         imagen: '',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         rut: '162323695',
         clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
         nombre: 'Alan Patricio Alvarez Vargas',
         email: 'alvarez.vargas@gmail.com',
-        telefono: '12345633',
+        telefono: 1,
         imagen: '',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         rut: '19',
         clave: '$2a$10$9wpsEopYMcnCbEjQSGYaMu4xcOZoLN5t5TAHV.4sja8ayFrUeEy.G',
         nombre: 'Usuario Demo',
         email: 'demo@gmail.com',
-        telefono: '56912345678',
+        telefono: 1,
         imagen: '',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('usuarios', usuarios, {});
@@ -129,11 +149,15 @@ module.exports = {
         rut_usuario: '162323695',
         codigo_institucion: '1',
         codigo_rol: '1',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         codigo: '2',
         rut_usuario: '19',
         codigo_institucion: '1',
         codigo_rol: '2',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('usuarios_instituciones_roles', usuarioInstitucionRoles, {});
@@ -142,18 +166,26 @@ module.exports = {
         codigo: '1',
         descripcion: 'PRIMERO MEDIO',
         nivel: 1,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '2',
         descripcion: 'SEGUNDO MEDIO',
         nivel: 2,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '3',
         descripcion: 'TERCERO MEDIO',
         nivel: 3,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '4',
         descripcion: 'CUARTO MEDIO',
         nivel: 4,
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('niveles_academicos', nivelesAcademicos, {});
@@ -163,6 +195,8 @@ module.exports = {
         nombre: 'MATEMÁTICAS',
         descripcion: 'Las matemáticas son la ciencia de los números y los cálculos. Desde la antigüedad, el hombre utiliza las matemáticas para hacer la vida más fácil y organizar la sociedad. La matemática fue utilizada por los egipcios en la construcción de las pirámides, presas, canales de riego y estudios de astronomía. Los antiguos griegos también desarrollaron varios conceptos matemáticos.',
         imagen: 'http://localhost/materias/matematicas.jpg',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('materias', materias, {});
@@ -172,21 +206,29 @@ module.exports = {
         letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '1',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '2',
         letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '2',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '3',
         letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '3',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '4',
         letra: 'A',
         codigo_institucion: '1',
         codigo_nivel_academico: '4',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('cursos', cursos, {});
@@ -194,6 +236,8 @@ module.exports = {
     let tipoJuegos = [{
         codigo: '1',
         descripcion: 'TRIVIA',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('tipo_juegos', tipoJuegos, {});
@@ -201,9 +245,13 @@ module.exports = {
     let modalidades = [{
         codigo: '1',
         descripcion: 'USUARIO VS SISTEMA',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }, {
         codigo: '2',
         descripcion: 'USUARIO VS USUARIO',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('modalidades', modalidades, {});
@@ -211,9 +259,13 @@ module.exports = {
     let tipoJuegoModalidades = [{
         codigo_tipo_juego: '1',
         codigo_modalidad: '1',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         codigo_tipo_juego: '1',
         codigo_modalidad: '2',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('tipo_juego_modalidades', tipoJuegoModalidades, {});
@@ -221,12 +273,18 @@ module.exports = {
     let estados = [{
         codigo: '1',
         descripcion: 'INICIADO',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         codigo: '2',
         descripcion: 'PAUSA',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     },{
         codigo: '3',
         descripcion: 'FINALIZADO',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('estados', estados, {});
