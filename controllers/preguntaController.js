@@ -20,7 +20,7 @@ exports.crearPregunta = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -30,6 +30,8 @@ exports.crearPregunta = async(req, res) => {
             rut_usuario_creador,
             texto,
             imagen,
+            imagen_ancho,
+            imagen_alto,
             audio,
             video,
             duracion,
@@ -91,6 +93,8 @@ exports.crearPregunta = async(req, res) => {
             rut_usuario_creador,
             texto,
             imagen: imagen_pregunta,
+            imagen_ancho,
+            imagen_alto,
             audio: audio_pregunta,
             video: video_pregunta,
             duracion,
@@ -706,7 +710,7 @@ exports.actualizarPregunta = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {

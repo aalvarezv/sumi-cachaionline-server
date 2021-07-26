@@ -2,6 +2,20 @@ module.exports = (sequelize, type) =>{
 
     return sequelize.define('sugerencia_alternativa_pregunta',{
         
+        rut_usuario: {
+            type: type.STRING(128),
+            primaryKey: true,
+            allowNull: false,
+            references: {
+               model: 'usuarios',
+               key: 'rut'
+            }
+        },
+        nombre_formulario: {
+            type: type.STRING(256),
+            primaryKey: true,
+            allowNull: false,
+        },
         codigo_pregunta: {
             type: type.STRING(128),
             primaryKey: true,
@@ -15,6 +29,18 @@ module.exports = (sequelize, type) =>{
         alternativa_correcta: {
             type: type.BOOLEAN,
             defaultValue: true,
+        },
+        codigo_materia: {
+            type: type.STRING(128),
+            allowNull: false,
+            references: {
+               model: 'materias',
+               key: 'codigo'
+            }
+          },
+        fecha_formulario: {
+            type: type.DATEONLY,
+            allowNull: false,
         },
         link_1: {
             type: type.STRING(512),

@@ -1,5 +1,5 @@
-const { Usuario, CursoUsuarioRol, sequelize, UsuarioInstitucionRol, Configuracion } = require('../database/db');
-const { Sequelize, Op, QueryTypes } = require('sequelize')
+const { Usuario, sequelize, RingUsuario} = require('../database/db');
+const { Op, QueryTypes } = require('sequelize')
 const bcrypt = require('bcryptjs')
 const fsp = require('fs').promises
 const ExcelJS = require('exceljs')
@@ -379,8 +379,8 @@ exports.eliminarUsuario = async(req, res) => {
 
     try {
         //obtengo el rut del request
-        const { rut } = req.params;
-        //verifica que el usuario a actualizar existe.
+        const { rut, codigo_institucion } = req.query;
+        //verifica que el usuario a eliminar existe.
         let usuario = await Usuario.findByPk(rut);
         if (!usuario) {
             return res.status(404).send({
@@ -388,41 +388,39 @@ exports.eliminarUsuario = async(req, res) => {
             })
         }
 
-        //verifica que el usuario no esté asociado a un curso.
-        let usuario_rol_curso = await CursoUsuarioRol.findOne({
+        //si el usuario está inscrito en al menos un ring de la institución, ya no lo puedo eliminar.
+        const ringUsuario = await RingUsuario.findOne({
             where: {
                 rut_usuario: rut,
+                codigo_institucion,
             }
         })
 
-        if (usuario_rol_curso) {
+        if(ringUsuario){
             return res.status(404).send({
-                msg: `El usuario está inscrito en un curso, no se puede eliminar`
+                msg: `El usuario ${rut} se encuentra inscrito en un ring, no se puede eliminar.`
             })
         }
 
-        let usuario_institucion_rol = await UsuarioInstitucionRol.findOne({
-            where: {
-                rut_usuario: rut,
-            }
-        })
+        //elimina los cursos asociados al usuario institución.
+        await sequelize.query(`
+            DELETE cursos_usuarios_roles
+            FROM cursos_usuarios_roles 
+            INNER JOIN cursos ON cursos.codigo = cursos_usuarios_roles.codigo_curso
+            WHERE cursos_usuarios_roles.rut_usuario = '${rut}' AND cursos.codigo_institucion = '${codigo_institucion}'
+        `, {type: QueryTypes.DELETE})
 
-        if (usuario_institucion_rol) {
-            return res.status(404).send({
-                msg: `El usuario tiene roles asignados, no se puede eliminar`
-            })
-        }
+        //elimina los roles asociados al usuario institución.
+        await sequelize.query(`
+            DELETE 
+            FROM usuarios_instituciones_roles 
+            WHERE rut_usuario = '${rut}' AND codigo_institucion = '${codigo_institucion}'
+        `, {type: QueryTypes.DELETE})
 
-        //elimino el registro.
-        usuario = await Usuario.destroy({
-            where: {
-                rut
-            }
-        });
 
         //envío una respuesta informando que el registro fue eliminado
         res.json({
-            msg: 'Usuario eliminado correctamente'
+            msg: 'Usuario eliminado correctamente de la institución'
         });
 
     } catch (error) {
@@ -439,16 +437,7 @@ exports.datosUsuario = async(req, res) => {
         //obtiene el parametro desde la url
         const { rut } = req.params
             //consulta por el usuario
-        const usuario = await Usuario.findByPk(rut, {
-            attributes: { exclude: ['clave'] } 
-        });
-        //si el usuario no existe
-        if (!usuario) {
-            return res.status(404).send({
-                msg: `El usuario ${rut} no existe`
-            })
-        }
-
+        const usuario = await Usuario.findByPk(rut);
         //envia la información del usuario
         res.json({
             usuario
@@ -467,16 +456,16 @@ exports.busquedaUsuarios = async(req, res) => {
 
     try {
         //obtiene el parametro desde la url
-        const { filtro } = req.query
+        const { filtro, codigo_institucion } = req.query
         //consulta por el usuario
-        const usuarios = await Usuario.findAll({
-            where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("rut"), Sequelize.col("nombre")), {
-                [Op.like]: `%${filtro}%`
-            }),
-            order: [
-                ['nombre', 'ASC'],
-            ] 
-        });
+
+        const usuarios = await sequelize.query(`
+            SELECT u.* 
+                FROM usuarios u
+            LEFT JOIN usuarios_instituciones_roles uir ON uir.rut_usuario = u.rut
+                WHERE CONCAT(u.rut, u.nombre) LIKE '%${filtro}%' AND uir.codigo_institucion = '${codigo_institucion}'
+            GROUP BY u.rut
+        `, { type: QueryTypes.SELECT })
 
         //envia la información del usuario
         res.json({

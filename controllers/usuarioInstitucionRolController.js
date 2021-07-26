@@ -1,18 +1,18 @@
 const { UsuarioInstitucionRol, Institucion, Rol } = require('../database/db');
 const { validationResult } = require('express-validator');
-
+const uuidv4 = require('uuid').v4;
 
 exports.crearUsuarioInstitucionRol = async(req, res, next) => {
 
     //Si hay errores en la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
         
-        const { codigo, rut_usuario, codigo_institucion, codigo_rol } = req.body;
+        const { rut_usuario, codigo_institucion, codigo_rol } = req.body;
 
         //Verifica si existe la combinación curso vs usuario
         let usuario_instituciones_roles = await UsuarioInstitucionRol.findAll({
@@ -25,20 +25,21 @@ exports.crearUsuarioInstitucionRol = async(req, res, next) => {
 
         if (usuario_instituciones_roles.length > 0) {
             return res.status(400).json({
-                msg: 'El usuario ya está asignado a la institución y rol.'
+                msg: 'El usuario ya tiene asignado el rol'
             });
         }
 
         //Guarda la nueva relación entre curso y usuario
         usuario_instituciones_roles = await UsuarioInstitucionRol.create({
-            codigo,
+            codigo: uuidv4(),
             rut_usuario,
             codigo_institucion,
             codigo_rol
         });
         
         //next para pasar a listarUsuarioInstitucionRol 
-        req.params.rut_usuario = rut_usuario;
+        req.query.rut_usuario = rut_usuario;
+        req.query.codigo_institucion = codigo_institucion;
         next();
         
     } catch (error) {
@@ -53,8 +54,8 @@ exports.listarUsuarioInstitucionRol = async(req, res) => {
 
     try {
        
-        const { rut_usuario } = req.params;
-
+        const { rut_usuario, codigo_institucion } = req.query;
+        
         const usuario_instituciones_roles = await UsuarioInstitucionRol.findAll({
             include:[{
                 model: Rol,
@@ -64,8 +65,12 @@ exports.listarUsuarioInstitucionRol = async(req, res) => {
                 attributes: ['codigo', 'descripcion']
             }],
             where: {
-                rut_usuario
-            }
+                rut_usuario,
+                codigo_institucion
+            },
+            order: [
+                ['rol', 'descripcion','ASC']
+            ]
         });
 
         res.json({
@@ -86,23 +91,25 @@ exports.eliminarUsuarioInstitucionRol = async(req, res, next) => {
     //Si hay errores en la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
 
-        const {rut_usuario} = req.query;
-        const { codigo } = req.params;
+        const { rut_usuario, codigo_institucion, codigo_rol } = req.query;
         
         //Elimino el registro
         await UsuarioInstitucionRol.destroy({
             where: {
-                codigo
+                rut_usuario,
+                codigo_institucion,
+                codigo_rol,
             }
         });
 
         //next para pasar a listarUsuarioInstitucionRol 
-        req.params.rut_usuario = rut_usuario;
+        req.query.rut_usuario = rut_usuario;
+        req.query.codigo_institucion = codigo_institucion;
         next();
         
 

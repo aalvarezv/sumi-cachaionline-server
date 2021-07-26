@@ -30,7 +30,10 @@ router.put('/actualizar', auth, [
     check('clave').not().isEmpty().withMessage('La clave es obligatoria.'),
 ], actualizarUsuario);
 router.post('/carga-masiva', auth, cargaMasivaUsuarios);
-router.delete('/eliminar/:rut', auth, eliminarUsuario);
+router.delete('/eliminar',[
+    query('rut').exists().withMessage('El rut es obligatorio').notEmpty().withMessage('El rut no puede ser vacío'),
+    query('codigo_institucion').exists().withMessage('El código institución es obligatorio').notEmpty().withMessage('El código institución no puede ser vacío'),
+], auth, eliminarUsuario);
 router.get('/datos/:rut', auth, datosUsuario);
 router.get('/busqueda', auth, busquedaUsuarios);
 router.put('/actualiza-avatar', auth, [

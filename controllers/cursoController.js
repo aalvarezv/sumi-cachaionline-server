@@ -8,7 +8,7 @@ exports.crearCurso = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -72,7 +72,7 @@ exports.actualizarCurso = async(req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -228,7 +228,6 @@ exports.busquedaCursos = async(req, res) => {
                 ]
             }
         });
-     
         //envia la información del curso
         res.json({
             cursos
@@ -245,6 +244,11 @@ exports.busquedaCursos = async(req, res) => {
 }
 
 exports.cursosInstitucionNivelAcademico = async(req, res) => {
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
 
     try {
 
@@ -275,6 +279,7 @@ exports.cursosInstitucionNivelAcademico = async(req, res) => {
             order: [
                 ['nivel_academico','nivel', 'ASC'],
                 ['nivel_academico','descripcion','ASC'],
+                ['letra','ASC'],
             ]
         });
 
@@ -291,7 +296,12 @@ exports.cursosInstitucionNivelAcademico = async(req, res) => {
 }
 
 exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
-    
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try{
 
         const {niveles_academicos, rut_usuario, codigo_institucion} = req.query;
@@ -338,6 +348,11 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
 
 //Obtiene los alumnos de un curso y consulta si están asociados a un ring.
 exports.listarUsuariosRingCurso = async(req, res) => {
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
 
     try{
 

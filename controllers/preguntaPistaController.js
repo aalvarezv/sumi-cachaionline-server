@@ -6,7 +6,7 @@ exports.crearPreguntaPista= async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
@@ -79,7 +79,7 @@ exports.eliminarPreguntaPista = async(req, res) => {
     //si hay errores de la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {

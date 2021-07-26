@@ -147,16 +147,14 @@ exports.getEstadisticaUsuarioUnidades = async (req, res) => {
             (SELECT 
                 und.codigo, 
                 und.descripcion,
-                IFNULL((SELECT COUNT(*) FROM
-                        (SELECT rs.codigo, rs.codigo_pregunta 
+                IFNULL((SELECT COUNT(DISTINCT rs.codigo, rs.codigo_pregunta) 
                         FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
                         LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
                         LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
-                        WHERE rs.rut_usuario = '${rut_usuario}' AND un.codigo = und.codigo
-                        GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS total_preguntas,
-                IFNULL((SELECT COUNT(*) FROM 
-                        (SELECT rs.codigo, rs.codigo_pregunta, rs.correcta
+                        WHERE rs.rut_usuario = '${rut_usuario}' 
+                        AND un.codigo = und.codigo), 0) AS total_preguntas,
+                IFNULL((SELECT COUNT(DISTINCT rs.codigo, rs.codigo_pregunta)
                             FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
                         LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
@@ -165,10 +163,8 @@ exports.getEstadisticaUsuarioUnidades = async (req, res) => {
                         AND rs.correcta = 1 
                         AND rs.omitida = 0
                         AND rs.timeout = 0
-                        AND un.codigo = und.codigo
-                        GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS correctas,
-                IFNULL((SELECT COUNT(*) FROM 
-                        (SELECT rs.codigo, rs.codigo_pregunta, rs.correcta
+                        AND un.codigo = und.codigo), 0) AS correctas,
+                IFNULL((SELECT COUNT(DISTINCT rs.codigo, rs.codigo_pregunta) 
                             FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
                         LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
@@ -177,10 +173,8 @@ exports.getEstadisticaUsuarioUnidades = async (req, res) => {
                         AND rs.correcta = 0 
                         AND rs.omitida = 0
                         AND rs.timeout = 0
-                        AND un.codigo = und.codigo
-                        GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS incorrectas,
-                IFNULL((SELECT COUNT(*) FROM
-                        (SELECT rs.codigo, rs.codigo_pregunta, rs.omitida
+                        AND un.codigo = und.codigo), 0) AS incorrectas,
+                IFNULL((SELECT COUNT(DISTINCT rs.codigo, rs.codigo_pregunta)  
                             FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
                         LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
@@ -189,10 +183,8 @@ exports.getEstadisticaUsuarioUnidades = async (req, res) => {
                         AND rs.correcta = 0 
                         AND rs.omitida = 1 
                         AND rs.timeout = 0 
-                        AND un.codigo = und.codigo
-                        GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS omitidas,
-                IFNULL((SELECT COUNT(*) FROM
-                        (SELECT rs.codigo, rs.codigo_pregunta, rs.timeout
+                        AND un.codigo = und.codigo), 0) AS omitidas,
+                IFNULL((SELECT COUNT(DISTINCT rs.codigo, rs.codigo_pregunta)
                             FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
                         LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
@@ -201,9 +193,8 @@ exports.getEstadisticaUsuarioUnidades = async (req, res) => {
                         AND rs.correcta = 0 
                         AND rs.omitida = 0
                         AND rs.timeout = 1 
-                        AND un.codigo = und.codigo
-                        GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS timeout
-            FROM unidades und)tb `, 
+                        AND un.codigo = und.codigo), 0) AS timeout
+            FROM unidades und)tb`, 
         { type: QueryTypes.SELECT })
 
         res.json({
@@ -235,23 +226,15 @@ exports.getEstadisticaUsuarioUnidadModulos = async (req, res) => {
         const estadisticaUnidadModulos = await sequelize.query(`
             SELECT codigo, descripcion, 
                 CONVERT(total_preguntas, SIGNED) AS total_preguntas, 
-                CONVERT(correctas, SIGNED) AS correctas, CONVERT(IFNULL(((correctas * 100) / total_preguntas_unidad),0), DECIMAL(5,2)) AS correctas_porcent,
-                CONVERT(incorrectas, SIGNED) AS incorrectas, CONVERT(IFNULL(((incorrectas * 100) / total_preguntas_unidad),0), DECIMAL(5,2)) AS incorrectas_porcent,
-                CONVERT(omitidas, SIGNED) AS omitidas, CONVERT(IFNULL(((omitidas * 100) / total_preguntas_unidad),0), DECIMAL(5,2)) AS omitidas_porcent,
-                CONVERT(timeout, SIGNED) AS timeout, CONVERT(IFNULL(((timeout * 100) / total_preguntas_unidad),0), DECIMAL(5,2)) AS timeout_porcent
+                CONVERT(correctas, SIGNED) AS correctas, CONVERT(IFNULL(((correctas * 100) / total_preguntas),0), DECIMAL(5,2)) AS correctas_porcent,
+                CONVERT(incorrectas, SIGNED) AS incorrectas, CONVERT(IFNULL(((incorrectas * 100) / total_preguntas),0), DECIMAL(5,2)) AS incorrectas_porcent,
+                CONVERT(omitidas, SIGNED) AS omitidas, CONVERT(IFNULL(((omitidas * 100) / total_preguntas),0), DECIMAL(5,2)) AS omitidas_porcent,
+                CONVERT(timeout, SIGNED) AS timeout, CONVERT(IFNULL(((timeout * 100) / total_preguntas),0), DECIMAL(5,2)) AS timeout_porcent
             FROM 
             (SELECT 
                 md.codigo, 
                 md.descripcion,
-                IFNULL((SELECT COUNT(*) FROM
-                    (SELECT rs.codigo, rs.codigo_pregunta
-                        FROM respuestas rs
-                    LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta
-                    LEFT JOIN modulos md ON md.codigo = pm.codigo_modulo
-                    LEFT JOIN unidades un ON un.codigo = md.codigo_unidad
-                    WHERE rs.rut_usuario = '${rut_usuario}' AND un.codigo = '${codigo_unidad}'
-                    GROUP BY rs.codigo, rs.codigo_pregunta)tb ), 0) AS total_preguntas_unidad,
-                
+               
                 IFNULL((SELECT COUNT(*) 
                             FROM respuestas rs
                         LEFT JOIN pregunta_modulos pm ON pm.codigo_pregunta = rs.codigo_pregunta

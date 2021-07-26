@@ -7,12 +7,12 @@ exports.crearUsuarioCursoRol = async(req, res) => {
     //Si hay errores en la validación
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
     }
 
     try {
        
-        const { codigo_curso, rut_usuario, codigo_rol } = req.body;
+        const { rut_usuario, codigo_curso, codigo_rol } = req.body;
         
         //Verifica si existe la combinación curso vs usuario
         let curso_usuario = await CursoUsuarioRol.findAll({
@@ -51,11 +51,16 @@ exports.crearUsuarioCursoRol = async(req, res) => {
 
 exports.eliminarUsuarioCursoRol = async(req, res) => {
 
-    //Si hay errores de la validación
-    const { codigo_curso } = req.params;
-    const { rut_usuario, codigo_rol } = req.query;
+    //Si hay errores en la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
 
     try {
+
+        const { rut_usuario, codigo_curso, codigo_rol } = req.query;
+
         //Verifica si existe la combinación curso vs usuario.
         let curso_usuario = await CursoUsuarioRol.findAll({
             where: {
@@ -97,6 +102,12 @@ exports.eliminarUsuarioCursoRol = async(req, res) => {
 //Lista los cursos e indica si el usuario con el rol consultado está inscrito.
 exports.listarCursosUsuarioRol = async(req, res) => {
 
+    //Si hay errores en la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try {
 
         let { 
@@ -105,6 +116,11 @@ exports.listarCursosUsuarioRol = async(req, res) => {
             codigo_institucion,
             codigo_nivel_academico,
         } = req.query;
+
+        let filtrosDinamicos = []
+        if(codigo_nivel_academico){
+            filtrosDinamicos.push({codigo_nivel_academico : { [Op.eq] : codigo_nivel_academico}})
+        }
 
         const cursos = await Curso.findAll({
             attributes: [
@@ -125,9 +141,9 @@ exports.listarCursosUsuarioRol = async(req, res) => {
                 model: Institucion
             }],
             where: { 
-                [Op.and]: [
+                [Op.and]:[
                     {codigo_institucion: { [Op.eq] : codigo_institucion}},
-                    {codigo_nivel_academico: { [Op.eq] : codigo_nivel_academico}}
+                    filtrosDinamicos.map(filtro => filtro),
             ]},
             order: [
                 ['nivel_academico','nivel', 'ASC'],

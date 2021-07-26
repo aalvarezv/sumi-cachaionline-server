@@ -14,10 +14,18 @@ const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid').v4
 const moment = require('moment');
 const { Sequelize, Op, QueryTypes } = require('sequelize');
+const { validationResult } = require('express-validator');
 
 
 const autenticarUsuario = async (req, res) => {
+
     
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try { 
 
         const { rut, clave } = req.body
@@ -194,11 +202,13 @@ const datosUsuarioAutenticado = async (req, res) => {
                     return {
                         codigo_rol: rol.codigo_rol,
                         descripcion: rol["rol.descripcion"],
+                        sys_admin: rol["rol.sys_admin"],
                         ver_menu_administrar: rol["rol.ver_menu_administrar"],
                         ver_submenu_instituciones: rol["rol.ver_submenu_instituciones"],
                         ver_submenu_niveles_academicos: rol["rol.ver_submenu_niveles_academicos"],
                         ver_submenu_roles: rol["rol.ver_submenu_roles"],
                         ver_submenu_usuarios: rol["rol.ver_submenu_usuarios"],
+                        ver_submenu_cursos: rol["rol.ver_submenu_cursos"],
                         ver_menu_asignaturas: rol["rol.ver_menu_asignaturas"],
                         ver_submenu_materias: rol["rol.ver_submenu_materias"],
                         ver_submenu_unidades: rol["rol.ver_submenu_unidades"],
@@ -208,6 +218,7 @@ const datosUsuarioAutenticado = async (req, res) => {
                         ver_submenu_conceptos: rol["rol.ver_submenu_conceptos"],
                         ver_menu_preguntas: rol["rol.ver_menu_preguntas"],
                         ver_menu_rings: rol["rol.ver_menu_rings"],
+                        ver_menu_cuestionarios: rol["rol.ver_menu_cuestionarios"],
                         inactivo: rol["rol.inactivo"],
                     }
                 })

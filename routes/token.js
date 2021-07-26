@@ -3,8 +3,8 @@ const { check } = require('express-validator')
 const { tokenRefresh } = require('../controllers/tokenController')
 
 router.post('/refresh', [
-    check('rut').not().isEmpty().withMessage('El rut es obligatorio.'),
-    check('tokenRefresh').not().isEmpty().withMessage('El tokenRefresh es obligatorio.'),
+    check('rut').exists().withMessage('El rut es obligatorio').notEmpty().withMessage('El rut no puede ser vacío'),
+    check('tokenRefresh').exists().withMessage('El tokenRefresh es obligatorio').notEmpty().withMessage('El tokenRefresh no puede ser vacío'),
 ], tokenRefresh)
 
 module.exports = router

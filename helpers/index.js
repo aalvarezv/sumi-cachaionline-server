@@ -437,8 +437,12 @@ const sendMail = (mail_to, mail_subject, mail_message_text, mail_message_html, m
         }
 
     })
-    
 
+}
+
+function isBase64(str)
+{
+    return str.length % 4 == 0 && /^[A-Za-z0-9+/]+[=]{0,3}$/.test(str);
 }
 
 module.exports = {
@@ -455,4 +459,5 @@ module.exports = {
     isUrl,
     generaCodigo4Digitos,
     sendMail,
+    isBase64,
 }

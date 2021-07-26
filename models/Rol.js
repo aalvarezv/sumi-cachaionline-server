@@ -10,6 +10,11 @@ module.exports = (sequelize, type) =>{
             type: type.STRING(),
             allownull: false,
         },
+        sys_admin:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
         ver_menu_administrar:{
             type: type.BOOLEAN,
             allownull: false,
@@ -31,6 +36,11 @@ module.exports = (sequelize, type) =>{
             defaultValue: false,
         },
         ver_submenu_usuarios:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_cursos:{
             type: type.BOOLEAN,
             allownull: false,
             defaultValue: false,
@@ -76,6 +86,11 @@ module.exports = (sequelize, type) =>{
             defaultValue: false,
         },
         ver_menu_rings:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_menu_cuestionarios:{
             type: type.BOOLEAN,
             allownull: false,
             defaultValue: false,

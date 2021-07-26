@@ -135,7 +135,7 @@ Ring.belongsTo(TipoJuego, {foreignKey: 'codigo_tipo_juego', as: 'tipo_juego'})
 Ring.belongsTo(Modalidad, { foreignKey: 'codigo_modalidad', as: 'modalidad'})
 
 
-Ring.hasMany(RingNivelAcademico,  {foreignKey: 'codigo_ring'})
+Ring.hasMany(RingNivelAcademico,  {foreignKey: 'codigo_ring', as: 'niveles_academicos'})
 Usuario.hasMany(RingUsuario, {foreignKey: 'rut_usuario'})
 
 RingUsuario.belongsTo(Ring, {foreignKey: 'codigo_ring'})

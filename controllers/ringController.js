@@ -169,13 +169,14 @@ exports.listarRings = async(req, res) => {
         }
 
         
-        const ring = await Ring.findAll({
+        let ring = await Ring.findAll({
             include: [{
                 model: Usuario,
                 attributes: ['rut','nombre'],
                 as: 'usuario_creador',
             },{
                 model: RingNivelAcademico,
+                as: 'niveles_academicos',
                 attributes: ['codigo_ring', 'codigo_nivel_academico'],
                 include:[{
                     model: NivelAcademico,
@@ -197,9 +198,19 @@ exports.listarRings = async(req, res) => {
             ]
            
         });
+
+        let newRing = []
+        for (let ringItem of JSON.parse(JSON.stringify(ring))){
+            
+            newRing.push({
+                ...ringItem,
+                niveles_academicos: ringItem.niveles_academicos.map(item => item.nivel_academico)
+            })
+
+        }
         
         res.json({
-            ring
+            ring: newRing
         })
 
     } catch (error) {

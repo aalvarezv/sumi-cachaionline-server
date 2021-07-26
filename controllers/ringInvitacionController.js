@@ -70,6 +70,7 @@ exports.listarInvitacionesRingUsuario = async (req, res) => {
                 model: Ring,
                 include:[{
                     model: RingNivelAcademico,
+                    as: 'niveles_academicos',
                     attributes: ['codigo_ring', 'codigo_nivel_academico'],
                     include:[{
                         model: NivelAcademico,
