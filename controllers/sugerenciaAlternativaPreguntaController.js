@@ -339,6 +339,10 @@ const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha
                     clave: 'ASUNTO'
                 }
             })
+
+            if(!asuntoConfig){
+                reject('seccion FORM_SUGERENCIAS clave ASUNTO no existe en la configuración')    
+            }
         
             let asunto = asuntoConfig.valor
         
@@ -348,6 +352,10 @@ const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha
                     clave: 'MENSAJE_HEAD'
                 }
             })
+
+            if(!mensajeHeadConfig){
+                reject('seccion FORM_SUGERENCIAS clave MENSAJE_HEAD no existe en la configuración')    
+            }
         
             mensajeHeadConfig = mensajeHeadConfig.valor
             mensajeHeadConfig = mensajeHeadConfig.replace('[mail_alumno]',email_usuario)
@@ -365,6 +373,10 @@ const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha
                     clave: 'MENSAJE_BODY'
                 }
             })
+
+            if(!mensajeBodyConfig){
+                reject('seccion FORM_SUGERENCIAS clave MENSAJE_BODY no existe en la configuración')    
+            }
         
             mensajeBodyConfig = mensajeBodyConfig.valor
             

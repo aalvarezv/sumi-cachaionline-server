@@ -1,6 +1,7 @@
-const { UsuarioInstitucionRol, Institucion, Rol } = require('../database/db');
+const { UsuarioInstitucionRol, Institucion, Rol, sequelize } = require('../database/db');
 const { validationResult } = require('express-validator');
 const uuidv4 = require('uuid').v4;
+const { QueryTypes } = require('sequelize');
 
 exports.crearUsuarioInstitucionRol = async(req, res, next) => {
 
@@ -98,7 +99,15 @@ exports.eliminarUsuarioInstitucionRol = async(req, res, next) => {
 
         const { rut_usuario, codigo_institucion, codigo_rol } = req.query;
         
-        //Elimino el registro
+        //Elimino los cursos que estaba asociado el usuario con el rol a eliminar en la institución
+        await sequelize.query(`
+            DELETE cursos_usuarios_roles
+            FROM cursos_usuarios_roles 
+            INNER JOIN cursos ON cursos.codigo = cursos_usuarios_roles.codigo_curso
+            WHERE cursos_usuarios_roles.rut_usuario = '${rut_usuario}' AND cursos_usuarios_roles.codigo_rol = '${codigo_rol}' AND cursos.codigo_institucion = '${codigo_institucion}'
+        `, {type: QueryTypes.DELETE})
+
+        //Elimino el rol del usuario en la institución
         await UsuarioInstitucionRol.destroy({
             where: {
                 rut_usuario,
