@@ -95,8 +95,26 @@ exports.listarInvitacionesRingUsuario = async (req, res) => {
             ]
         })
 
+        let newInvitacionesRingUsuario = []
+        for(let invitacion of JSON.parse(JSON.stringify(invitaciones_ring_usuario))){
+            let nivelesAcademicos = []
+            for(let nivelAcademicoRing of invitacion.ring.niveles_academicos){
+                nivelesAcademicos.push({
+                    codigo: nivelAcademicoRing.nivel_academico.codigo,
+                    descripcion: nivelAcademicoRing.nivel_academico.descripcion,
+                })
+            }
+            newInvitacionesRingUsuario.push({
+                ...invitacion,
+                ring: {
+                    ...invitacion.ring,
+                    niveles_academicos: nivelesAcademicos
+                }
+            })
+        }
+
         res.json({
-            invitaciones_ring_usuario,
+            invitaciones_ring_usuario: newInvitacionesRingUsuario,
         })
         
     } catch (error) {

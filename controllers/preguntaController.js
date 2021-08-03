@@ -176,6 +176,8 @@ exports.crearPregunta = async(req, res) => {
                 numero: solucion.numero,
                 texto: solucion.texto,
                 imagen: imagen_solucion,
+                imagen_ancho: solucion.imagen_ancho,
+                imagen_alto: solucion.imagen_alto,
                 audio: audio_solucion,
                 video: video_solucion,
             });
@@ -229,6 +231,8 @@ exports.crearPregunta = async(req, res) => {
                 numero: pista.numero,
                 texto: pista.texto,
                 imagen: imagen_pista,
+                imagen_ancho: pista.imagen_ancho,
+                imagen_alto: pista.imagen_alto,
                 audio: audio_pista,
                 video: video_pista,
             });
@@ -251,7 +255,8 @@ exports.listarPreguntas = async(req, res) => {
 
     try {
 
-        const { nombre_usuario_creador,
+        const { rut_usuario_creador,
+                nombre_usuario_creador,
                 codigo_materia, codigo_unidad, 
                 codigo_modulo, codigo_modulo_contenido,
                 codigo_modulo_contenido_tema, 
@@ -262,6 +267,10 @@ exports.listarPreguntas = async(req, res) => {
         //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
         const filtros_dinamicos = []; 
         
+        if(rut_usuario_creador){
+            filtros_dinamicos.push({ rut_usuario_creador })
+        }
+
         if(codigo_materia.trim() !== '0'){
             filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } });
         }
@@ -1042,6 +1051,8 @@ exports.actualizarPregunta = async(req, res) => {
                     numero: solucion.numero,
                     texto: solucion.texto,
                     imagen: imagen_solucion,
+                    imagen_ancho: solucion.imagen_ancho,
+                    imagen_alto: solucion.imagen_alto,
                     audio: audio_solucion,
                     video: video_solucion,
                 },{
@@ -1056,6 +1067,8 @@ exports.actualizarPregunta = async(req, res) => {
                     numero: solucion.numero,
                     texto: solucion.texto,
                     imagen: imagen_solucion,
+                    imagen_ancho: solucion.imagen_ancho,
+                    imagen_alto: solucion.imagen_alto,
                     audio: audio_solucion,
                     video: video_solucion,
                 });
@@ -1233,6 +1246,8 @@ exports.actualizarPregunta = async(req, res) => {
                     numero: pista.numero,
                     texto: pista.texto,
                     imagen: imagen_pista,
+                    imagen_ancho: pista.imagen_ancho,
+                    imagen_alto: pista.imagen_alto,
                     audio: audio_pista,
                     video: video_pista,
                 },{
@@ -1247,6 +1262,8 @@ exports.actualizarPregunta = async(req, res) => {
                     numero: pista.numero,
                     texto: pista.texto,
                     imagen: imagen_pista,
+                    imagen_ancho: pista.imagen_ancho,
+                    imagen_alto: pista.imagen_alto,
                     audio: audio_pista,
                     video: video_pista,
                 });
