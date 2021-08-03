@@ -33,7 +33,7 @@ exports.getEstadisticaInstitucion = async (req, res) => {
             FROM(
                 SELECT DISTINCT rut_usuario 
                     FROM usuarios_instituciones_roles 
-                WHERE codigo_institucion = '${codigo_institucion}'
+                WHERE codigo_institucion = '${codigo_institucion}' AND codigo_rol IN (2) 
             )tb
             LEFT JOIN usuarios u ON u.rut = tb.rut_usuario
             ORDER BY total_puntos DESC
