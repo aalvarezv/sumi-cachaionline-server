@@ -1,122 +1,11 @@
-const { Configuracion, SugerenciaAlternativaPregunta, Materia } = require('../database/db');
-const fs = require('fs');
-const ExcelJS = require('exceljs');
-const { sendMail } = require('../helpers');
-const { validationResult } = require('express-validator');
-const { Op } = require('sequelize');
-
-exports.cargarPreguntas = async (req, res) => {
- 
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
-    }
-
-    try{
-
-        const { 
-            rut_usuario, 
-            nombre_formulario, 
-            codigo_materia, 
-            fecha_formulario, 
-            archivo_base64 
-        } = req.body;
-
-        let nombre_archivo_carga = `CARGA-SUGERENCIAS-${nombre_formulario}.xlsx`
-        let letra_columna_codigo_pregunta = "A"
-        let letra_columna_alternativa = "B"
-        let letra_columna_alternativa_correcta = "C"
-        let letra_columna_link_1 = "D"
-        let letra_columna_link_2 = "E"
-        let letra_columna_link_3 = "F"
-        let letra_columna_link_4 = "G"
-        let letra_columna_link_5 = "H"
-        let fila_inicio = 2
-        let fila_fin = 1000
-        
-        //Directorio temporal donde se guardará el archivo zip con la información de las preguntas a cargar.
-        const tmp_dir = process.env.DIR_TEMP;
-        //genera la ruta del archivo excel a leer.
-        let archivo_carga = `${tmp_dir}${nombre_archivo_carga}`;
-        //Guarda el archivo en el directorio temporal.
-        await fs.writeFileSync(`${archivo_carga}`, archivo_base64, 'base64')
-
-        const workbook = new ExcelJS.Workbook();
-
-        let hoja_excel = null
-        const libro_excel = await workbook.xlsx.readFile(archivo_carga);
-        
-        //Se ubica en la hoja CARGA
-        hoja_excel  = libro_excel.getWorksheet('CARGA');
-
-        if (!hoja_excel) {
-            return res.status(404).send({
-                msg: `No existe la hoja CARGA en el archivo excel para procesar y cargar las preguntas, verifique.`,
-            });
-        }
-        
-        //Elimina todo el formulario del usuario.
-        await SugerenciaAlternativaPregunta.destroy({
-            where:{
-                rut_usuario,
-                nombre_formulario,
-            }
-        })
+const { Configuracion, CuestionarioSugerencia, Materia, CuestionarioRespuesta } = require('../database/db')
+const fs = require('fs')
+const ExcelJS = require('exceljs')
+const { sendMail } = require('../helpers')
+const { validationResult } = require('express-validator')
 
 
-        //Carga los registros en la base de datos.
-        for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
-
-            let codigo_pregunta = hoja_excel.getCell(`${letra_columna_codigo_pregunta}${i}`).text;
-            if(codigo_pregunta.trim() === ''){
-                break
-            }
-            
-            let alternativa = hoja_excel.getCell(`${letra_columna_alternativa}${i}`).text;
-            let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text;
-
-            let link_1 = hoja_excel.getCell(`${letra_columna_link_1}${i}`).text;
-            let link_2 = hoja_excel.getCell(`${letra_columna_link_2}${i}`).text;
-            let link_3 = hoja_excel.getCell(`${letra_columna_link_3}${i}`).text;
-            let link_4 = hoja_excel.getCell(`${letra_columna_link_4}${i}`).text;
-            let link_5 = hoja_excel.getCell(`${letra_columna_link_5}${i}`).text;
-
-            await SugerenciaAlternativaPregunta.create({
-                rut_usuario,
-                nombre_formulario,
-                codigo_pregunta,
-                alternativa,
-                alternativa_correcta,
-                codigo_materia,
-                fecha_formulario,
-                link_1,
-                link_2,
-                link_3,
-                link_4,
-                link_5,
-            })
-
-        }
-
-        fs.unlinkSync(archivo_carga)
-    
-        res.json({
-            msg:"Todo OK",
-        });
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            msg: 'Hubo un error'
-        });
-    }
-
-
-}
-
-exports.enviarSugerencias = async (req, res) => {
-
+exports.enviarRespuestas = async (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -126,13 +15,11 @@ exports.enviarSugerencias = async (req, res) => {
     try{
 
         const {
-            rut_usuario,
-            codigo_materia,
-            nombre_formulario,
+            codigo_cuestionario,
             archivo_base64,
         } = req.body
     
-        let nombre_archivo_carga = `ENVIA-SUGERENCIAS-${nombre_formulario}.xlsx`
+        let nombre_archivo_carga = `ENVIA-SUGERENCIAS-${codigo_cuestionario}.xlsx`
 
         //directorio temporal para bajar el excel.
         const tmp_dir = process.env.DIR_TEMP;
@@ -154,17 +41,17 @@ exports.enviarSugerencias = async (req, res) => {
             });
         }
 
-        //Obtiene la información del formulario.
-        const formulario = await SugerenciaAlternativaPregunta.findOne({
-            rut_usuario,
-            nombre_formulario,
-            codigo_materia,
+        //Obtiene la información del cuestionario.
+        const cuestionario = await CuestionarioSugerencia.findOne({
+            where: {
+                codigo: codigo_cuestionario,
+            }
         })
 
-        const formulario_nombre = formulario.nombre_formulario
-        const formulario_fecha = formulario.fecha_formulario
+        const cuestionario_nombre = cuestionario.nombre_cuestionario
+        const cuestionario_fecha = cuestionario.fecha_cuestionario
         
-        const materia = await Materia.findByPk(codigo_materia)
+        const materia = await Materia.findByPk(cuestionario.codigo_materia)
         const materia_nombre = materia.nombre
 
         //Valida que toda la información del archivo recibido existe en el sistema (preguntas-alternativas)
@@ -181,26 +68,34 @@ exports.enviarSugerencias = async (req, res) => {
                 if(codigo_pregunta.trim() === '') break
 
                 let alternativa = hoja_excel.getCell(`${columna}${i}`).text.replace('false','FALSO');;
+                if(alternativa.trim() !== ''){
 
-                const sugerenciasAlternativaPregunta = await SugerenciaAlternativaPregunta.findOne({
-                    where: {
-                        rut_usuario,
-                        nombre_formulario,
-                        codigo_pregunta,
-                        alternativa,
-                    }
-                })
-
-                if(!sugerenciasAlternativaPregunta){
-                    return res.status(404).send({
-                        msg: `Fila ${i} pregunta ${codigo_pregunta} alternativa ${alternativa} no existe en el formulario ${nombre_formulario} para el usuario ${rut_usuario}`
+                    const sugerenciasAlternativaPregunta = await CuestionarioSugerencia.findOne({
+                        where: {
+                            codigo: codigo_cuestionario,
+                            codigo_pregunta,
+                            alternativa,
+                        }
                     })
+
+                    if(!sugerenciasAlternativaPregunta){
+                        return res.status(404).send({
+                            msg: `Fila ${i} pregunta ${codigo_pregunta}. La alternativa ${alternativa} no existe en el formulario ${cuestionario_nombre}`
+                        })
+                    }
                 }
 
             }
         
         }
 
+        //Elimina las respuestas del cuestionario.
+        await CuestionarioRespuesta.destroy({
+            where: {
+                codigo_cuestionario_sugerencia: codigo_cuestionario
+            }
+        });
+        
         for(let i = 2; i <= Number(100); i++){
 
             let email_usuario = hoja_excel.getCell(`B${i}`).text;
@@ -222,31 +117,46 @@ exports.enviarSugerencias = async (req, res) => {
                 total_preguntas++
                 //Obtiene la alternativa ingresada por el usuario en el formulario.
                 let alternativaUsuario = hoja_excel.getCell(`${columna}${i}`).text.replace('false','FALSO');
+                if(alternativaUsuario.trim() === ''){
+                    alternativaUsuario = 'OMITIDA'
+                }
+
+                //Graba la respuesta
+                await CuestionarioRespuesta.create({
+                    email: email_usuario,
+                    codigo_cuestionario_sugerencia: codigo_cuestionario,
+                    codigo_pregunta,
+                    alternativa: alternativaUsuario,
+                })
                 
                 //Obtiene las sugerencias para la alternativa que eligió el usuario
-                const sugerenciasAlternativaPregunta = await SugerenciaAlternativaPregunta.findOne({
+                let sugerenciasAlternativaPregunta = await CuestionarioSugerencia.findOne({
                     where: {
-                        rut_usuario,
-                        nombre_formulario,
+                        codigo: codigo_cuestionario,
                         codigo_pregunta,
                         alternativa: alternativaUsuario,
                     }
                 })
+                
 
                 //Obtiene la alternativa correcta registrada para la pregunta.
-                let alternativaCorrecta = await SugerenciaAlternativaPregunta.findOne({
+                let alternativaCorrecta = await CuestionarioSugerencia.findOne({
                     where: {
-                        rut_usuario,
-                        nombre_formulario,
+                        codigo: codigo_cuestionario,
                         codigo_pregunta,
                         alternativa_correcta: 1,
                     }
                 })
 
+                //Si el usuario omitio la pregunta, entonces le enviará las sugerencias de la pregunta correcta.
+                if(alternativaUsuario.trim() === 'OMITIDA'){
+                    sugerenciasAlternativaPregunta = alternativaCorrecta
+                }
+
                 alternativaCorrecta = alternativaCorrecta.alternativa
    
                 //Suma las omitidas, correctas e incorrectas
-                if(alternativaUsuario.trim() === ''){
+                if(alternativaUsuario.trim() === 'OMITIDA'){
                     respuestas_omitidas++
                 }else if(alternativaUsuario === alternativaCorrecta){
                     respuestas_correctas++
@@ -264,7 +174,7 @@ exports.enviarSugerencias = async (req, res) => {
 
             //console.log(sugerencias)
             //Genera las sugerencias para el usuario.   
-            const { asunto, mensaje } = await generaSugerenciasMensajeEmail(formulario_nombre, formulario_fecha, materia_nombre, sugerencias, email_usuario, total_preguntas, respuestas_correctas, respuestas_incorrectas, respuestas_omitidas)
+            const { asunto, mensaje } = await generaRespuestasEmail(cuestionario_nombre, cuestionario_fecha, materia_nombre, sugerencias, email_usuario, total_preguntas, respuestas_correctas, respuestas_incorrectas, respuestas_omitidas)
             
             //Envia el email al usuario.
             await sendMail(email_usuario,asunto, '', mensaje, []) 
@@ -286,47 +196,8 @@ exports.enviarSugerencias = async (req, res) => {
 
 }
 
-exports.getFormularios = async (req, res) => {
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
-    }
-
-    try {
-
-        const {
-            rut_usuario, 
-            codigo_materia, 
-            fecha_formulario_desde, 
-            fecha_formulario_hasta
-        } = req.query
-
-        const formularios = await SugerenciaAlternativaPregunta.findAll({
-            attributes: ['nombre_formulario'],
-            where:{
-                rut_usuario,
-                codigo_materia,
-                fecha_formulario: {[Op.between]: [fecha_formulario_desde, fecha_formulario_hasta]}
-            },
-            group: 'nombre_formulario'
-        })
-
-        res.json({
-            formularios,
-        })
-        
-    } catch (error) {
-        console.log(error)
-        res.status(500).send({
-            msg: 'Hubo un error'
-        })
-    }
-
-
-}
-
-const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha, materia_nombre, sugerencias, email_usuario, total_preguntas, respuestas_correctas, respuestas_incorrectas, respuestas_omitidas) => {
+const generaRespuestasEmail = async (cuestionario_nombre, cuestionario_fecha, materia_nombre, sugerencias, email_usuario, total_preguntas, respuestas_correctas, respuestas_incorrectas, respuestas_omitidas) => {
 
 
     return new Promise( async (resolve, reject) => {
@@ -335,32 +206,32 @@ const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha
 
             let asuntoConfig = await Configuracion.findOne({
                 where:{
-                    seccion: 'FORM_SUGERENCIAS',
+                    seccion: 'CUESTIONARIO_SUGERENCIAS',
                     clave: 'ASUNTO'
                 }
             })
 
             if(!asuntoConfig){
-                reject('seccion FORM_SUGERENCIAS clave ASUNTO no existe en la configuración')    
+                reject('seccion CUESTIONARIO_SUGERENCIAS clave ASUNTO no existe en la configuración')    
             }
         
             let asunto = asuntoConfig.valor
         
             let mensajeHeadConfig = await Configuracion.findOne({
                 where:{
-                    seccion: 'FORM_SUGERENCIAS',
+                    seccion: 'CUESTIONARIO_SUGERENCIAS',
                     clave: 'MENSAJE_HEAD'
                 }
             })
 
             if(!mensajeHeadConfig){
-                reject('seccion FORM_SUGERENCIAS clave MENSAJE_HEAD no existe en la configuración')    
+                reject('seccion CUESTIONARIO_SUGERENCIAS clave MENSAJE_HEAD no existe en la configuración')    
             }
         
             mensajeHeadConfig = mensajeHeadConfig.valor
             mensajeHeadConfig = mensajeHeadConfig.replace('[mail_alumno]',email_usuario)
-            mensajeHeadConfig = mensajeHeadConfig.replace('[nombre_formulario]',formulario_nombre)
-            mensajeHeadConfig = mensajeHeadConfig.replace('[fecha_formulario]',formulario_fecha)
+            mensajeHeadConfig = mensajeHeadConfig.replace('[nombre_cuestionario]',cuestionario_nombre)
+            mensajeHeadConfig = mensajeHeadConfig.replace('[fecha_cuestionario]',cuestionario_fecha)
             mensajeHeadConfig = mensajeHeadConfig.replace('[nombre_materia]', materia_nombre)
             mensajeHeadConfig = mensajeHeadConfig.replace('[total_preguntas]',total_preguntas)
             mensajeHeadConfig = mensajeHeadConfig.replace('[respuestas_correctas]',respuestas_correctas)
@@ -369,13 +240,13 @@ const generaSugerenciasMensajeEmail = async (formulario_nombre, formulario_fecha
 
             let mensajeBodyConfig = await Configuracion.findOne({
                 where:{
-                    seccion: 'FORM_SUGERENCIAS',
+                    seccion: 'CUESTIONARIO_SUGERENCIAS',
                     clave: 'MENSAJE_BODY'
                 }
             })
 
             if(!mensajeBodyConfig){
-                reject('seccion FORM_SUGERENCIAS clave MENSAJE_BODY no existe en la configuración')    
+                reject('seccion CUESTIONARIO_SUGERENCIAS clave MENSAJE_BODY no existe en la configuración')    
             }
         
             mensajeBodyConfig = mensajeBodyConfig.valor

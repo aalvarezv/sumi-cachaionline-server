@@ -1,7 +1,12 @@
 module.exports = (sequelize, type) =>{
 
-    return sequelize.define('sugerencia_alternativa_pregunta',{
+    return sequelize.define('cuestionario_sugerencia',{
         
+        codigo: {
+            type: type.STRING(128),
+            primaryKey: true,
+            allowNull: false,
+        },
         rut_usuario: {
             type: type.STRING(128),
             primaryKey: true,
@@ -11,7 +16,16 @@ module.exports = (sequelize, type) =>{
                key: 'rut'
             }
         },
-        nombre_formulario: {
+        codigo_materia: {
+            type: type.STRING(128),
+            primaryKey: true,
+            allowNull: false,
+            references: {
+               model: 'materias',
+               key: 'codigo'
+            }
+        },
+        nombre_cuestionario: {
             type: type.STRING(256),
             primaryKey: true,
             allowNull: false,
@@ -26,21 +40,17 @@ module.exports = (sequelize, type) =>{
             primaryKey: true,
             allowNull: false,
         },
-        alternativa_correcta: {
-            type: type.BOOLEAN,
-            defaultValue: true,
-        },
-        codigo_materia: {
-            type: type.STRING(128),
-            allowNull: false,
-            references: {
-               model: 'materias',
-               key: 'codigo'
-            }
-          },
-        fecha_formulario: {
+        fecha_cuestionario: {
             type: type.DATEONLY,
             allowNull: false,
+        },
+        link_cuestionario: {
+            type: type.STRING(256),
+            allowNull: false,
+        },
+        alternativa_correcta: {
+            type: type.BOOLEAN,
+            defaultValue: false,
         },
         link_1: {
             type: type.STRING(512),
@@ -124,6 +134,6 @@ module.exports = (sequelize, type) =>{
         //evita que sequelize ponga el nombre de la tabla en plural.
         freezeTableName: true, 
         //agrega el nombre de la tabla.
-        tableName: 'sugerencias_alternativa_pregunta'
+        tableName: 'cuestionario_sugerencias'
     })
 }

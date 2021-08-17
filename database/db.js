@@ -39,8 +39,9 @@ const PreguntaModuloContenidoTemaModel = require('../models/PreguntaModuloConten
 const PreguntaModuloContenidoTemaConceptoModel = require('../models/PreguntaModuloContenidoTemaConcepto')
 const TipoJuegoModalidadModel = require('../models/TipoJuegoModalidad')
 const UsuarioRecuperaClaveModel = require('../models/UsuarioRecuperaClave')
-const SugerenciaAlternativaPreguntaModel = require('../models/SugerenciaAlternativaPregunta')
-const TokenRefreshModel = require('../models/TokenRefresh');
+const CuestionarioSugerenciaModel = require('../models/CuestionarioSugerencia')
+const CuestionarioRespuestaModel = require('../models/CuestionarioRespuesta')
+const TokenRefreshModel = require('../models/TokenRefresh')
 
 
 //conexión a la bd
@@ -86,7 +87,8 @@ const RespuestaAlternativa = RespuestaAlternativaModel(sequelize, Sequelize, Res
 const RespuestaPista = RespuestaPistaModel(sequelize, Sequelize, Respuesta, PreguntaPista)
 const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta, PreguntaSolucion)
 const UsuarioRecuperaClave = UsuarioRecuperaClaveModel(sequelize, Sequelize, Usuario)
-const SugerenciaAlternativaPregunta = SugerenciaAlternativaPreguntaModel(sequelize, Sequelize)
+const CuestionarioSugerencia = CuestionarioSugerenciaModel(sequelize, Sequelize)
+const CuestionarioRespuesta = CuestionarioRespuestaModel(sequelize, Sequelize)
 const TokenRefresh = TokenRefreshModel(sequelize, Sequelize, Usuario);
 
 
@@ -194,6 +196,7 @@ module.exports = {
     Modalidad,
     TipoJuegoModalidad,
     UsuarioRecuperaClave,
-    SugerenciaAlternativaPregunta,
+    CuestionarioSugerencia,
+    CuestionarioRespuesta,
     TokenRefresh,
 }

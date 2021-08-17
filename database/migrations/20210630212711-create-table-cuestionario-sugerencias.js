@@ -3,9 +3,11 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     
-    await queryInterface.createTable('sugerencias_alternativa_pregunta', {
-        
-      
+    await queryInterface.createTable('cuestionario_sugerencias', {
+      codigo: {
+        type: Sequelize.STRING(128),
+        allowNull: false,
+      },
       rut_usuario: {
          type: Sequelize.STRING(128),
          primaryKey: true,
@@ -15,7 +17,16 @@ module.exports = {
             key: 'rut'
          }
       },
-      nombre_formulario: {
+      codigo_materia: {
+        type: Sequelize.STRING(128),
+        primaryKey: true,
+        allowNull: false,
+        references: {
+           model: 'materias',
+           key: 'codigo'
+        }
+      },
+      nombre_cuestionario: {
          type: Sequelize.STRING(256),
          primaryKey: true,
          allowNull: false,
@@ -30,22 +41,18 @@ module.exports = {
           primaryKey: true,
           allowNull: false,
       },
+      fecha_cuestionario: {
+        type: Sequelize.DATEONLY,
+        allowNull: false,
+      },
+      link_cuestionario: {
+        type: Sequelize.STRING(256),
+        allowNull: false,
+      },
       alternativa_correcta: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-      },
-      codigo_materia: {
-        type: Sequelize.STRING(128),
-        allowNull: false,
-        references: {
-           model: 'materias',
-           key: 'codigo'
-        }
-      },
-      fecha_formulario: {
-        type: Sequelize.DATEONLY,
-        allowNull: false,
       },
       link_1: {
           type: Sequelize.STRING(512),
@@ -136,6 +143,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-      await queryInterface.dropTable('sugerencias_alternativa_pregunta');
+      await queryInterface.dropTable('cuestionario_sugerencias');
   }
 };
