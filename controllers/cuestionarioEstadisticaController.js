@@ -355,6 +355,11 @@ exports.getCuestionarioInfo = async (req, res) => {
 
 exports.getPreguntasAcertadas = async(req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try {
 
         const { codigo_cuestionario } = req.query
@@ -399,6 +404,11 @@ exports.getPreguntasAcertadas = async(req, res) => {
 }
 
 exports.getPreguntasErradas = async(req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
 
     try {
 
@@ -445,6 +455,11 @@ exports.getPreguntasErradas = async(req, res) => {
 
 exports.getPreguntasOmitidas = async(req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
     try {
 
         const { codigo_cuestionario } = req.query
@@ -485,5 +500,63 @@ exports.getPreguntasOmitidas = async(req, res) => {
         console.log(error)
         res.status(500).send('Hubo un error')
     }
+
+}
+
+exports.getEstadisticaPreguntas = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try {
+
+        const { codigo_cuestionario } = req.query
+
+        const estadisticaPreguntas = await sequelize.query(`
+            SELECT codigo_pregunta, 
+                SUM(correcta) AS correctas, CONVERT(((SUM(correcta) * 100) / total_preguntas), DECIMAL(5,2)) AS correctas_porcent,
+                SUM(incorrecta) AS incorrectas, CONVERT(((SUM(incorrecta) * 100) / total_preguntas), DECIMAL(5,2)) AS incorrectas_porcent,
+                SUM(omitida) AS omitidas, CONVERT(((SUM(omitida) * 100) / total_preguntas), DECIMAL(5,2)) AS omitidas_porcent,
+                total_preguntas
+            FROM
+            (
+                SELECT codigo_pregunta, alternativa, correcta,
+                    (CASE WHEN correcta = 0 AND alternativa <> 'OMITIDA' THEN 1 ELSE 0 END) AS incorrecta,
+                    (CASE WHEN alternativa = 'OMITIDA' THEN 1 ELSE 0 END) omitida,
+                    total_preguntas
+                FROM (
+                    SELECT 
+                        cr.codigo_pregunta, 
+                        cr.alternativa,
+                        IFNULL((
+                            SELECT alternativa_correcta
+                            FROM cuestionario_sugerencias
+                            WHERE codigo = cr.codigo_cuestionario_sugerencia
+                            AND codigo_pregunta = cr.codigo_pregunta
+                            AND alternativa = cr.alternativa
+                        ), 0) AS correcta,
+                        (SELECT COUNT(DISTINCT codigo_pregunta) 
+                            FROM cuestionario_respuestas 
+                            WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}'
+                        ) AS total_preguntas
+                    FROM cuestionario_respuestas cr
+                    WHERE cr.codigo_cuestionario_sugerencia = '${codigo_cuestionario}'
+                ) tb
+            )tb
+            GROUP BY codigo_pregunta
+            ORDER BY codigo_pregunta    
+        `,{type: QueryTypes.SELECT})
+
+        res.json({
+            estadisticaPreguntas,
+        })
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Hubo un error')
+    }
+
 
 }

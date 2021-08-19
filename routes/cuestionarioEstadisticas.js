@@ -8,7 +8,8 @@ const { getMejores10, getPeores10,
         getCuestionarioInfo, 
         getPreguntasAcertadas,
         getPreguntasErradas,
-        getPreguntasOmitidas} = require('../controllers/cuestionarioEstadisticaController');
+        getPreguntasOmitidas,
+        getEstadisticaPreguntas} = require('../controllers/cuestionarioEstadisticaController');
 
 router.get('/mejores-10', auth, [
     query('codigo_cuestionario').exists().withMessage('El código cuestionario es obligatorio').notEmpty().withMessage('El código cuestionario no puede ser vacío'),
@@ -41,5 +42,9 @@ router.get('/preguntas-erradas', auth, [
 router.get('/preguntas-omitidas', auth, [
     query('codigo_cuestionario').exists().withMessage('El código cuestionario es obligatorio').notEmpty().withMessage('El código cuestionario no puede ser vacío'),
 ], getPreguntasOmitidas);
+
+router.get('/estadistica-preguntas', auth, [
+    query('codigo_cuestionario').exists().withMessage('El código cuestionario es obligatorio').notEmpty().withMessage('El código cuestionario no puede ser vacío'),
+], getEstadisticaPreguntas);
 
 module.exports = router

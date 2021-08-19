@@ -76,7 +76,15 @@ exports.cargarPreguntas = async (req, res) => {
                 break
             }
             
-            let alternativa = hoja_excel.getCell(`${letra_columna_alternativa}${i}`).text;
+            let alternativa = hoja_excel.getCell(`${letra_columna_alternativa}${i}`).text.toUpperCase();
+            switch (alternativa) {
+                case 'FALSE':
+                    alternativa = "FALSO"
+                    break;
+                case 'TRUE':
+                    alternativa = "VERDADERO"
+                    break;
+            }
             let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text;
 
             let link_1 = hoja_excel.getCell(`${letra_columna_link_1}${i}`).text;
