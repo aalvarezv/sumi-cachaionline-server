@@ -36,10 +36,17 @@ exports.crearRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,
             puntos_respuesta_timeout,
+            recordar_porcent,
+            comprender_porcent,
+            aplicar_porcent,
+            analizar_porcent,
+            evaluar_porcent,
+            crear_porcent,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
@@ -77,11 +84,6 @@ exports.crearRing = async(req, res) => {
         }else{
             codigoConexion = 1
         }
-        
-        console.log('PUNTOS', puntos_respuesta_correcta,
-            puntos_respuesta_incorrecta,
-            puntos_respuesta_omitida,
-            puntos_respuesta_timeout)
 
         //Guarda el nuevo ring
         ring = await Ring.create({
@@ -106,10 +108,17 @@ exports.crearRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,
             puntos_respuesta_timeout,
+            recordar_porcent,
+            comprender_porcent,
+            aplicar_porcent,
+            analizar_porcent,
+            evaluar_porcent,
+            crear_porcent,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
@@ -252,21 +261,23 @@ exports.actualizarRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,
             puntos_respuesta_timeout,
+            recordar_porcent,
+            comprender_porcent,
+            aplicar_porcent,
+            analizar_porcent,
+            evaluar_porcent,
+            crear_porcent,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,
             privado,
             inactivo,
         } = req.body;
-
-        console.log('PUNTOS', puntos_respuesta_correcta,
-        puntos_respuesta_incorrecta,
-        puntos_respuesta_omitida,
-        puntos_respuesta_timeout)
 
         //verifica que el ring a actualizar existe.
         let ring = await Ring.findByPk(codigo);
@@ -306,10 +317,17 @@ exports.actualizarRing = async(req, res) => {
             nota_media_mensaje,
             nota_baja,
             nota_baja_mensaje,
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,
             puntos_respuesta_timeout,
+            recordar_porcent,
+            comprender_porcent,
+            aplicar_porcent,
+            analizar_porcent,
+            evaluar_porcent,
+            crear_porcent,
             retroceder,
             pistas,
             mostrar_cantidad_usuarios,

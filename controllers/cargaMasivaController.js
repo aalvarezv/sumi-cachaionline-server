@@ -1,7 +1,8 @@
 const { Configuracion, Unidad, Materia, 
         Modulo, ModuloContenido, ModuloContenidoTema, 
         ModuloContenidoTemaConcepto, Pregunta, PreguntaAlternativa,
-        PreguntaSolucion, PreguntaPista,
+        PreguntaSolucion, PreguntaPista, PreguntaModulo, PreguntaModuloContenido,
+        PreguntaModuloContenidoTema, PreguntaModuloContenidoTemaConcepto,
         sequelize} = require('../database/db');
 const { letras } = require('../helpers');
 const uuidv4 = require('uuid').v4;
@@ -349,6 +350,7 @@ exports.cargaPreguntas = async (req, res) => {
     const {   
             nombre_carpeta_archivos, nombre_archivo_carga, nombre_carpeta_archivo_pregunta,
             nombre_carpeta_archivo_videos, nombre_carpeta_archivo_pistas,
+            letra_columna_codigo_pregunta,
             letra_columna_nombre_archivo_pregunta,
             letra_columna_codigo_1, letra_columna_codigo_2,
             letra_columna_codigo_3, letra_columna_codigo_4,
@@ -795,6 +797,26 @@ exports.cargaPreguntas = async (req, res) => {
         //Lee filas del archivo excel y comienza el proceso.
         for(let i = Number(fila_inicio); i <= Number(fila_fin); i++){
             
+            let codigo_pregunta = hoja_excel.getCell(`${letra_columna_codigo_pregunta}${i}`).text;
+
+            //Verifica si la pregunta existe previamente.
+            let preguntaExiste = await Pregunta.findByPk(codigo_pregunta)
+            if(preguntaExiste){
+
+                await PreguntaAlternativa.destroy({ where: { codigo_pregunta } });
+                await PreguntaPista.destroy({ where: { codigo_pregunta } });
+                await PreguntaSolucion.destroy({ where: { codigo_pregunta } });
+                await PreguntaModuloContenidoTemaConcepto.destroy({ where: { codigo_pregunta } });
+                await PreguntaModuloContenidoTema.destroy({ where: { codigo_pregunta } });
+                await PreguntaModuloContenido.destroy({ where: { codigo_pregunta } });
+                await PreguntaModulo.destroy({ where: { codigo_pregunta } });
+                await Pregunta.destroy({ where: { codigo: codigo_pregunta } });
+
+                fs.rmdirSync(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
+
+            }
+
+
             let nombre_archivo_pregunta = hoja_excel.getCell(`${letra_columna_nombre_archivo_pregunta}${i}`).text;
             let alternativa_correcta = hoja_excel.getCell(`${letra_columna_alternativa_correcta}${i}`).text.trim();
             let duracion_pregunta = hoja_excel.getCell(`${letra_columna_duracion_pregunta}${i}`).text.trim();
@@ -807,8 +829,7 @@ exports.cargaPreguntas = async (req, res) => {
            
             let archivo_pregunta_png = `${tmp_dir}${nombre_carpeta_archivos}/${nombre_carpeta_archivo_pregunta}/${nombre_archivo_pregunta}.png`;
 
-            let codigo_pregunta = uuidv4();
-
+           
             //Crea los directorios para almacenar los archivos de la pregunta.
             fs.mkdirSync(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
             //soluciones

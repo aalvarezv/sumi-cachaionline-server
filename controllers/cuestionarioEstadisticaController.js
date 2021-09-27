@@ -108,6 +108,7 @@ exports.getPromedioGeneral = async(req, res) => {
             SELECT
                 total_alumnos,
                 total_preguntas,
+                total_respuestas,
                 correctas AS correctas_cant,
                 CONVERT((((correctas / total_alumnos) * 100) / total_preguntas), DECIMAL(5,2)) AS correctas_porcent,
                 incorrectas AS incorrectas_cant,
@@ -124,6 +125,10 @@ exports.getPromedioGeneral = async(req, res) => {
                     (SELECT COUNT(DISTINCT email) 
                         FROM cuestionario_respuestas
                     WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_alumnos,
+                #TOTAL RESPUESTAS
+                    (SELECT COUNT(*) 
+                        FROM cuestionario_respuestas
+                    WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_respuestas,
                 #RESPUESTAS CORRECTAS
                     (SELECT COUNT(*) FROM 
                         (SELECT 
@@ -338,7 +343,10 @@ exports.getCuestionarioInfo = async (req, res) => {
                 WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_alumnos,
                 (SELECT COUNT(DISTINCT codigo_pregunta) 
                 FROM cuestionario_respuestas
-                WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_preguntas
+                WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_preguntas,
+                (SELECT COUNT(*) 
+                FROM cuestionario_respuestas
+                WHERE codigo_cuestionario_sugerencia = '${codigo_cuestionario}') AS total_respuestas
         `,{ type: QueryTypes.SELECT})
 
         res.json({

@@ -8,10 +8,8 @@ const { crearRing, listarRings, actualizarRing, eliminarRing, datosRing } = requ
 router.post('/crear', auth, [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
     check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),   
-    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'), 
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
     check('codigo_institucion').not().isEmpty().withMessage('El código institución es obligatorio.').not().equals("0").withMessage('El código institución es obligatorio.'),
-    //check('codigo_nivel_academico').not().isEmpty().withMessage('El código nivel academico es obligatorio.').not().equals("0").withMessage('El código nivel academico es obligatorio.'),
     check('codigo_materia').not().isEmpty().withMessage('El código materia es obligatorio.').not().equals("0").withMessage('El código materia es obligatorio.'),
     check('codigo_tipo_juego').not().isEmpty().withMessage('El código tipo juego es obligatorio.').not().equals("0").withMessage('El código tipo juego es obligatorio.'),
     check('codigo_modalidad').not().isEmpty().withMessage('El código modalidad es obligatorio.').not().equals("0").withMessage('El código modalidad es obligatorio.'),
@@ -33,7 +31,6 @@ router.get('/listar', auth, listarRings);
 router.put('/actualizar', auth, [
     check('codigo').not().isEmpty().withMessage('El codigo es obligatorio.'),
     check('nombre').not().isEmpty().withMessage('El nombre es obligatorio.'),   
-    check('descripcion').not().isEmpty().withMessage('La descripción es obligatoria.'), 
     check('rut_usuario_creador').not().isEmpty().withMessage('El rut del creador es obligatorio.'),
     check('codigo_institucion').not().isEmpty().withMessage('El código institución es obligatorio.').not().equals("0").withMessage('El código institución es obligatorio.'),
     check('codigo_materia').not().isEmpty().withMessage('El código materia es obligatorio.').not().equals("0").withMessage('El código materia es obligatorio.'),

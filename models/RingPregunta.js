@@ -19,6 +19,11 @@ module.exports = (sequelize, type, Ring, Pregunta) => {
                 key: 'codigo'
             }
         },
+        puntos_factor:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         puntos_respuesta_correcta:{
             type: type.INTEGER,
             allowNull: false,

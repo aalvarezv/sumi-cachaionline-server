@@ -25,6 +25,7 @@ exports.crearRingPregunta = async(req, res) => {
         const { 
                 codigo_ring, 
                 codigo_pregunta,
+                puntos_factor,
                 puntos_respuesta_correcta, 
                 puntos_respuesta_incorrecta, 
                 puntos_respuesta_omitida, 
@@ -49,6 +50,7 @@ exports.crearRingPregunta = async(req, res) => {
         ring_pregunta = await RingPregunta.create({
             codigo_ring,
             codigo_pregunta,
+            puntos_factor,
             puntos_respuesta_correcta, 
             puntos_respuesta_incorrecta, 
             puntos_respuesta_omitida, 
@@ -93,6 +95,7 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
             const {
                     codigo_pregunta, 
                     codigo_ring,
+                    puntos_factor,
                     puntos_respuesta_correcta, 
                     puntos_respuesta_incorrecta, 
                     puntos_respuesta_omitida, 
@@ -111,6 +114,7 @@ exports.crearRingPreguntaMasivo = async(req, res) => {
                 await RingPregunta.create({
                     codigo_ring,
                     codigo_pregunta,
+                    puntos_factor,
                     puntos_respuesta_correcta, 
                     puntos_respuesta_incorrecta, 
                     puntos_respuesta_omitida, 
@@ -441,6 +445,7 @@ exports.updatePuntajesPreguntaRing = async (req, res) => {
         const { 
             codigo_ring, 
             codigo_pregunta,
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,
@@ -448,6 +453,7 @@ exports.updatePuntajesPreguntaRing = async (req, res) => {
         } = req.body; 
 
         await RingPregunta.update({
+            puntos_factor,
             puntos_respuesta_correcta,
             puntos_respuesta_incorrecta,
             puntos_respuesta_omitida,

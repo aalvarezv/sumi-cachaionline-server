@@ -13,6 +13,7 @@ const { creaPreguntaModulo,
         creaPreguntaModuloContenidoTemaConcepto,
         isUrl,
         } = require('../helpers');
+const { Console } = require('console');
 
 const url_preguntas = process.env.URL_PREGUNTAS;
 
@@ -255,14 +256,22 @@ exports.listarPreguntas = async(req, res) => {
 
     try {
 
-        const { rut_usuario_creador,
-                nombre_usuario_creador,
-                codigo_materia, codigo_unidad, 
-                codigo_modulo, codigo_modulo_contenido,
-                codigo_modulo_contenido_tema, 
-                codigo_modulo_contenido_tema_concepto,
+        let { rut_usuario_creador,
+                materias, unidades, 
+                modulos, contenidos,
+                temas, conceptos,
+                recordar, comprender,
+                aplicar, analizar, 
+                evaluar, crear,
              } = req.query;
 
+        recordar = Number(recordar === 'true') 
+        comprender = Number(comprender === 'true') 
+        aplicar = Number(aplicar === 'true') 
+        analizar = Number(analizar === 'true') 
+        evaluar = Number(evaluar === 'true') 
+        crear = Number(crear === 'true') 
+        
         //Estos campos son listas seleccionables, por lo que su valor por defecto es 0 = 'SELECCIONE'.
         //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
         const filtros_dinamicos = []; 
@@ -271,23 +280,47 @@ exports.listarPreguntas = async(req, res) => {
             filtros_dinamicos.push({ rut_usuario_creador })
         }
 
-        if(codigo_materia.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } });
+        if(recordar > 0){
+            filtros_dinamicos.push({recordar: { [Op.gt]: 0 } })
         }
-        if(codigo_unidad.trim() !== '0'){
-           filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.codigo$': { [Op.like]: `%${codigo_unidad}%` } });
+
+        if(comprender > 0){
+            filtros_dinamicos.push({comprender: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } });
+
+        if(aplicar > 0){
+            filtros_dinamicos.push({aplicar: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo_contenido.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenidos.codigo_modulo_contenido$': { [Op.like]: `%${codigo_modulo_contenido}%` } });
+        
+        if(analizar > 0){
+            filtros_dinamicos.push({analizar: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo_contenido_tema.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenido_temas.codigo_modulo_contenido_tema$': { [Op.like]: `%${codigo_modulo_contenido_tema}%` } });
+
+        if(evaluar > 0){
+            filtros_dinamicos.push({recordar: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo_contenido_tema_concepto.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenido_tema_conceptos.codigo_modulo_contenido_tema_concepto$': { [Op.like]: `%${codigo_modulo_contenido_tema_concepto}%` } });
+
+        if(crear > 0){
+            filtros_dinamicos.push({crear: { [Op.gt]: 0 } })
+        }
+
+        if(materias && materias.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.in]: materias } });
+        }
+        if(unidades && unidades.length > 0){
+           filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.codigo$': { [Op.in]: unidades } });
+        }
+        if(modulos && modulos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.in]: modulos } });
+        }
+        if(contenidos && contenidos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenidos.codigo_modulo_contenido$': { [Op.in]: contenidos } });
+        }
+        if(temas && temas.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido_temas.codigo_modulo_contenido_tema$': { [Op.in]: temas } });
+        }
+        if(conceptos && conceptos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido_tema_conceptos.codigo_modulo_contenido_tema_concepto$': { [Op.in]: conceptos } });
         }
 
         let preguntas = await Pregunta.findAll({
@@ -335,12 +368,11 @@ exports.listarPreguntas = async(req, res) => {
                 model: PreguntaModuloContenidoTemaConcepto,
                 attributes: ['codigo_pregunta', 'codigo_modulo_contenido_tema_concepto'],
             }],
-            where: {
+            where: { 
                 [Op.and]:[
                     { inactivo: false },
-                    sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
                     filtros_dinamicos.map(filtro => filtro),    
-                ],   
+                ]  
             },
             order:[
                 ['createdAt', 'DESC'],
@@ -363,35 +395,68 @@ exports.listarPreguntasRing = async(req, res) => {
 
     try {
 
-        const { nombre_usuario_creador,
-                codigo_materia, codigo_unidad, 
-                codigo_modulo, codigo_modulo_contenido,
-                codigo_modulo_contenido_tema, 
-                codigo_modulo_contenido_tema_concepto,
-                codigo_ring,
-             } = req.query;
+        let {
+            codigo_ring,
+            materias, unidades, 
+            modulos, contenidos,
+            temas, conceptos,
+            recordar, comprender,
+            aplicar, analizar, 
+            evaluar, crear,
+        } = req.query;
 
+        recordar = Number(recordar === 'true') 
+        comprender = Number(comprender === 'true') 
+        aplicar = Number(aplicar === 'true') 
+        analizar = Number(analizar === 'true') 
+        evaluar = Number(evaluar === 'true') 
+        crear = Number(crear === 'true') 
+    
         //Estos campos son listas seleccionables, por lo que su valor por defecto es 0 = 'SELECCIONE'.
         //Si se envía seleccione, entonces se dejan vacíos para que funcione el like de la consulta y me traiga todos.
         const filtros_dinamicos = []; 
+    
+        if(recordar > 0){
+            filtros_dinamicos.push({recordar: { [Op.gt]: 0 } })
+        }
+
+        if(comprender > 0){
+            filtros_dinamicos.push({comprender: { [Op.gt]: 0 } })
+        }
+
+        if(aplicar > 0){
+            filtros_dinamicos.push({aplicar: { [Op.gt]: 0 } })
+        }
         
-        if(codigo_materia.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.like]: `%${codigo_materia}%` } });
+        if(analizar > 0){
+            filtros_dinamicos.push({analizar: { [Op.gt]: 0 } })
         }
-        if(codigo_unidad.trim() !== '0'){
-           filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.codigo$': { [Op.like]: `%${codigo_unidad}%` } });
+
+        if(evaluar > 0){
+            filtros_dinamicos.push({recordar: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.like]: `%${codigo_modulo}%` } });
+
+        if(crear > 0){
+            filtros_dinamicos.push({crear: { [Op.gt]: 0 } })
         }
-        if(codigo_modulo_contenido.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenidos.codigo_modulo_contenido$': { [Op.like]: `%${codigo_modulo_contenido}%` } });
+
+        if(materias && materias.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.materia.codigo$': { [Op.in]: materias } });
         }
-        if(codigo_modulo_contenido_tema.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenido_temas.codigo_modulo_contenido_tema$': { [Op.like]: `%${codigo_modulo_contenido_tema}%` } });
+        if(unidades && unidades.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.unidad.codigo$': { [Op.in]: unidades } });
         }
-        if(codigo_modulo_contenido_tema_concepto.trim() !== '0'){
-            filtros_dinamicos.push({'$pregunta_modulo_contenido_tema_conceptos.codigo_modulo_contenido_tema_concepto$': { [Op.like]: `%${codigo_modulo_contenido_tema_concepto}%` } });
+        if(modulos && modulos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulos.modulo.codigo$': { [Op.in]: modulos } });
+        }
+        if(contenidos && contenidos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenidos.codigo_modulo_contenido$': { [Op.in]: contenidos } });
+        }
+        if(temas && temas.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido_temas.codigo_modulo_contenido_tema$': { [Op.in]: temas } });
+        }
+        if(conceptos && conceptos.length > 0){
+            filtros_dinamicos.push({'$pregunta_modulo_contenido_tema_conceptos.codigo_modulo_contenido_tema_concepto$': { [Op.in]: conceptos } });
         }
 
         let preguntas = await Pregunta.findAll({
@@ -489,7 +554,6 @@ exports.listarPreguntasRing = async(req, res) => {
             where: {
                 [Op.and]:[
                     { inactivo: false },
-                    sequelize.where(sequelize.col('usuario.nombre'),'LIKE','%'+nombre_usuario_creador+'%'),
                     filtros_dinamicos.map(filtro => filtro),    
                 ],   
             },

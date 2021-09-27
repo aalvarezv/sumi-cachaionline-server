@@ -266,6 +266,8 @@ exports.guardarRespuesta = async(req, res) => {
                 puntos = 0
             }
 
+            puntos = puntos * puntajesRingPregunta.puntos_factor
+
         }
         
         if(respuestaExiste){

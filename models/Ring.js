@@ -114,6 +114,11 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
             type: type.STRING(128),
             allowNull: false,
         },
+        puntos_factor:{
+            type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
         puntos_respuesta_correcta:{
             type: type.INTEGER,
             allowNull: false,
@@ -131,6 +136,36 @@ module.exports = (sequelize, type, Usuario, TipoJuego,
         },
         puntos_respuesta_timeout:{
             type: type.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        recordar_porcent: {
+            type: type.FLOAT,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        comprender_porcent: {
+            type: type.FLOAT,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        aplicar_porcent: {
+            type: type.FLOAT,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        analizar_porcent: {
+            type: type.FLOAT,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        evaluar_porcent: {
+            type: type.FLOAT,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        crear_porcent: {
+            type: type.FLOAT,
             allowNull: false,
             defaultValue: 0,
         },

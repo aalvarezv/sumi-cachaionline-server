@@ -3,9 +3,20 @@ const uuidv4 = require('uuid').v4;
 
 exports.socketEvents = socket => {
 
+    socket.on('server-test-health', async data => {
+         
+        try{
+			console.log('server-test-health')
+            socket.emit('client-test-health', {msg: 'alive', data})
+            
+        }catch(error){
+            console.log(error)
+        }
+
+    })
+
     socket.on('enviar-invitacion-ring', async data => {
          
-        
         try{
             //revisa si el receptor tiene una invitación para el ring.
             const ringInvitacion = await RingInvitacion.findOne({

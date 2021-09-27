@@ -49,5 +49,6 @@ app.use('/api/estadistica/', require('./estadistica'))
 app.use('/api/cuestionario-sugerencias/', require('./cuestionarioSugerencias'))
 app.use('/api/cuestionario-respuestas/', require('./cuestionarioRespuestas'))
 app.use('/api/cuestionario-estadisticas/', require('./cuestionarioEstadisticas'))
+app.use('/api/multifiltros/', require('./multiFiltros'))
 
 module.exports = app;
