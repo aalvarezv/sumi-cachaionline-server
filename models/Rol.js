@@ -80,6 +80,21 @@ module.exports = (sequelize, type) =>{
             allownull: false,
             defaultValue: false,
         },
+        ver_menu_carga_masiva:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false
+        },
+        ver_submenu_carga_masiva_unidades:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
+        ver_submenu_carga_masiva_usuarios:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
         ver_menu_preguntas:{
             type: type.BOOLEAN,
             allownull: false,

@@ -15,7 +15,8 @@ exports.crearRol = async(req, res) => {
             ver_submenu_roles, ver_submenu_usuarios, ver_submenu_cursos,
             ver_menu_asignaturas, ver_submenu_materias,
             ver_submenu_unidades, ver_submenu_modulos,
-            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos,
+            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos, ver_menu_carga_masiva,
+            ver_submenu_carga_masiva_unidades, ver_submenu_carga_masiva_usuarios,
             ver_menu_preguntas, ver_menu_rings, ver_menu_cuestionarios, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
@@ -42,6 +43,9 @@ exports.crearRol = async(req, res) => {
             ver_submenu_contenidos,
             ver_submenu_temas,
             ver_submenu_conceptos,
+            ver_menu_carga_masiva,
+            ver_submenu_carga_masiva_unidades,
+            ver_submenu_carga_masiva_usuarios,
             ver_menu_preguntas,
             ver_menu_rings,
             ver_menu_cuestionarios,
@@ -105,7 +109,8 @@ exports.actualizarRoles = async(req, res) => {
             ver_submenu_roles, ver_submenu_usuarios, ver_submenu_cursos,
             ver_menu_asignaturas, ver_submenu_materias,
             ver_submenu_unidades, ver_submenu_modulos,
-            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos,
+            ver_submenu_contenidos, ver_submenu_temas, ver_submenu_conceptos,ver_menu_carga_masiva,
+            ver_submenu_carga_masiva_unidades, ver_submenu_carga_masiva_usuarios,
             ver_menu_preguntas, ver_menu_rings, ver_menu_cuestionarios, inactivo } = req.body;
 
         let rol = await Rol.findByPk(codigo);
@@ -131,6 +136,9 @@ exports.actualizarRoles = async(req, res) => {
             ver_submenu_contenidos,
             ver_submenu_temas,
             ver_submenu_conceptos,
+            ver_menu_carga_masiva,
+            ver_submenu_carga_masiva_unidades,
+            ver_submenu_carga_masiva_usuarios,
             ver_menu_preguntas,
             ver_menu_rings,
             ver_menu_cuestionarios,

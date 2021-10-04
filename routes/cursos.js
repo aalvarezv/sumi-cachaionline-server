@@ -4,7 +4,8 @@ const auth = require('../middleware/auth');
 const { check, query } = require('express-validator');
 
 const { crearCurso, actualizarCurso, eliminarCurso, 
-        datosCurso, listarCursosUsuarioNivelAcademicoInstitucion, 
+        datosCurso, listarCursosUsuarioNivelAcademicoInstitucion,
+        listarCursosNivelAcademicoInstitucion, 
         listarUsuariosRingCurso, cursosInstitucionNivelAcademico } = require('../controllers/cursoController');
 
 router.post('/crear', auth, [
@@ -33,6 +34,11 @@ router.get('/listar/usuario-nivel-academico-institucion', [
     query('niveles_academicos').exists().withMessage('Los niveles academicos son obligatorios').notEmpty().withMessage('Los niveles académicos no deben ser vacía'),
     query('codigo_institucion').exists().withMessage('El código institución es obligatorio').notEmpty().withMessage('El código institución no debe ser vacío'),
 ], auth, listarCursosUsuarioNivelAcademicoInstitucion);
+
+router.get('/listar/nivel-academico-institucion', [
+    query('codigo_nivel_academico').exists().withMessage('El código nivel academico es obligatorios').notEmpty().withMessage('El código nivel academico no debe ser vacío'),
+    query('codigo_institucion').exists().withMessage('El código institución es obligatorio').notEmpty().withMessage('El código institución no debe ser vacío'),
+], auth, listarCursosNivelAcademicoInstitucion);
 
 router.get('/listar/usuarios-ring', [
     query('codigo_curso').exists().withMessage('El código curso es obligatorio').notEmpty().withMessage('El código curso no debe ser vacío'),

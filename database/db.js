@@ -42,7 +42,12 @@ const UsuarioRecuperaClaveModel = require('../models/UsuarioRecuperaClave')
 const CuestionarioSugerenciaModel = require('../models/CuestionarioSugerencia')
 const CuestionarioRespuestaModel = require('../models/CuestionarioRespuesta')
 const TokenRefreshModel = require('../models/TokenRefresh')
-
+const UnidadMineducModel = require('../models/UnidadMineduc')
+const UnidadMineducUnidadCachaiModel = require('../models/UnidadMineducUnidadCachai')
+const UnidadMineducObjetivoModel = require('../models/UnidadMineducObjetivo')
+const UnidadMineducHabilidadModel = require('../models/UnidadMineducHabilidad')
+const UnidadMineducConocimientoPrevioModel = require('../models/UnidadMineducConocimientoPrevio')
+const UnidadMineducConocimientoPrevioUnidadCachaiModel = require('../models/UnidadMineducConocimientoPrevioUnidadCachai')
 
 //conexión a la bd
 const sequelize = new Sequelize(config)
@@ -89,7 +94,15 @@ const RespuestaSolucion = RespuestaSolucionModel(sequelize, Sequelize, Respuesta
 const UsuarioRecuperaClave = UsuarioRecuperaClaveModel(sequelize, Sequelize, Usuario)
 const CuestionarioSugerencia = CuestionarioSugerenciaModel(sequelize, Sequelize)
 const CuestionarioRespuesta = CuestionarioRespuestaModel(sequelize, Sequelize)
-const TokenRefresh = TokenRefreshModel(sequelize, Sequelize, Usuario);
+const TokenRefresh = TokenRefreshModel(sequelize, Sequelize, Usuario)
+
+const UnidadMineduc = UnidadMineducModel(sequelize, Sequelize, NivelAcademico)
+const UnidadMineducUnidadCachai = UnidadMineducUnidadCachaiModel(sequelize, Sequelize, UnidadMineduc, Unidad, Modulo, ModuloContenido, ModuloContenidoTema, ModuloContenidoTemaConcepto)
+const UnidadMineducObjetivo = UnidadMineducObjetivoModel(sequelize, Sequelize, UnidadMineduc)
+const UnidadMineducHabilidad = UnidadMineducHabilidadModel(sequelize, Sequelize, UnidadMineduc)
+const UnidadMineducConocimientoPrevio = UnidadMineducConocimientoPrevioModel(sequelize, Sequelize, UnidadMineduc)
+const UnidadMineducConocimientoPrevioUnidadCachai = UnidadMineducConocimientoPrevioUnidadCachaiModel(sequelize, Sequelize, Modulo, ModuloContenido, ModuloContenidoTema, ModuloContenidoTemaConcepto,
+    Unidad, UnidadMineduc)
 
 
 //RELACIONES
@@ -199,4 +212,10 @@ module.exports = {
     CuestionarioSugerencia,
     CuestionarioRespuesta,
     TokenRefresh,
+    UnidadMineduc,
+    UnidadMineducUnidadCachai,
+    UnidadMineducObjetivo,
+    UnidadMineducHabilidad,
+    UnidadMineducConocimientoPrevio,
+    UnidadMineducConocimientoPrevioUnidadCachai,
 }

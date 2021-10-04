@@ -295,6 +295,21 @@ module.exports = {
         descripcion: 'FINALIZADO',
         createdAt: moment().format('YYYY-MM-DD HH:mm'),
         updatedAt: moment().format('YYYY-MM-DD HH:mm'),
+    },{
+        codigo: '4',
+        descripcion: 'PENDIENTE',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
+    },{
+        codigo: '5',
+        descripcion: 'EN PROCESO',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
+    },{
+        codigo: '6',
+        descripcion: 'TERMINADO',
+        createdAt: moment().format('YYYY-MM-DD HH:mm'),
+        updatedAt: moment().format('YYYY-MM-DD HH:mm'),
     }]
 
     await queryInterface.bulkInsert('estados', estados, {});

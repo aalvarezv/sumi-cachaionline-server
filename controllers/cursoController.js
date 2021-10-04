@@ -346,6 +346,47 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
 
 }
 
+exports.listarCursosNivelAcademicoInstitucion = async(req, res) => {
+    
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try{
+
+        const {codigo_nivel_academico, codigo_institucion} = req.query;
+    
+        const cursos_nivel_academico_institucion = await Curso.findAll({
+            attributes: ['codigo', 'letra'],
+            include:[{
+                attributes: ['descripcion'],
+                model: NivelAcademico
+            }],
+            where: {
+                codigo_institucion,
+                codigo_nivel_academico
+            },
+            order: [
+                ['letra', 'ASC'],
+            ]
+        });
+
+       
+        res.json({cursos_nivel_academico_institucion});
+       
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+    
+
+}
+
 //Obtiene los alumnos de un curso y consulta si están asociados a un ring.
 exports.listarUsuariosRingCurso = async(req, res) => {
     //si hay errores de la validación

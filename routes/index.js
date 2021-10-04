@@ -51,4 +51,7 @@ app.use('/api/cuestionario-respuestas/', require('./cuestionarioRespuestas'))
 app.use('/api/cuestionario-estadisticas/', require('./cuestionarioEstadisticas'))
 app.use('/api/multifiltros/', require('./multiFiltros'))
 
+app.use('/api/carga-masiva-usuarios/', require('./cargaMasivaUsuarios'))
+app.use('/api/carga-masiva-mineduc/', require('./cargaMasivaMineduc'))
+
 module.exports = app;
