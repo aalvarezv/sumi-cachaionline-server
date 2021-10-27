@@ -54,4 +54,9 @@ app.use('/api/multifiltros/', require('./multiFiltros'))
 app.use('/api/carga-masiva-usuarios/', require('./cargaMasivaUsuarios'))
 app.use('/api/carga-masiva-mineduc/', require('./cargaMasivaMineduc'))
 
+app.use('/api/mineduc-tablero-objetivo/', require('./mineducTableroObjetivo'))
+app.use('/api/mineduc-tablero-habilidad/', require('./mineducTableroHabilidad'))
+
+app.use('/api/unidad-mineduc/', require('./unidadesMineduc'))
+
 module.exports = app;

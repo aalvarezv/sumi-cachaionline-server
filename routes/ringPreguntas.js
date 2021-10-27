@@ -9,6 +9,7 @@ const {
     crearRingPreguntaMasivo, 
     eliminarRingPreguntaMasivo,
     listarRingPreguntas, 
+    listarPreguntasInscritasRing,
     countPreguntasRing,
     getPuntajesPreguntaRing,
     updatePuntajesPreguntaRing,
@@ -26,6 +27,11 @@ router.post('/crear/masivo', auth,[
 router.get('/listar/preguntas', auth, [
     query('codigo_ring').exists().withMessage('El código de ring es requerido')
 ], listarRingPreguntas);
+
+
+router.get('/listar/preguntas/ring', auth, [
+    query('codigo_ring').exists().withMessage('El código de ring es requerido')
+], listarPreguntasInscritasRing);
 
 router.delete('/eliminar/:codigo_ring/:codigo_pregunta', auth, eliminarRingPregunta);
 

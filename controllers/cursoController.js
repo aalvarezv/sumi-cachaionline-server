@@ -346,6 +346,37 @@ exports.listarCursosUsuarioNivelAcademicoInstitucion = async(req, res) => {
 
 }
 
+exports.cursoUsuarioInstitucion = async(req, res) => {
+
+    try{
+
+        const {rutUsuario, codigoInstitucion} = req.query
+
+        const cursoUsuarioInstitucion = await sequelize.query(`
+            SELECT cur.rut_usuario, cur.codigo_curso, c.letra
+            FROM cursos_usuarios_roles cur
+            LEFT JOIN cursos c
+            ON cur.codigo_curso = c.codigo
+            WHERE cur.rut_usuario = '${rutUsuario}' 
+            AND c.codigo_institucion = '${codigoInstitucion}'
+            `, 
+        { type: QueryTypes.SELECT })
+
+        res.json({
+            cursoUsuarioInstitucion
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+
+
+}
+
+
 exports.listarCursosNivelAcademicoInstitucion = async(req, res) => {
     
     //si hay errores de la validación

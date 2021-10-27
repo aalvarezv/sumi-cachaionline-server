@@ -48,6 +48,8 @@ const UnidadMineducObjetivoModel = require('../models/UnidadMineducObjetivo')
 const UnidadMineducHabilidadModel = require('../models/UnidadMineducHabilidad')
 const UnidadMineducConocimientoPrevioModel = require('../models/UnidadMineducConocimientoPrevio')
 const UnidadMineducConocimientoPrevioUnidadCachaiModel = require('../models/UnidadMineducConocimientoPrevioUnidadCachai')
+const MineducTableroHabilidadModel = require('../models/MineducTableroHabilidad')
+const MineducTableroObjetivoModel = require('../models/MineducTableroObjetivo')
 
 //conexión a la bd
 const sequelize = new Sequelize(config)
@@ -103,6 +105,8 @@ const UnidadMineducHabilidad = UnidadMineducHabilidadModel(sequelize, Sequelize,
 const UnidadMineducConocimientoPrevio = UnidadMineducConocimientoPrevioModel(sequelize, Sequelize, UnidadMineduc)
 const UnidadMineducConocimientoPrevioUnidadCachai = UnidadMineducConocimientoPrevioUnidadCachaiModel(sequelize, Sequelize, Modulo, ModuloContenido, ModuloContenidoTema, ModuloContenidoTemaConcepto,
     Unidad, UnidadMineduc)
+const MineducTableroHabilidad = MineducTableroHabilidadModel(sequelize, Sequelize, Usuario, Curso, UnidadMineduc, Estado)
+const MineducTableroObjetivo = MineducTableroObjetivoModel(sequelize, Sequelize, Usuario, Curso, UnidadMineduc, Estado)
 
 
 //RELACIONES
@@ -218,4 +222,6 @@ module.exports = {
     UnidadMineducHabilidad,
     UnidadMineducConocimientoPrevio,
     UnidadMineducConocimientoPrevioUnidadCachai,
+    MineducTableroHabilidad,
+    MineducTableroObjetivo
 }

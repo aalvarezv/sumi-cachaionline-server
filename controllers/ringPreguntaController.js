@@ -252,11 +252,59 @@ exports.listarRingPreguntas = async(req, res) => {
         res.status(500).send({
             msg: 'Hubo un error, por favor vuelva a intentar'
         });
-    }
-     
+    } 
 
 
 }
+
+exports.listarPreguntasInscritasRing = async(req, res) => {
+
+
+    //si hay errores de la validación
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array({ onlyFirstError: true }) });
+    }
+
+    try {
+
+        const { codigo_ring } = req.query;
+    
+        //verifica si existe la combinación ring vs pregunta.
+        let preguntas = await RingPregunta.findAll({
+            
+            attributes: ['codigo_pregunta'],
+            include:[{
+                attributes:[
+                    'rut_usuario_creador',
+                    'texto',
+                    [Sequelize.literal(`CASE WHEN pregunta.imagen <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.imagen)) ELSE pregunta.imagen END`),'imagen'],
+                    [Sequelize.literal(`CASE WHEN pregunta.audio <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.audio)) ELSE pregunta.audio END`),'audio'],
+                    [Sequelize.literal(`CASE WHEN pregunta.video <> "" THEN (SELECT CONCAT('${url_preguntas}',pregunta.codigo,"/",pregunta.video)) ELSE pregunta.video END`),'video'],
+                    'imagen_alto',
+                    'imagen_ancho',
+                    'duracion',
+                    'createdAt',
+                ],
+                model: Pregunta,
+                as: 'pregunta'
+            }],
+            where: {
+                codigo_ring
+            }
+        })
+
+        res.json({
+            preguntas
+        });
+
+    }catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: 'Hubo un error, por favor vuelva a intentar'
+        });
+    }
+} 
 
 exports.eliminarRingPregunta = async(req, res) => {
 
