@@ -203,6 +203,7 @@ const datosUsuarioAutenticado = async (req, res) => {
                         codigo_rol: rol.codigo_rol,
                         descripcion: rol["rol.descripcion"],
                         sys_admin: rol["rol.sys_admin"],
+                        ver_inicio_unidades_mineduc: rol["rol.ver_inicio_unidades_mineduc"],
                         ver_menu_administrar: rol["rol.ver_menu_administrar"],
                         ver_submenu_instituciones: rol["rol.ver_submenu_instituciones"],
                         ver_submenu_niveles_academicos: rol["rol.ver_submenu_niveles_academicos"],

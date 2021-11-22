@@ -6,7 +6,6 @@ const { UnidadMineduc,
 } = require('../database/db');
 const uuidv4 = require('uuid').v4;
 const { QueryTypes } = require('sequelize');
-const colors = require('colors');
 
 
 exports.crearTableroObjetivos = async(req, res) => {
@@ -86,7 +85,8 @@ exports.listarObjetivosUnidadMineduc = async(req, res) => {
         const {codigo_unidad_mineduc, rut_usuario, codigo_curso} = req.query;
  
         const unidadMineducTableroObjetivos = await sequelize.query(`
-            SELECT  mto.codigo, umo.numero_objetivo, umo.descripcion_objetivo, mto.codigo_estado, e.descripcion
+            SELECT  mto.codigo, umo.numero_objetivo, umo.descripcion_objetivo, mto.codigo_estado, e.descripcion,
+            mto.fecha_inicio, mto.fecha_termino
             FROM mineduc_tablero_objetivos mto
             INNER JOIN unidades_mineduc_objetivos umo
             ON mto.codigo_unidad_mineduc = umo.codigo_unidad_mineduc
@@ -96,6 +96,7 @@ exports.listarObjetivosUnidadMineduc = async(req, res) => {
             WHERE mto.codigo_unidad_mineduc = '${codigo_unidad_mineduc}'
             AND mto.rut_usuario = '${rut_usuario}'
             AND mto.codigo_curso = '${codigo_curso}'
+            ORDER BY umo.numero_objetivo ASC
         `, { type: QueryTypes.SELECT })
 
 
@@ -127,6 +128,47 @@ exports.cambiarEstadoObjetivosUnidadMineduc = async(req, res) => {
 
         res.json({
             msg: 'Estado actualizado'
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: "Hubo un error, por favor vuelva a intentar"
+        });
+    }
+
+}
+
+
+exports.actualizarFechasObjetivosUnidadMineduc = async(req, res) => {
+
+    try{
+
+        const { codigo_objetivo, fecha_inicio, fecha_termino } = req.body;
+      
+        if(fecha_inicio){
+            await MineducTableroObjetivo.update({
+                fecha_inicio: fecha_inicio
+            },{
+                where: {
+                    codigo: codigo_objetivo,
+                }
+            })
+        }
+
+        if(fecha_termino){
+            await MineducTableroObjetivo.update({
+                fecha_termino: fecha_termino
+            },{
+                where: {
+                    codigo: codigo_objetivo,
+                }
+            })
+        }
+       
+
+        res.json({
+            msg: 'Fechas actualizadas'
         })
 
     } catch (error) {

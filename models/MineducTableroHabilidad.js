@@ -41,7 +41,15 @@ module.exports = (sequelize, type, Usuario, Curso, UnidadMineduc, Estado) =>{
         model: Estado,
         key: 'codigo'
       }
-    }
+    },
+    fecha_inicio: {
+      type: type.DATEONLY,
+      allowNull:true,
+    },
+    fecha_termino: {
+      type: type.DATEONLY,
+      allowNull:true,
+    },
   },{
       //agrega atributos timestamp (updatedAt, createdAt).
       timestamps: true,

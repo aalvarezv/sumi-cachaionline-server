@@ -15,6 +15,11 @@ module.exports = (sequelize, type) =>{
             allownull: false,
             defaultValue: false,
         },
+        ver_inicio_unidades_mineduc:{
+            type: type.BOOLEAN,
+            allownull: false,
+            defaultValue: false,
+        },
         ver_menu_administrar:{
             type: type.BOOLEAN,
             allownull: false,

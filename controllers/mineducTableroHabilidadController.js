@@ -85,7 +85,8 @@ exports.listarHabilidadesUnidadMineduc = async(req, res) => {
         const {codigo_unidad_mineduc, rut_usuario, codigo_curso} = req.query;
 
         const unidadMineducTableroHabilidades = await sequelize.query(`
-            SELECT mth.codigo, umh.numero_habilidad, umh.descripcion_habilidad, mth.codigo_estado, e.descripcion
+            SELECT mth.codigo, umh.numero_habilidad, umh.descripcion_habilidad, mth.codigo_estado, e.descripcion,
+            mth.fecha_inicio, mth.fecha_termino
             FROM mineduc_tablero_habilidades mth
             INNER JOIN unidades_mineduc_habilidades umh
             ON mth.codigo_unidad_mineduc = umh.codigo_unidad_mineduc
@@ -95,6 +96,7 @@ exports.listarHabilidadesUnidadMineduc = async(req, res) => {
             WHERE mth.codigo_unidad_mineduc = '${codigo_unidad_mineduc}'
             AND mth.rut_usuario = '${rut_usuario}'
             AND mth.codigo_curso = '${codigo_curso}'
+            ORDER BY umh.numero_habilidad ASC
         `, { type: QueryTypes.SELECT })
 
         res.json({
@@ -135,3 +137,41 @@ exports.cambiarEstadoHabilidadUnidadMineduc = async(req, res) => {
 
 }
 
+
+exports.actualizarFechasHabilidadUnidadMineduc = async(req, res) => {
+
+    try{
+        const { codigo_habilidad, fecha_inicio, fecha_termino } = req.body;
+
+        if(fecha_inicio){
+            await MineducTableroHabilidad.update({
+                fecha_inicio: fecha_inicio
+            },{
+                where: {
+                    codigo: codigo_habilidad,
+                }
+            })
+        }
+
+        if(fecha_termino){
+            await MineducTableroHabilidad.update({
+                fecha_termino: fecha_termino
+            },{
+                where: {
+                    codigo: codigo_habilidad,
+                }
+            })
+        }
+
+        res.json({
+            msg: 'Fechas actualizadas'
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            msg: "Hubo un error, por favor vuelva a intentar"
+        });
+    }
+
+}

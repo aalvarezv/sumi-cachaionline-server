@@ -10,7 +10,7 @@ exports.crearRol = async(req, res) => {
     }
 
     try {
-        const { codigo, sys_admin, descripcion, ver_menu_administrar,
+        const { codigo, sys_admin, descripcion, ver_inicio_unidades_mineduc, ver_menu_administrar,
             ver_submenu_instituciones, ver_submenu_niveles_academicos,
             ver_submenu_roles, ver_submenu_usuarios, ver_submenu_cursos,
             ver_menu_asignaturas, ver_submenu_materias,
@@ -30,6 +30,7 @@ exports.crearRol = async(req, res) => {
             codigo,
             descripcion,
             sys_admin,
+            ver_inicio_unidades_mineduc,
             ver_menu_administrar,
             ver_submenu_instituciones,
             ver_submenu_niveles_academicos,
@@ -104,7 +105,7 @@ exports.actualizarRoles = async(req, res) => {
     }
 
     try {
-        const { codigo, descripcion, sys_admin, ver_menu_administrar,
+        const { codigo, descripcion, sys_admin, ver_inicio_unidades_mineduc, ver_menu_administrar,
             ver_submenu_instituciones, ver_submenu_niveles_academicos,
             ver_submenu_roles, ver_submenu_usuarios, ver_submenu_cursos,
             ver_menu_asignaturas, ver_submenu_materias,
@@ -123,6 +124,7 @@ exports.actualizarRoles = async(req, res) => {
         rol = await Rol.update({
             descripcion,
             sys_admin,
+            ver_inicio_unidades_mineduc,
             ver_menu_administrar,
             ver_submenu_instituciones,
             ver_submenu_niveles_academicos,
@@ -242,7 +244,7 @@ exports.busquedaRoles = async(req, res) => {
                     ['descripcion', 'ASC'],
                 ]
         });
-
+        
         //envia la información del rol
         res.json({
             roles

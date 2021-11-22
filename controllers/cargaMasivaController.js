@@ -803,6 +803,7 @@ exports.cargaPreguntas = async (req, res) => {
             let preguntaExiste = await Pregunta.findByPk(codigo_pregunta)
             if(preguntaExiste){
 
+                await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
                 await PreguntaAlternativa.destroy({ where: { codigo_pregunta } });
                 await PreguntaPista.destroy({ where: { codigo_pregunta } });
                 await PreguntaSolucion.destroy({ where: { codigo_pregunta } });
@@ -811,6 +812,7 @@ exports.cargaPreguntas = async (req, res) => {
                 await PreguntaModuloContenido.destroy({ where: { codigo_pregunta } });
                 await PreguntaModulo.destroy({ where: { codigo_pregunta } });
                 await Pregunta.destroy({ where: { codigo: codigo_pregunta } });
+                await sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
 
                 fs.rmdirSync(`${dir_pregunta}/${codigo_pregunta}`, {recursive: true});
 
